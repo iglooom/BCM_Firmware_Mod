@@ -1,0 +1,262 @@
+# AGENTS.md — Porting the ACC-FIX SWM cruise-button remap to another OEM BCM firmware
+
+Audience: an AI agent (or engineer) asked to reproduce the **ACC-FIX** modification on a **different
+OEM version** of this Ford BCM firmware (different part suffix, MY, or calibration) than the one it
+was developed on (`JV6T-14C094-AD`). This is a **method** guide: every address below is
+version-specific and **must be re-derived** on the target image — do not paste them in blind.
+
+Read first: `README.md` (esp. §2.1 integrity, §4 gateway model, §5.4 ACC-FIX), `docs/acc-fix.md`
+(exact current build), `docs/0c0_standby_read.md` and `docs/030_composition_trace.md` (evidence).
+
+---
+
+## 0. What ACC-FIX does (recap)
+
+The BCM composes TX HS-CAN **`0x030`** from LIN steering-wheel-module (SWM) buttons. A new SWM puts
+its cruise combo buttons on bits the **old PCM** ignores. ACC-FIX installs a small **code-cave
+trampoline** at the FlexCAN TX choke point that, **only for the mailbox carrying `0x030`**, rewrites
+the assembled payload:
+
+- `ACC_Res_Plus` (d1 bit6) → **CC_Res** (d5 bit5) if cruise/limiter is *cancelled/really-paused*,
+  else **CC_Set_Plus** (d5 bit7); clears d1 bit6.
+- `ACC_Lim` (d1 bit5) → **CC_Lim** 2-bit field d6[5:6] = `0b10` (pressed); clears d1 bit5.
+- Paused-ness is read from the **received `0x0C0` d0** (PCM status), gated on **bit6 (0x40)**.
+
+The remap is done at the mailbox because d1 and d5/d6 come from **different composition PDUs** and
+cannot be moved earlier. See §7 of this file if the target maps buttons differently.
+
+---
+
+## 1. Golden rules (do not skip)
+
+1. **Verify, don't assume.** Every address (hook site, cave, MB gate constant, 0x0C0 read address,
+   integrity fields) is version-specific. Re-derive each with evidence (decompiled code + xrefs),
+   cross-checked two independent ways where possible. The project history is full of costly wrong
+   assumptions (README §7); the biggest wins here came from *disproving* a guess with a capture.
+2. **Three integrity layers or the BCM bricks to safe mode.** After ANY app-block edit you MUST
+   repair, in order: (1) internal `sum8`, (2) per-block CRC-16, (3) file CRC-32. Missing the
+   *internal* one boots the BCM into a software-integrity fault (real-vehicle observed). README §2.1.
+3. **Assemble VLE only with Ghidra's assembler**, and **round-trip every instruction** (assemble →
+   write → re-disassemble → compare). `llvm-mc` has no VLE target; binutils VLE isn't installed. The
+   Ghidra assembler needs the **VLE context** fully specified (`contextreg = 0x20000000`) or it
+   errors "Incompatible context". See §4 + `work/acc-fix/build_caves.py`.
+4. **Deliver the app block byte-exact** (no re-alignment/re-padding) or `sum8` drifts.
+5. **Read-only Ghidra, single holder.** Open the project read-only for analysis; only the annotate
+   step opens writable. Always `project.close()` in `finally`. One process at a time.
+6. **The final proof is a candump on the car.** Static analysis cannot fully close the
+   frame→mailbox binding; confirm on the bus. Worst realistic failure is a no-op (gate never fires),
+   not a brick — provided integrity is repaired.
+
+---
+
+## 2. Environment
+
+```bash
+cd <repo>/BCM/Research && . .venv/bin/activate     # pyghidra venv
+# Ghidra 12.x at /opt/ghidra ; language PowerPC:BE:64:VLE-32addr
+python3 work/gw_dec.py 0xADDR [0xADDR ...]          # decompile by entry address
+python3 work/gw_mbfull.py                           # dump FlexCAN MB acceptance-filter ID lists
+```
+Merged flat image: `work/flash_merged.bin` (BE; app block at file/mem `0x10000`; SRAM `0x40000000`).
+Build the merged image for a new OEM set with the `vbf_extract`/`build_image` pipeline (README §2).
+
+---
+
+## 3. Port procedure (step by step)
+
+### Step A — Rebuild the base image & Ghidra project for the target OEM
+Extract the target's VBFs, verify CRCs, assemble `flash_merged.bin`, load in Ghidra with the VLE
+context set on the code region, auto-analyze. (README §2–3. If reusing this repo's project, replace
+the program or make a new project — don't mix versions.)
+
+### Step B — Confirm the `0x030` TX path and the two packers
+`0x030` is normally the **first HS-CAN (CAN0) TX** entry. Confirm with `work/gw_mbfull.py` (look for
+id `0x030`, dir=TX on CAN_0 `0xFFFC0000`). Identify the **mailbox index** it uses and the **generic
+TX packer** function(s). In `-AD` these are `FUN_000fc218` (single-frame) and `FUN_000fc2f6`
+(periodic walker), reached from the TX dispatcher. Method to find them on any version:
+- Find the FlexCAN transmit-arm store: the instruction that writes the MB **CS/CODE** word
+  (`code=0xC` "data" with length) to arm transmit — an `e_sth`/`se_sth rX,0x0(rMB)` where `rMB`
+  holds the mailbox **CS address**. Decompile candidate packers (`gw_dec.py`) and look for the
+  loop that copies the frame image into `base+0x80+idx*0x10+0x8..` then stores the CS word.
+- There may be **two** packers (single + walker). Hook **both**; either can emit `0x030`.
+
+### Step C — Determine the MB-CS gate constant for `0x030`
+The gate compares the packer's live MB-CS pointer against the absolute CS address of the `0x030`
+mailbox: `CAN0_base + 0x80 + idx*0x10`. For CAN0 `0xFFFC0000`, MB0 → `0xFFFC0080`. **Recompute for
+the target's actual `0x030` MB index.** Data bytes are at `CS+0x8` (d0) … so d1=`CS+0x9`,
+d5=`CS+0xD`, d6=`CS+0xE`. (In the cave we load `CS+0x9` into a base reg and use d5=`0x4(base)`,
+d6=`0x5(base)`.)
+
+### Step D — Find the `0x0C0` status read address (paused discriminator)
+The BCM **receives** `0x0C0` on HS-CAN. Find the **decoded RAM frame-image** byte for `0x0C0` d0 and
+read that (safe plain RAM), NOT the raw mailbox. Method (see `docs/0c0_standby_read.md`):
+1. In the CAN0 acceptance-filter list, find `0x0C0` (dir=RX) and its **filter-list position** =
+   hardware MB index (verify via the bring-up loop that programs `MB[i].ID = list[i]`).
+2. In the reception-descriptor table, find the 32-byte record whose MB-index field matches; its
+   frame-image pointer (+0x18) + the per-byte copy mask (+0x1a covers d0) give the RAM address.
+3. Confirm the RX copier (`FUN_000fc63e`-equiv) does a **verbatim** byte copy (no repack), so the
+   RAM byte preserves the wire layout (bit3=StandBy, bits4-6=mode/status).
+Cross-check the two routes (MB index vs reception descriptor) agree on which physical frame is
+`0x0C0`. In `-AD`: MB30, RAM d0 `0x40000707`.
+
+### Step E — Confirm the `0x030` bit map and the RES+ Resume-vs-Set+ condition on the target
+Do NOT trust the `-AD` bit numbers blindly. Confirm the `0x030` button bits against the composition
+handlers, `PCM/PCM_Research/SWM_CRUISE_BUTTONS.md`, and a HS-CAN signal database + bus captures.
+
+For the RES+ gate, **capture on the car and correlate CAN values with what the car is actually
+doing** — this took FOUR on-vehicle rounds because `0x0C0` d0 is treacherous:
+- `0x0C0` d0 status codes on `-AD`: cruise `0x18` engaged-not-set / `0x10` active / `0x40` cancel;
+  limiter `0x38` engaged-not-set / `0x30` active / `0x48` cancel.
+- **The status byte DECAYS**: ~2 s after a cancel, cruise `0x40`→`0x18` and limiter `0x48`→`0x38`,
+  i.e. cancelled becomes byte-identical to *engaged-but-no-speed-set-yet*. No single-byte test on d0
+  can separate "cancelled (want Resume)" from "just engaged, no speed (want Set+)".
+- **Resolve with a second frame:** `0x060` d6 = the stored **set-speed** (0 until a speed is set).
+  Final rule = **`(d0 & 0x48) != 0` AND `(0x060 d6 != 0)`** → Resume, else Set+.
+- Failed earlier gates (record these so nobody repeats them): bit3-alone (fires on limiter `0x38`
+  no-speed standby); `(d0&0x28)==0x08` (from misreading cruise-started/active as paused); bit6-alone
+  (broke after the status byte decayed). Captures: `candump-2026-09-09_175536.log`, `..._191816.log`.
+- The exact status codes and which byte holds set-speed **may differ by MY** — re-derive both from
+  a fresh capture covering every state *and* the ~2 s post-cancel decay.
+
+### Step D2 — Find the set-speed read address (`0x060` d6) the same way as `0x0C0`
+`0x060` is RX on CAN0. Repeat Step D: filter-list position = MB index (on `-AD`, MB22), then the
+reception descriptor's frame-image base + copymask. ⚠ The RX copier **compacts** (dest pointer
+advances only for set copymask bits), so a byte's image offset is the count of set mask bits *below*
+it, NOT the CAN byte index. On `-AD`: base `0x40000700`, mask `0xFE` → d6 has 5 set bits {1..5}
+below it → `0x40000700 + 5` = `0x40000705`. Verify the copymask covers your target byte and compute
+its compacted offset from the copier loop (`docs/0c0_standby_read.md` shows the method).
+
+### Step F — Pick two code caves in the app block's `0xFF` padding
+Find contiguous `0xFF` padding **inside** the app block (so it's covered by `sum8`) large enough for
+each cave (~280 bytes with the edge-latch). In `-AD`: `0x117100` and `0x117300`. Ensure they don't
+overlap and that a 32-bit `e_b` reaches from hook site to cave (VLE `e_b` is ±16 MB — always fine
+in-block).
+
+### Step F2 — Edge-latch + a persistent scratch RAM byte (REQUIRED — buttons are held)
+A physical press is **held for a few hundred ms** and `0x030` is retransmitted every ~10 ms while
+held. Because Resume flips the PCM `paused→active` *during* the press, a stateless per-frame gate
+emits Resume then Set+ (bumping the set-speed). You MUST **latch the Res/Plus decision at the rising
+edge** and hold it until the button releases, using one persistent RAM byte `L` (0=idle,1=Res,2=Plus):
+`if (held){ if(L==0) L=decide(); apply(L); } else L=0;`. Both caves share the same `L`.
+
+Finding a safe `L` is delicate — it must be RAM **no firmware code ever touches**. Do NOT reuse
+stock SWM button-state bytes: the LIN handlers rewrite them every frame and will fight the latch.
+Method (see `docs/scratch_ram.md`): from the startup code (reset `0x10F4A0`) find (a) the ECC/zero-
+init range (so the byte powers up 0), (b) the stack pointer init + growth direction, (c) the SDA
+base (r13/r2) and its ±32 KiB reach, (d) `.data`/`.bss` extents. Pick an address that is inside the
+zero-init range, above the stack top, outside SDA reach, and has **zero references** in a full flash
+scan (both Ghidra-resolved refs and a raw 4-byte-aligned pointer scan). On `-AD`: `L = 0x40011000`
+(inside ECC-init `[0x400039A0..0x40014000]`, above SP=`0x4000CAC8`, below SDA `0x40017920`, zero
+refs; ~5 KB of clean run there). Note r0 cannot be a load/store base register in PPC — keep the
+address in another reg (r4) and the value in r0.
+
+### Step G — Write, assemble, and round-trip the trampolines
+Use `work/acc-fix/build_caves.py` as the template. It builds each cave symbolically with labels,
+does a two-pass size/branch resolution, assembles every line via Ghidra with `contextreg=0x20000000`,
+writes the bytes into a scratch program, and **re-disassembles to prove** each instruction. Update:
+- gate constant (Step C), MB base reg per packer, data-byte offsets,
+- the `0x0C0` read address (Step D), the gate bit (Step E),
+- hook sites and the **displaced original instruction(s)** to replay (must be replayed *after* the
+  bit edits and *before* returning, because the displaced store is what arms the mailbox),
+- return addresses (hook site + size of displaced bytes).
+Watch instruction lengths: VLE mixes 16-bit (`se_*`) and 32-bit (`e_*`) forms. A 4-byte `e_b` hook
+may need to displace **two** 16-bit instructions (as in the walker) — replay both.
+
+### Step H — Patch the VBF and repair all three integrity layers
+Use `work/acc-fix/build_vbf.py` as the template. It asserts the **expected original bytes** at each
+edit site (guards against wrong offsets/version drift), applies the blobs, then repairs sum8 →
+CRC-16 → CRC-32. Update the `EDITS` expected-byte guards and any changed addresses. Output only the
+APP VBF unless your target needs an F10A edit too (this hook doesn't).
+
+### Step I — Verify everything
+Use `work/acc-fix/verify.py`: re-parse the VBF (all block CRC-16, file CRC-32), recompute sum8,
+re-disassemble both caves **from the rebuilt image**, run the behavior simulation across all `0x0C0`
+states, and diff vs OEM (expect only the small expected clusters: 2 hooks, 2 caves, file_checksum
+text, sum8+CRC16 word). All must pass before flashing.
+
+### Step J — Annotate the Ghidra project
+Run `work/acc-fix/annotate_ghidra.py` (opens writable, labels caves/read-addr, plate+EOL comments,
+`Note`/`ACC-FIX` bookmarks, saves). Adjust addresses for the target.
+
+### Step K — Flash & confirm on the car
+Flash the APP VBF. Confirm BCM boots (no safe mode) and candump `0x030` while pressing RES+ and LIM
+in each cruise state. Success criteria in `docs/acc-fix.md` §8.
+
+---
+
+## 4. VLE assembly cheat-sheet (hard-won)
+
+- Assembler: `ghidra.app.plugin.assembler.Assemblers.getAssembler(program.getLanguage())`.
+- Context: `AssemblyPatternBlock.fromBytes(0, JByteArray([0x20,0,0,0]))` passed to `assembleLine`;
+  the VLE context bit is `0x20000000`. Without it → "Incompatible context".
+- When writing bytes then disassembling: set the context register on the range first
+  (`programContext.setRegisterValue(start,end, RegisterValue(ctxBaseReg, 0x20000000, 0xFFFFFFFF))`)
+  and `clearCodeUnits` before `DisassembleCommand`.
+- Comment-constant types are on `ghidra.program.model.listing.CodeUnit` (`PLATE_COMMENT`,
+  `EOL_COMMENT`), not on the listing object.
+- To open a program writable via `GhidraProject`: `openProgram("/","<name>",False)` (3rd arg is
+  `readOnly`), edit in a transaction, then `project.save(program)`.
+- Useful mnemonics used here: `e_stwu/e_stw/e_lwz` (frame), `e_lis`+`e_or2i`/`e_add16i` (build const),
+  `cmplw rX,rY` (32-bit unsigned compare — valid in VLE, cleaner than `se_cmp` which only takes
+  low regs), `e_bne/e_beq cr0,target`, `e_lbz/e_stb` (byte load/store), `e_andi./e_and2i./e_or2i`,
+  `e_b target`. `se_*` are the 2-byte forms.
+
+---
+
+## 5. Integrity repair (exact)
+
+```
+sum8   @0x13FFFE (low16, high half at 0x13FFFC stays 0xFFFF)
+       = sum(bytes 0x10000 .. 0x13FFFE, exclusive) & 0xFFFF   # covers RCHW block + app, not the word itself
+CRC16  per VBF block, CCITT-FALSE (poly 0x1021, init 0xFFFF, no reflect), 2 bytes after [start][len][data]
+CRC32  header 'file_checksum = 0x..;', zlib.crc32 over from first block's start-addr field to EOF
+```
+Order: data → sum8 → CRC16(all blocks) → CRC32. Confirm the target's internal-checksum location the
+same way it was found originally: **diff two OEM versions of the same part** and find the `(algo,
+range)` whose result equals the stored value in *both* (README §2.1). Don't assume `0x13FFFE` — a
+different MY could move it (though it's stable across `-AB`/`-AD`).
+
+---
+
+## 6. File / script map (`work/acc-fix/`)
+
+| File | Purpose |
+|---|---|
+| `build_caves.py` | assemble both caves + hook branches (Ghidra VLE, round-trip verified) → `patch_blobs.json` |
+| `patch_blobs.json` | cave/hook byte blobs + cave addresses (produced by build_caves) |
+| `build_vbf.py` | patch APP VBF (with expected-byte guards) + repair all 3 integrity layers |
+| `verify.py` | re-parse CRCs + sum8 + re-disasm caves from rebuilt image + behavior sim + diff-vs-OEM |
+| `annotate_ghidra.py` | apply labels / plate+EOL comments / bookmarks to the Ghidra DB and save |
+| `JV6T-14C094-AD_acc-fix.VBF` | the built artifact (this OEM version) |
+
+Supporting evidence docs: `docs/acc-fix.md`, `docs/0c0_standby_read.md`, `docs/030_composition_trace.md`.
+Reusable RE helpers in `work/`: `gw_dec.py` (decompile), `gw_mbfull.py` (MB filter lists),
+`gw_rxdesc.py` (reception descriptors), `find_algo.py`/`check_internal.py` (integrity hunt),
+`vbf_crc_validate.py` (CRC check), `cmp_ab_ad.py` (OEM version diff).
+
+---
+
+## 7. If the target differs structurally
+
+- **Different `0x030` bit assignments:** redo Step E; change only the masks/target bytes in the cave.
+- **Only one TX packer:** hook just it; drop the second cave.
+- **Displaced instruction is 16-bit and a 4-byte `e_b` clobbers the next one:** displace and replay
+  **both** halves (as the walker does), returning past both.
+- **`0x0C0` not received / different status frame:** find whichever frame the PCM uses to advertise
+  cruise/limiter cancel state; repeat Step D/E for it. If no such frame exists, the RES+ gate can't
+  be data-driven — fall back to unconditional Set+ (the earlier `out_inject`/`out_reslim` behavior).
+- **No in-block `0xFF` padding big enough:** find a smaller pair of caves, or split the logic; never
+  place a cave outside the `sum8`-covered region (it wouldn't be checksummed and, worse, may not be
+  flashed as part of the app block).
+
+---
+
+## 8. Definition of done
+
+- [ ] All block CRC-16 OK, file CRC-32 OK, internal sum8 OK (verify.py).
+- [ ] Both caves re-disassemble from the rebuilt image exactly as intended; both hooks branch to caves.
+- [ ] Diff vs OEM shows only the expected clusters (2 hooks + 2 caves + checksum bytes).
+- [ ] Behavior sim correct across all `0x0C0` states.
+- [ ] Ghidra project annotated (labels/comments/bookmarks) and saved.
+- [ ] BCM boots on the car (no safe mode) and candump confirms the remap in every state.
+- [ ] README §5.4 / `docs/acc-fix.md` updated with the target version's addresses + artifact hash.

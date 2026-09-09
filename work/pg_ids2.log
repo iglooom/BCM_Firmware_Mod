@@ -1,0 +1,135 @@
+WARNING: Final field name in class ghidra.util.charset.CharsetInfo has been mutated reflectively by class com.google.gson.internal.bind.ReflectiveTypeAdapterFactory$2 in unnamed module @28b46423 (file:/opt/ghidra/Ghidra/Framework/Generic/lib/gson-2.13.2.jar)
+WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
+WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
+FUNCTION COUNT: 2229
+instructions scanned: 129563
+
+--- 0x0C0<<18 (HS RX std) (0x3000000): 0 code hits ---
+
+--- 0x060<<18 (HS RX std) (0x1800000): 0 code hits ---
+
+--- 0x020<<18 (MS TX std) (0x800000): 2 code hits ---
+   0003eb96  FUN_0003e8f2@0003e8f2                   e_andi. r0,r5,0x800000
+   0003ece8  FUN_0003ebde@0003ebde                   e_andi. r6,r3,0x800000
+
+--- 0x0C0 raw (0xC0): 24 code hits ---
+   00025388  (none)                                  e_li r3,0xc0
+   000253a4  (none)                                  e_li r3,0xc0
+   00036eda  FUN_00036eda@00036eda                   e_or2i r3,0xc0
+   000851a4  FUN_00085190@00085190                   e_or2is r0,0xc0
+   00089c90  FUN_00089b7c@00089b7c                   e_or2is r0,0xc0
+   0008ecaa  FUN_0008e97e@0008e97e                   e_or2is r0,0xc0
+   00097bee  FUN_00097a64@00097a64                   e_addi r3,r30,0xc0
+   000aacf0  FUN_000aac98@000aac98                   e_addi r3,r27,0xc0
+   000c6210  FUN_000c61f8@000c61f8                   e_addi r7,r6,0xc0
+   000c88d0  FUN_000c88a8@000c88a8                   e_addi r7,r6,0xc0
+   000c9e66  FUN_000c9e3c@000c9e3c                   e_addi r6,r5,0xc0
+   000ca9f0  FUN_000ca9c6@000ca9c6                   e_addi r6,r4,0xc0
+   000cdc4c  FUN_000cdc2e@000cdc2e                   e_lbz r3,0xc0(r7)
+   000d7d0c  (none)                                  e_cmpi cr0,r0,0xc0
+   000dadc4  (none)                                  e_lbz r0,0xc0(r7)
+   000e3c6a  FUN_000e3834@000e3834                   e_andi r0,r0,0xc0
+   000e7586  FUN_000e755e@000e755e                   e_addi r7,r0,0xc0
+   000e75cc  FUN_000e755e@000e755e                   e_addi r7,r0,0xc0
+   0010048c  FUN_00100452@00100452                   e_andi. r7,r6,0xc0
+   00109c62  FUN_00109c58@00109c58                   e_andi r7,r7,0xc0
+   00109c78  FUN_00109c58@00109c58                   e_cmpli cr0,r7,0xc0
+   00109d00  FUN_00109c96@00109c96                   e_or2i r7,0xc0
+   00114040  FUN_00114024@00114024                   e_li r5,0xc0
+   00114094  FUN_00114024@00114024                   e_li r5,0xc0
+
+--- 0x060 raw (0x60): 54 code hits ---
+   0002e13a  FUN_0002e00e@0002e00e                   e_lwz r5,0x60(r7)
+   000322e4  FUN_000322a2@000322a2                   e_or2i r0,0x60
+   00037d5a  (none)                                  e_lhz r4,0x60(r7)
+   0003c8b0  FUN_0003c88c@0003c88c                   se_li r0,0x60
+   0003cf3a  FUN_0003ce9c@0003ce9c                   e_ori r0,r4,0x60
+   0003d05c  FUN_0003ce9c@0003ce9c                   e_or2i r0,0x60
+   0003e90a  FUN_0003e8f2@0003e8f2                   e_sth r0,0x60(r7)
+   0003ed3c  FUN_0003ebde@0003ebde                   e_addi r6,r5,0x60
+   0003fe60  FUN_0003fd3e@0003fd3e                   e_cmpi cr0,r25,0x60
+   00040aae  FUN_00040998@00040998                   e_addi r6,r0,0x60
+   00047fb2  FUN_00047f74@00047f74                   e_lbz r0,0x60(r31)
+   0004ee5c  FUN_0004ee40@0004ee40                   e_andi r12,r12,0x60
+   00084dca  FUN_00084da8@00084da8                   se_li r6,0x60
+   00084e96  FUN_00084da8@00084da8                   se_li r3,0x60
+   00084eca  FUN_00084da8@00084da8                   se_li r0,0x60
+   00084f16  FUN_00084da8@00084da8                   se_li r0,0x60
+   00084f38  FUN_00084da8@00084da8                   se_li r0,0x60
+   00085038  FUN_00084f72@00084f72                   se_li r3,0x60
+   00085072  FUN_00084f72@00084f72                   se_li r3,0x60
+   000850aa  FUN_00084f72@00084f72                   se_li r0,0x60
+   000850cc  FUN_00084f72@00084f72                   se_li r0,0x60
+   0008cc4e  FUN_0008ca76@0008ca76                   e_or2i r0,0x60
+   0008cd2c  FUN_0008ca76@0008ca76                   e_or2i r0,0x60
+   0008fd24  FUN_0008f8e8@0008f8e8                   e_stb r20,0x60(r1)
+   00093116  (none)                                  e_addi r7,r31,0x60
+   00093354  (none)                                  e_stb r0,0x60(r1)
+   000935d0  (none)                                  e_addi r7,r31,0x60
+   0009390c  (none)                                  e_addi r7,r31,0x60
+   00093a34  (none)                                  e_addi r7,r31,0x60
+   00093cec  (none)                                  e_addi r7,r31,0x60
+
+--- 0x020 raw (0x20): 554 code hits ---
+   00024f86  (none)                                  se_li r3,0x20
+   00024fae  (none)                                  se_li r3,0x20
+   00025054  (none)                                  se_li r3,0x20
+   0002507e  (none)                                  se_li r3,0x20
+   0002a200  (none)                                  e_and2i. r12,0x20
+   0002a214  (none)                                  e_and2i. r12,0x20
+   0002c4e0  (none)                                  e_or2i r12,0x20
+   0002e08a  FUN_0002e00e@0002e00e                   e_stw r8,0x20(r1)
+   0002e142  FUN_0002e00e@0002e00e                   e_stw r5,0x20(r8)
+   0002fece  FUN_0002feca@0002feca                   e_add16i r0,r0,0x20
+   0002ff1c  FUN_0002fee8@0002fee8                   e_add16i r0,r0,0x20
+   0002ff96  FUN_0002ff70@0002ff70                   e_addi r5,r0,0x20
+   000322c4  FUN_000322a2@000322a2                   se_lwz r6,0x20(r7)
+   000322ca  FUN_000322a2@000322a2                   se_stw r6,0x20(r7)
+   000322cc  FUN_000322a2@000322a2                   se_lwz r6,0x20(r7)
+   000322d2  FUN_000322a2@000322a2                   se_stw r6,0x20(r7)
+   000322d4  FUN_000322a2@000322a2                   se_lwz r6,0x20(r7)
+   000322da  FUN_000322a2@000322a2                   se_stw r6,0x20(r7)
+   00032322  FUN_000322a2@000322a2                   se_lwz r0,0x20(r7)
+   00032326  FUN_000322a2@000322a2                   se_stw r0,0x20(r7)
+   00032328  FUN_000322a2@000322a2                   se_lwz r0,0x20(r7)
+   0003232c  FUN_000322a2@000322a2                   se_stw r0,0x20(r7)
+   000340e0  FUN_000340a8@000340a8                   se_addi r1,0x20
+   00034128  FUN_000340a8@000340a8                   se_addi r1,0x20
+   00034166  FUN_000340a8@000340a8                   se_addi r1,0x20
+   00034180  FUN_000340a8@000340a8                   se_addi r1,0x20
+   00034196  FUN_000340a8@000340a8                   se_addi r1,0x20
+   00034b06  FUN_00034ada@00034ada                   e_add16i r7,r7,0x20
+   00034b94  FUN_00034b48@00034b48                   e_add16i r28,r28,0x20
+   00034c1c  FUN_00034b48@00034b48                   se_lwz r6,0x20(r28)
+
+--- 0x0C0>>3?  (0x18): 2153 code hits ---
+   00023a98  (none)                                  se_bseti r7,0x18
+   0002456e  (none)                                  e_rlwinm r0,r7,0x18,0x1e,0x1f
+   00024584  (none)                                  e_rlwinm r0,r7,0x18,0x1e,0x1f
+   000247ba  (none)                                  se_btsti r7,0x18
+   000247da  (none)                                  se_btsti r7,0x18
+   000251d0  FUN_00025184@00025184                   e_rlwimi r7,r0,0x7,0x18,0x18
+   000251d0  FUN_00025184@00025184                   e_rlwimi r7,r0,0x7,0x18,0x18
+   000252d8  (none)                                  e_rlwimi r6,r0,0x7,0x18,0x18
+   000252d8  (none)                                  e_rlwimi r6,r0,0x7,0x18,0x18
+   000252e2  (none)                                  se_bclri r6,0x18
+   000258ae  (none)                                  e_rlwimi r0,r3,0x7,0x18,0x18
+   000258ae  (none)                                  e_rlwimi r0,r3,0x7,0x18,0x18
+   000259e4  FUN_000259b8@000259b8                   se_lhz r0,0x18(r6)
+   00026282  FUN_00026238@00026238                   e_rlwimi r7,r0,0x7,0x18,0x18
+   00026282  FUN_00026238@00026238                   e_rlwimi r7,r0,0x7,0x18,0x18
+   00026344  (none)                                  e_rlwimi r7,r0,0x7,0x18,0x18
+   00026344  (none)                                  e_rlwimi r7,r0,0x7,0x18,0x18
+   0002638a  (none)                                  e_rlwimi r6,r0,0x7,0x18,0x18
+   0002638a  (none)                                  e_rlwimi r6,r0,0x7,0x18,0x18
+   00026394  (none)                                  se_bclri r6,0x18
+   000268f4  (none)                                  e_rlwimi r0,r3,0x7,0x18,0x18
+   000268f4  (none)                                  e_rlwimi r0,r3,0x7,0x18,0x18
+   0002711c  (none)                                  e_rlwimi r0,r3,0x7,0x18,0x18
+   0002711c  (none)                                  e_rlwimi r0,r3,0x7,0x18,0x18
+   00027ca6  (none)                                  se_bseti r7,0x18
+   0002829a  (none)                                  e_rlwimi r7,r0,0x7,0x18,0x18
+   0002829a  (none)                                  e_rlwimi r7,r0,0x7,0x18,0x18
+   00028cd4  (none)                                  se_btsti r7,0x18
+   00028cf4  (none)                                  se_btsti r7,0x18
+   00029196  (none)                                  se_btsti r7,0x18

@@ -1,0 +1,159 @@
+=== all 28-byte frame descriptors across F10A ===
+count: 157
+1400FC id=0x0C0 stat=400001A3 img=40000B8C h=40000B8C dlcw=40000B8C <<<TARGET
+1401B0  --- new block --- id=0x040 stat=400001A3 img=40000B8E h=40000B8E dlcw=40000B8E
+140480  --- new block --- id=0x0C0 stat=40000B95 img=40000B97 h=40000B97 dlcw=40000B97 <<<TARGET
+1404A8  --- new block --- id=0x0C0 stat=40000B98 img=40000B99 h=40000B99 dlcw=40000B99 <<<TARGET
+1404D0  --- new block --- id=0x0C0 stat=40000B9A img=40000B9B h=40000B9B dlcw=40000B9B <<<TARGET
+1404F8  --- new block --- id=0x0C0 stat=40000B9C img=40000B9D h=40000B9D dlcw=40000B9D <<<TARGET
+140520  --- new block --- id=0x0C0 stat=40000B9E img=40000B9F h=40000B9F dlcw=40000B9F <<<TARGET
+140548  --- new block --- id=0x0C0 stat=40000BA0 img=40000BA1 h=40000BA1 dlcw=40000BA1 <<<TARGET
+140570  --- new block --- id=0x0C0 stat=40000BA2 img=40000BA3 h=40000BA3 dlcw=40000BA3 <<<TARGET
+140840  --- new block --- id=0x7C0 stat=400001A2 img=40000BA6 h=40000BA6 dlcw=40000BA6
+1408B8  --- new block --- id=0x040 stat=400001A4 img=40000BA8 h=40000BA8 dlcw=40000BA8
+1408E0  --- new block --- id=0x040 stat=40000BA9 img=40000BAA h=40000BAA dlcw=40000BAA
+140908  --- new block --- id=0x3C0 stat=40000BAB img=40000BAC h=40000BAC dlcw=40000BAC
+140B10  --- new block --- id=0x040 stat=400001A3 img=40000BBF h=40000BBF dlcw=40000BBF
+140E08  --- new block --- id=0x040 stat=400001A2 img=40000BDA h=40000BDA dlcw=40000BDA
+14104C  --- new block --- id=0x040 stat=400001C0 img=40000785 h=40000784 dlcw=400001C0
+14113C  --- new block --- id=0x0C0 stat=400001C0 img=40000780 h=4000077B dlcw=400001C0 <<<TARGET
+14118C  --- new block --- id=0x0C0 stat=400001C0 img=40000756 h=40000751 dlcw=400001C0 <<<TARGET
+1411C8  --- new block --- id=0x1C0 stat=400001C0 img=40000754 h=40000751 dlcw=400001C0
+14122C  --- new block --- id=0x1C0 stat=400001C1 img=4000078F h=4000078D dlcw=400001C0
+141268  --- new block --- id=0x401 stat=400001C0 img=40000772 h=40000772 dlcw=400001C0
+141290  --- new block --- id=0x040 stat=40000BDD img=40000784 h=40000784 dlcw=400001C0
+141308  --- new block --- id=0x0C0 stat=400001C0 img=40000BDF h=40000BDF dlcw=40000BDF <<<TARGET
+141330  --- new block --- id=0x040 stat=400001C0 img=40000BE0 h=40000BE0 dlcw=40000BE0
+1413F8  --- new block --- id=0x040 stat=400001C0 img=40000BE1 h=40000BE1 dlcw=40000BE1
+14145C  --- new block --- id=0x3C0 stat=400001C0 img=40000772 h=40000772 dlcw=400001C0
+141484  --- new block --- id=0x0C0 stat=400001C0 img=40000767 h=40000760 dlcw=400001C0 <<<TARGET
+1414E8  --- new block --- id=0x3C0 stat=400001C0 img=4000075D h=4000075A dlcw=400001C1
+141524  --- new block --- id=0x3C0 stat=400001C1 img=4000075C h=4000075A dlcw=400001C1
+141664  --- new block --- id=0x1C0 stat=4000022C img=40000BE2 h=40000BE2 dlcw=40000BE2
+14186C  --- new block --- id=0x040 stat=4000022C img=40000BE4 h=40000BE4 dlcw=40000BE4
+1419D4  --- new block --- id=0x040 stat=4000022C img=40000BE5 h=40000BE5 dlcw=40000BE5
+141A74  --- new block --- id=0x3C0 stat=4000022C img=40000805 h=40000803 dlcw=4000024C
+141A9C  --- new block --- id=0x0C0 stat=4000024C img=40000BEE h=40000BEE dlcw=40000BEE <<<TARGET
+141AEC  --- new block --- id=0x040 stat=4000024C img=40000807 h=40000807 dlcw=4000024C
+141B28  --- new block --- id=0x401 stat=4000024C img=40000803 h=40000803 dlcw=4000024C
+141B50  --- new block --- id=0x3C0 stat=4000024C img=40000803 h=40000803 dlcw=4000024C
+141B8C  --- new block --- id=0x7C0 stat=4000024C img=40000808 h=40000807 dlcw=4000024C
+141BC8  --- new block --- id=0x7C0 stat=4000024C img=4000080A h=40000807 dlcw=4000024C
+141BF0  --- new block --- id=0x040 stat=4000024C img=40000BEF h=40000BEF dlcw=40000BEF
+141C18  --- new block --- id=0x7C0 stat=4000024C img=40000809 h=40000807 dlcw=4000024C
+141F10  --- new block --- id=0x040 stat=40000300 img=40000854 h=40000852 dlcw=40000300
+141F9C  --- new block --- id=0x040 stat=40000300 img=4000085E h=40000859 dlcw=40000300
+141FD8  --- new block --- id=0x401 stat=40000300 img=4000086A h=40000864 dlcw=40000300
+14203C  --- new block --- id=0x7C0 stat=40000300 img=40000857 h=40000856 dlcw=40000300
+142064  --- new block --- id=0x401 stat=40000300 img=40000864 h=40000864 dlcw=40000300
+1420A0  --- new block --- id=0x3C0 stat=40000300 img=40000866 h=40000864 dlcw=40000300
+1420C8  --- new block --- id=0x3C0 stat=40000300 img=40000868 h=40000864 dlcw=40000300
+1420F0  --- new block --- id=0x3C0 stat=40000300 img=40000852 h=40000852 dlcw=40000300
+1421CC  --- new block --- id=0x401 stat=40000300 img=4000085E h=40000859 dlcw=40000300
+142208  --- new block --- id=0x0C0 stat=40000300 img=40000862 h=40000861 dlcw=40000300 <<<TARGET
+142848  --- new block --- id=0x7C0 stat=40000448 img=400008E3 h=400008E3 dlcw=40000468
+142910  --- new block --- id=0x3C0 stat=40000468 img=400008E9 h=400008E6 dlcw=40000468
+14294C  --- new block --- id=0x401 stat=40000468 img=400008E9 h=400008E6 dlcw=40000468
+142988  --- new block --- id=0x401 stat=40000468 img=400008E8 h=400008E6 dlcw=40000468
+1429EC  --- new block --- id=0x040 stat=40000468 img=400008F7 h=400008F7 dlcw=40000468
+142A64  --- new block --- id=0x1C0 stat=40000468 img=400008E8 h=400008E6 dlcw=40000468
+142A8C  --- new block --- id=0x0C0 stat=400004FD img=40000C2F h=40000C2F dlcw=40000C2F <<<TARGET
+142AC8  --- new block --- id=0x040 stat=400004FD img=40000C32 h=40000C32 dlcw=40000C32
+142AF0  --- new block --- id=0x040 stat=40000C33 img=40000C34 h=40000C34 dlcw=40000C34
+142C1C  --- new block --- id=0x0C0 stat=400004FC img=40000C35 h=40000C35 dlcw=40000C35 <<<TARGET
+142C44  --- new block --- id=0x0C0 stat=40000C36 img=40000C37 h=40000C37 dlcw=40000C37 <<<TARGET
+142C6C  --- new block --- id=0x0C0 stat=40000C38 img=40000C39 h=40000C39 dlcw=40000C39 <<<TARGET
+142C94  --- new block --- id=0x0C0 stat=40000C3A img=40000C3B h=40000C3B dlcw=40000C3B <<<TARGET
+142CBC  --- new block --- id=0x0C0 stat=40000C3C img=40000C3E h=40000C3E dlcw=40000C3E <<<TARGET
+142CE4  --- new block --- id=0x0C0 stat=40000C3F img=40000C40 h=40000C40 dlcw=40000C40 <<<TARGET
+142D0C  --- new block --- id=0x0C0 stat=40000C41 img=40000C42 h=40000C42 dlcw=40000C42 <<<TARGET
+142E10  --- new block --- id=0x040 stat=400004FD img=40000C45 h=40000C45 dlcw=40000C45
+142E60  --- new block --- id=0x040 stat=400004FC img=40000C46 h=40000C46 dlcw=40000C46
+142F50  --- new block --- id=0x040 stat=400004FE img=40000C48 h=40000C48 dlcw=40000C48
+142FF0  --- new block --- id=0x040 stat=400004FE img=40000C4A h=40000C4A dlcw=40000C4A
+143018  --- new block --- id=0x040 stat=40000C4B img=40000C4C h=40000C4C dlcw=40000C4C
+143054  --- new block --- id=0x040 stat=400004FD img=40000C4D h=40000C4D dlcw=40000C4D
+14307C  --- new block --- id=0x040 stat=40000C4E img=40000C4F h=40000C4F dlcw=40000C4F
+1430A4  --- new block --- id=0x0C0 stat=40000C50 img=40000C51 h=40000C51 dlcw=40000C51 <<<TARGET
+1430CC  --- new block --- id=0x040 stat=40000C52 img=40000C53 h=40000C53 dlcw=40000C53
+143180  --- new block --- id=0x040 stat=40000C55 img=40000C57 h=40000C57 dlcw=40000C57
+143338  --- new block --- id=0x1C0 stat=400004FC img=40000C58 h=40000C58 dlcw=40000C58
+14339C  --- new block --- id=0x040 stat=400004FD img=40000C59 h=40000C59 dlcw=40000C59
+1434C8  --- new block --- id=0x0C0 stat=400004FD img=40000C5A h=40000C5A dlcw=40000C5A <<<TARGET
+1434F0  --- new block --- id=0x7C0 stat=40000C5B img=40000C60 h=40000C60 dlcw=40000C60
+143518  --- new block --- id=0x3C0 stat=400004FD img=40000C61 h=40000C61 dlcw=40000C61
+143748  --- new block --- id=0x040 stat=400004FD img=40000C6E h=40000C6E dlcw=40000C6E
+143770  --- new block --- id=0x0C0 stat=400004FD img=40000C6F h=40000C6F dlcw=40000C6F <<<TARGET
+1438D8  --- new block --- id=0x3C0 stat=40000520 img=400009CD h=400009CA dlcw=4000051E
+143A2C  --- new block --- id=0x040 stat=4000051D img=40000C81 h=40000C81 dlcw=40000C81
+143A90  --- new block --- id=0x1C0 stat=4000051C img=40000C82 h=40000C82 dlcw=40000C82
+143AB8  --- new block --- id=0x7C0 stat=4000051F img=40000A28 h=40000A21 dlcw=4000051F
+143BA8  --- new block --- id=0x0C0 stat=40000520 img=40000A09 h=40000A06 dlcw=4000051E <<<TARGET
+143BE4  --- new block --- id=0x0C0 stat=40000521 img=40000A42 h=40000A3C dlcw=4000051C <<<TARGET
+143DB0  --- new block --- id=0x040 stat=4000051D img=40000A2A h=40000A2A dlcw=4000051D
+143DD8  --- new block --- id=0x0C0 stat=40000521 img=40000A69 h=40000A69 dlcw=40000521 <<<TARGET
+143E14  --- new block --- id=0x1C0 stat=4000051C img=40000A77 h=40000A75 dlcw=4000051C
+143E8C  --- new block --- id=0x040 stat=4000051D img=40000C86 h=40000C86 dlcw=40000C86
+143EC8  --- new block --- id=0x401 stat=4000051E img=40000A91 h=40000A90 dlcw=4000051C
+143F68  --- new block --- id=0x040 stat=4000051C img=40000C87 h=40000C87 dlcw=40000C87
+143F90  --- new block --- id=0x040 stat=40000C88 img=40000C89 h=40000C89 dlcw=40000C89
+143FF4  --- new block --- id=0x040 stat=4000051C img=40000C8A h=40000C8A dlcw=40000C8A
+14406C  --- new block --- id=0x0C0 stat=4000051C img=40000A92 h=40000A90 dlcw=4000051C <<<TARGET
+144260  --- new block --- id=0x0C0 stat=4000051C img=400009FE h=400009FD dlcw=4000051C <<<TARGET
+14429C  --- new block --- id=0x040 stat=4000051E img=40000C8C h=40000C8C dlcw=40000C8C
+144314  --- new block --- id=0x040 stat=4000051F img=40000AB3 h=40000AB3 dlcw=4000051F
+144364  --- new block --- id=0x040 stat=4000051C img=40000C8D h=40000C8D dlcw=40000C8D
+1444B8  --- new block --- id=0x0C0 stat=4000051F img=40000C8E h=40000C8E dlcw=40000C8E <<<TARGET
+1444F4  --- new block --- id=0x7C0 stat=4000051D img=40000C94 h=40000C94 dlcw=40000C94
+14456C  --- new block --- id=0x040 stat=4000051E img=40000C95 h=40000C95 dlcw=40000C95
+1445A8  --- new block --- id=0x0C0 stat=4000051E img=40000C96 h=40000C96 dlcw=40000C96 <<<TARGET
+1445D0  --- new block --- id=0x0C0 stat=40000C97 img=40000A07 h=40000A06 dlcw=4000051E <<<TARGET
+144620  --- new block --- id=0x3C0 stat=4000051E img=40000B01 h=40000AFB dlcw=4000051E
+144698  --- new block --- id=0x3C0 stat=4000051E img=40000A61 h=40000A60 dlcw=4000051D
+1446C0  --- new block --- id=0x3C0 stat=4000051E img=40000B02 h=40000AFB dlcw=4000051E
+1446E8  --- new block --- id=0x0C0 stat=4000051D img=40000A60 h=40000A60 dlcw=4000051D <<<TARGET
+144710  --- new block --- id=0x1C0 stat=4000051D img=400009B8 h=400009B8 dlcw=4000051E
+144774  --- new block --- id=0x040 stat=4000051F img=40000CA0 h=40000CA0 dlcw=40000CA0
+14479C  --- new block --- id=0x0C0 stat=4000051E img=40000A87 h=40000A87 dlcw=4000051E <<<TARGET
+1447C4  --- new block --- id=0x0C0 stat=4000051E img=40000A8D h=40000A87 dlcw=4000051E <<<TARGET
+144878  --- new block --- id=0x0C0 stat=4000051C img=40000A91 h=40000A90 dlcw=4000051C <<<TARGET
+1448F0  --- new block --- id=0x040 stat=40000CA1 img=40000CA3 h=40000CA3 dlcw=40000CA3
+147640  --- new block --- id=0x001 stat=40000AD1 img=400001A3 h=4000051E dlcw=03048080
+147660  --- new block --- id=0x001 stat=40000A0A img=400001A3 h=4000051E dlcw=03100404
+147680  --- new block --- id=0x001 stat=4000077C img=400004FC h=400001C0 dlcw=01010020
+147760  --- new block --- id=0x001 stat=40000D1D img=400001A2 h=4000051F dlcw=03800404
+147800  --- new block --- id=0x001 stat=40000AB9 img=400001A1 h=4000051F dlcw=0F010008
+147820  --- new block --- id=0x001 stat=40000AB7 img=400001A1 h=4000051F dlcw=0F010008
+1479C0  --- new block --- id=0x001 stat=4000078D img=40000448 h=400001C0 dlcw=3F012008
+147A00  --- new block --- id=0x001 stat=40000769 img=40000448 h=400001C1 dlcw=7F018020
+147A60  --- new block --- id=0x001 stat=4000076C img=40000448 h=400001C1 dlcw=0F018002
+147A80  --- new block --- id=0x001 stat=400009C7 img=40000448 h=40000520 dlcw=0F014002
+147DC0  --- new block --- id=0x001 stat=40000D1B img=400001A3 h=4000051F dlcw=03010040
+1483A0  --- new block --- id=0x001 stat=40000CFD img=400001A2 h=400003B4 dlcw=1F400008
+1483C0  --- new block --- id=0x001 stat=40000A94 img=400001A2 h=4000051C dlcw=1F408008
+1486E0  --- new block --- id=0x001 stat=40000B58 img=400001A5 h=400005A8 dlcw=7F088002
+148940  --- new block --- id=0x001 stat=400007A1 img=400004FD h=400001C0 dlcw=03044004
+148980  --- new block --- id=0x001 stat=400007A5 img=400004FD h=400001C0 dlcw=03800104
+1489C0  --- new block --- id=0x001 stat=400007A3 img=400004FD h=400001C0 dlcw=03040204
+149500  --- new block --- id=0x001 stat=40000AC2 img=400001A2 h=4000051F dlcw=FF011004
+1499E0  --- new block --- id=0x001 stat=40000A0C img=400001A6 h=4000051E dlcw=7F808001
+149A00  --- new block --- id=0x001 stat=40000B3C img=400001A6 h=400005A8 dlcw=7F800401
+149C40  --- new block --- id=0x001 stat=40000D19 img=400001A2 h=4000051F dlcw=07100802
+14A0E0  --- new block --- id=0x001 stat=40000D25 img=400001A4 h=40000520 dlcw=01010002
+14A520  --- new block --- id=0x001 stat=400009EF img=400001A0 h=40000520 dlcw=03044002
+14A540  --- new block --- id=0x001 stat=400009F1 img=400001A0 h=40000520 dlcw=03042001
+14A5A0  --- new block --- id=0x001 stat=40000CF5 img=400001A0 h=400003B4 dlcw=FF800001
+14A5C0  --- new block --- id=0x001 stat=40000D21 img=400001A2 h=40000520 dlcw=0F010010
+14A5E0  --- new block --- id=0x001 stat=40000D23 img=400001A2 h=40000520 dlcw=FF010008
+14A680  --- new block --- id=0x001 stat=400009F3 img=400001A0 h=40000520 dlcw=0F101002
+14A6A0  --- new block --- id=0x001 stat=400009EA img=400001A5 h=40000521 dlcw=FF200180
+14A6C0  --- new block --- id=0x001 stat=40000B43 img=400001A5 h=400005A8 dlcw=FF200180
+14A6E0  --- new block --- id=0x001 stat=40000CF8 img=400001A0 h=400003B4 dlcw=FF400010
+14A700  --- new block --- id=0x001 stat=40000D05 img=400001A0 h=4000051C dlcw=FF404010
+14A720  --- new block --- id=0x001 stat=40000CF0 img=400001A2 h=40000300 dlcw=FF800080
+14A740  --- new block --- id=0x001 stat=40000CFB img=400001A2 h=400003B4 dlcw=FF800080
+14A760  --- new block --- id=0x001 stat=40000A15 img=400001A2 h=4000051C dlcw=FF800280
+14A780  --- new block --- id=0x001 stat=40000799 img=400004FD h=400001C1 dlcw=0F010020
+14A7C0  --- new block --- id=0x001 stat=40000A13 img=400001A3 h=4000051C dlcw=01010002
+14A9A0  --- new block --- id=0x001 stat=40000A5D img=400001A0 h=4000051D dlcw=7F800004
+14A9C0  --- new block --- id=0x001 stat=40000A5B img=400001A0 h=4000051D dlcw=7F800004
