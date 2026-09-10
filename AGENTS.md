@@ -8,6 +8,16 @@ version-specific and **must be re-derived** on the target image — do not paste
 Read first: `README.md` (esp. §2.1 integrity, §4 gateway model, §5.4 ACC-FIX), `docs/acc-fix.md`
 (exact current build), `docs/0c0_standby_read.md` and `docs/030_composition_trace.md` (evidence).
 
+> **Worked second example — same method, different bus/frame:** the shipped **`rke-lock`** mod
+> (`docs/rke-lock.md`, README §5.5) reuses this exact TX-mailbox-injection technique on **MS-CAN
+> (CAN1) `0x3A`** instead of HS-CAN `0x030`, layered into the **same two caves** as acc-fix (no new
+> hook) and delivered as one combined VBF. It demonstrates: re-deriving the MB-CS gate for a
+> different controller (`0xFFFC4090`), reading RX-image inputs + a raw TX-mailbox byte for a gate,
+> a second proven-unused scratch byte next to acc-fix's, and — the key on-vehicle lesson — that a
+> command bit can be a **one-shot strobe** not a level (capture the ECU's *own* native action to
+> learn the exact frame shape before injecting). See `docs/key_outside_gate.md` for the full
+> capture-driven v1→v2→v3 debug history.
+
 ---
 
 ## 0. What ACC-FIX does (recap)
@@ -101,7 +111,7 @@ Cross-check the two routes (MB index vs reception descriptor) agree on which phy
 
 ### Step E — Confirm the `0x030` bit map and the RES+ Resume-vs-Set+ condition on the target
 Do NOT trust the `-AD` bit numbers blindly. Confirm the `0x030` button bits against the composition
-handlers, `PCM/PCM_Research/SWM_CRUISE_BUTTONS.md`, and a HS-CAN signal database + bus captures.
+handlers, `PCM/PCM_Research/SWM_CRUISE_BUTTONS.md`, and decoded HS-CAN bus captures.
 
 For the RES+ gate, **capture on the car and correlate CAN values with what the car is actually
 doing** — this took FOUR on-vehicle rounds because `0x0C0` d0 is treacherous:

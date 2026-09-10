@@ -40,7 +40,7 @@ a frame-image byte/bit. No CAN ID / bit position is a code immediate — all dat
 
 ## 3. Cross-checked bit map (firmware ∧ PCM doc ∧ HS-CAN capture)  (b)
 
-TX HS-CAN `0x030` (transmitted by the BCM), verified against a HS-CAN signal database and bus captures:
+TX HS-CAN `0x030` (transmitted by the BCM), verified by decoding HS-CAN bus captures:
 | signal (role) | bit | byte.bit | = |
 |---|---|---|---|
 | LIM on/off/cancel press | 13 | d1.5 | **ACC_Lim** (LIM) |
@@ -87,5 +87,5 @@ Both have `frameObj=0x400002E0` (virtual source-PDU net2 that contributes into t
 2. **Edit spans two flash regions** (EXE image-ptr + F10A masks), i.e. **two VBF files**
    (`JV6T-14C094-AD.VBF` app + `JV6T-14C403-AB.VBF` F10A) → two checksum domains to repair.
 3. **image→MB0 binding is structurally consistent but not yet decompiler-proven** (the project's
-   known #1 open item). DBC + PCM doc + byte map triangulate it, but a live HS-CAN read of the
+   known #1 open item). Decoded captures + PCM doc + byte map triangulate it, but a live HS-CAN read of the
    edited frame is the only on-target proof.

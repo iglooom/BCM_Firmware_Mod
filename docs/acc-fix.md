@@ -20,8 +20,8 @@ the composed `0x030` payload so the old PCM sees the signals it expects.
 ## 2. Target bit map (HS-CAN `0x030`, bytes d0..d7)
 
 Confirmed against firmware composition code, the PCM-side doc
-(`/home/gl/Projects/ford/PCM/PCM_Research/SWM_CRUISE_BUTTONS.md` §3), a HS-CAN signal database, and
-bus captures.
+(`/home/gl/Projects/ford/PCM/PCM_Research/SWM_CRUISE_BUTTONS.md` §3), and
+decoded HS-CAN bus captures.
 
 | Button (as SWM composes it) | Source bit | Old-PCM target | Target bit(s) |
 |---|---|---|---|

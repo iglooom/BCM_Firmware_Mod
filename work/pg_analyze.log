@@ -1,6 +1,0 @@
-WARNING: Final field name in class ghidra.util.charset.CharsetInfo has been mutated reflectively by class com.google.gson.internal.bind.ReflectiveTypeAdapterFactory$2 in unnamed module @28b46423 (file:/opt/ghidra/Ghidra/Framework/Generic/lib/gson-2.13.2.jar)
-WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
-WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
-instr: 129563
-funcs: 2229
-saved

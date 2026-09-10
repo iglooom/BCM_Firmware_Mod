@@ -95,3 +95,13 @@ The largest fully-untouched holes (no reference, no defined data) are:
 - **Final confirmation** should be a bench/vehicle check: write a sentinel to
   `0x40011000` at hook install and read it back after several seconds of normal
   operation to confirm no other task clobbered it.
+
+## Allocation (as shipped)
+Within this band the shipped mods use consecutive bytes (all inside the 5 KB zero-ref run,
+none referenced by any firmware code):
+- `0x40011000` — **acc-fix** RES+/Set+ edge latch (`docs/acc-fix.md`).
+- `0x40011001` — **rke-lock** `L2`, RKE-lock press latch (fire once per press).
+- `0x40011002` — **rke-lock** `L3`, re-strobe suppression countdown (frames).
+
+On-vehicle behavior across all click-count iterations (v1..v5) confirmed these bytes hold their
+values undisturbed between frames — no other task writes them. See `docs/rke-lock.md` §4.

@@ -25,6 +25,10 @@ CAN frames/signals are routed/translated between buses.
 - ✅ **Shipped modification `acc-fix`** (on-vehicle proven): remaps the new SWM steering-wheel
   cruise buttons in TX HS-CAN `0x030` so the old PCM understands them. See **§5.4** and
   **`docs/acc-fix.md`** + **`AGENTS.md`** (porting guide for other OEM BCM versions).
+- ✅ **Shipped modification `rke-lock`** (on-vehicle proven): lets the remote key **lock the car with
+  the ignition ON** (stock BCM blocks it), gated on **key-outside**. TX-mailbox injection on MS-CAN
+  `0x3A` (lock-command byte), layered into the same caves as acc-fix → **one combined VBF**. See **§5.5** and
+  **`docs/rke-lock.md`**.
 - ❗ **Retracted mistakes** (do not repeat — see §7): "same-ID on both buses = forwarding" is FALSE;
   "spec1 = id<<18" is FALSE; "frameObj numeric range = bus" is FALSE.
 
@@ -267,9 +271,62 @@ Full method + porting guide for **other OEM BCM versions**: **`AGENTS.md`** and 
 
 ---
 
+### 5.5 RKE-LOCK — remote-key lock with ignition ON (a) — ON-VEHICLE PROVEN
+**Purpose:** the stock BCM ignores an RKE (remote key) lock press while the ignition is ON; this mod
+lets it lock, **only when the passive key is outside the cabin** (never lock the key in a running car).
+**Build artifact:** `work/rke-lock/JV6T-14C094-AD_accfix-rkelock.VBF` — the **combined** APP VBF
+carrying BOTH acc-fix and rke-lock (sha256 `ca4ccb170ec1dd6352e9ed7b0764bc4de5382310f42b3296b445db6b24892343`).
+
+**Gate + action** (all reads proven from captures; full detail in `docs/rke-lock.md`):
+| Input | Where | Test |
+|---|---|---|
+| RKE LOCK button | MS `0x100` RX image d7 `0x4000091F` | bit0 |
+| key outside | `0x100` d1 `0x40000919` | bit7 |
+| ignition = Run | `0x3A0` raw d0 `0xFFFC42C8` | hi-nibble == 4 |
+
+(_UB_ = `0x100` d6 bit2 was tried as a gate but **dropped** — the RFA asserts it only after validating
+the rolling code, lagging the first few presses; our own rising-edge latch handles per-press detection.)
+
+When all true on the **rising edge** of the lock press, inject one **execute strobe** onto the TX
+MS-CAN `0x3A` mailbox (CAN1 MB1, CS `0xFFFC4090`): `d3 (lock-command)=0x01` + `d1 |= 0x42`
+(bit6 execute strobe + bit1 UB). This reproduces the BCM's **own** native lock-with-ignition-on
+sequence (learned from the interior-lock-button capture: one `82 C3 00 01…` strobe, then steady
+native stream). `d1 bit6` is a **one-shot strobe**, not a level — asserting it every frame re-actuates
+the motor (the "rapid clicking" failure v1/v2 hit). After our strobe, a ~1 s window clears `d1 bit6`
+on outgoing lock frames to neutralise the BCM's **own follow-up re-strobe** (~0.45 s later, emitted
+because it learns of the external lock via DDM — this caused the v3 double-click; proven single-strobe
+on the physical-key-turn capture). A genuine unlock during the window passes through. See
+`docs/rke-lock.md` §4/§7. One press → one clean lock.
+
+**Implementation:** no new hook — the RKE block is appended to **both** acc-fix caves
+(`0x117100` single packer, `0x117400` periodic walker) after the acc-fix CAN0-MB0 gate, gated on
+`cmplw mbreg,0xFFFC4090`. The walker (`FUN_000fc2f6`) is the active path for `0x3A`. Two scratch bytes
+`L2 @0x40011001` (press latch, re-armed on button release) + `L3 @0x40011002` (time-based re-strobe
+suppress countdown) — kept independent so the BCM's native d3=02 stream can't re-trigger our strobe
+(the v4 5-click bug; see `docs/rke-lock.md` §7). Proven-unused SRAM adjacent to
+acc-fix's `0x40011000`. acc-fix logic is byte-preserved (only branch offsets shift). All three
+integrity layers repaired over the combined image.
+
+**Reproduce:**
+```bash
+cd /home/gl/Projects/ford/BCM/Research && . .venv/bin/activate
+python3 work/rke-lock/build_caves.py     # both caves (acc-fix + RKE) -> patch_blobs.json
+python3 work/rke-lock/build_vbf.py       # patch combined APP VBF + repair all 3 integrity layers
+python3 work/rke-lock/verify.py          # CRCs + sum8 + cave byte-exactness + diff-vs-OEM + one-shot sim
+```
+Full method: **`docs/rke-lock.md`**.
+
+---
+
 ## 6. Deliverable docs (in `docs/`)
 - **`acc-fix.md`** — the shipped SWM cruise-button remap (§5.4): exact bit map, RES+ context gate,
   verified cave disassembly, integrity, reproduce steps. Porting guide: **`../AGENTS.md`**.
+- **`rke-lock.md`** — the shipped RKE lock-with-ignition-on mod (§5.5): signals, one-shot strobe
+  mechanism, combined-VBF build, on-vehicle design history. Evidence notes below.
+- **`rke_0x100_lock.md`** — RKE button decode on MS `0x100` (lock/unlock bits, key-outside bit).
+- **`ign_powermode_0x80.md`** — ignition/power state (`0x80` d2 field, `0x3A0` ignition-status frame), from captures.
+- **`clockcmd_0x3a.md`** — central-lock command (`0x3A` d3) + full RKE→lock chain evidence, from captures.
+- **`key_outside_gate.md`** — key-outside gate derivation + complete v1→v2→v3 design/debug history.
 - **`0c0_standby_read.md`** — how the `0x0C0` cruise-status read address (`0x40000707`) was proven.
 - **`030_composition_trace.md`** — `0x030` composition + LIN→button chain (why injection was needed).
 - **`volcano_calibration_documentation.md`** — master reference: file layout, table architecture,
@@ -310,8 +367,8 @@ Full method + porting guide for **other OEM BCM versions**: **`AGENTS.md`** and 
    descriptor table at `0x15A920` (proven bitmask=high byte of spec2) and the codec bit-loops in
    `FUN_000fc63e` / `FUN_000fc218` as ground truth.
 5. **Optional extras:** frame periods/TX cycle times (0x90-stride records near 0x146060); signal
-   defaults/timeout values (F124@0xC000). End goal: a full **DBC / Volcano signal database** export
-   for both buses.
+   defaults/timeout values (F124@0xC000). End goal: a full **signal map** export
+   for both buses, reconstructed from the firmware's own embedded routing tables.
 
 ---
 
@@ -331,6 +388,12 @@ Data outputs: `aligned_records.txt`, `routing_records.txt`, `sig24.txt`, `sig_de
 `annotate_ghidra.py`, plus `patch_blobs.json` and the artifact `JV6T-14C094-AD_acc-fix.VBF`. Integrity
 helpers used by the build live in `work/`: `find_algo.py`, `check_internal.py`, `vbf_crc_validate.py`,
 `cmp_ab_ad.py`. See §5.4 / `docs/acc-fix.md` / `AGENTS.md`.
+
+**RKE-LOCK build (`work/rke-lock/`):** `build_caves.py` → `build_vbf.py` → `verify.py`, plus
+`patch_blobs.json` and the **combined** artifact `JV6T-14C094-AD_accfix-rkelock.VBF` (acc-fix +
+rke-lock in one VBF). RE helper scripts used while deriving the mod (all read-only, operate on
+`flash_merged.bin` / candump logs): `rke_field.py`, `rke_rxdesc.py`, `rke_coderefs.py`,
+`rke_bandrefs.py`, `rke_txwalk.py`, `rke_3a.py`, `rke_cavespace.py`. See §5.5 / `docs/rke-lock.md`.
 
 ---
 

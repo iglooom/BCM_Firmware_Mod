@@ -1,0 +1,2 @@
+# CAN bus captures / logs — excluded from the repo
+*.log

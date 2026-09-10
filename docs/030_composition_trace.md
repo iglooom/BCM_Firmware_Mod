@@ -63,7 +63,7 @@ hardcodes the buffer. (a)(b)
 **Byte-semantic proof that working `0x40001F80` byte0 = CAN d1** (c): the three button handlers
 write only byte0 (`._0_1_`) and byte2 (`._2_1_`) of `0x40001F80`, with these bit ops —
 
-| handler | bit op on byte0 | button (DBC) |
+| handler | bit op on byte0 | button (from captures) |
 |---------|-----------------|--------------|
 | `FUN_000ebae0` | `\| 0x08` (bit3) | (ACC Cruise / d1.3) |
 | `FUN_000ebf00` | `\| 0x40` (bit6) | **ACC_Res_Plus / d1.6** |

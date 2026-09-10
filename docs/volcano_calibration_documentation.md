@@ -250,8 +250,8 @@ independently consumed and independently produced); "spec1 = id<<18" (measured 2
 3. **Frame periods / TX cycle times** (the 0x90-stride timing records near 0x146060).
 4. **Signal defaults / timeout-substitution values** (F124 block @0xC000).
 
-Completing #1 + #2 would allow reconstructing a **full DBC / Volcano signal database** for both
-buses directly from the firmware.
+Completing #1 + #2 would allow reconstructing a **full signal map** for both
+buses directly from the firmware's own embedded routing tables.
 
 ---
 
