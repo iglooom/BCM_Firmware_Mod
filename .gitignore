@@ -1,2 +1,19 @@
 # CAN bus captures / logs — excluded from the repo
 *.log
+
+# Python/Ghidra generated files
+__pycache__/
+*.py[cod]
+work/sbl_bins/
+work/sbl_merged.bin
+
+# Rebuildable SBL payloads and owner-specific backup captures
+work/sbl-upload/probe_bins/
+work/sbl-upload/*_blob.json
+work/sbl-upload/*_dump-probe.VBF
+work/sbl-upload/*_backup-reader.VBF
+work/sbl-upload/backup_*.bin
+work/sbl-upload/backup_*.bin.json
+work/sbl-upload/backup_cflash_*/
+work/sbl-upload/backup_set_*/
+work/sbl-upload/owner-backup-*/

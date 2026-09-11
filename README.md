@@ -1,6 +1,6 @@
-# Ford BCM (C1MCA) Firmware Reverse-Engineering — Project README
+# Ford BCM (C1MCA) right-to-repair firmware project
 
-Onboarding + state-of-research document for any agent continuing this work. Read this first, then
+Onboarding and technical-status document for anyone continuing this work. Read this first, then
 the four docs in `docs/`. Everything here is backed by real extraction; claims are tagged
 **(a)** decompiled-code proof · **(b)** validated-table-structure proof · **(c)** inferred/unproven.
 
@@ -8,9 +8,10 @@ the four docs in `docs/`. Everything here is backed by real extraction; claims a
 
 ## 0. Goal & current status
 
-**Goal:** reverse-engineer the Ford BCM (Body Control Module) firmware from the C1MCA platform,
-focus on its role as a **CAN gateway** between HS-CAN (500k) and MS-CAN (125k), and determine how
-CAN frames/signals are routed/translated between buses.
+**Goal:** document, maintain, and repair the Ford BCM (Body Control Module) firmware from the aging
+C1MCA platform, for which manufacturer support and replacement firmware are no longer available.
+The technical work focuses on its role as a **CAN gateway** between HS-CAN (500k) and MS-CAN
+(125k), and on how CAN frames/signals are routed or translated between buses.
 
 **Original concrete task:** find the translation of RX HS-CAN `0x0C0` and `0x060` → TX MS-CAN `0x020`.
 
@@ -42,6 +43,20 @@ CAN frames/signals are routed/translated between buses.
 - **On-chip CAN:** three **FlexCAN** modules — CAN_0 `0xFFFC0000`, CAN_1 `0xFFFC4000`,
   CAN_2 `0xFFFC8000`. Standard 11-bit IDs stored in MB as `id << 18`.
 - Reference PDFs in repo root: `DS_spc560b64l7.pdf`, `spc560b64x-refmanual.pdf`, `DS_UJA1078A.pdf`.
+
+### Secondary bootloader / owner recovery and firmware preservation
+
+This part of the project is owner-directed right-to-repair work on an old, unsupported vehicle BCM.
+Its purpose is to make a verifiable backup of firmware from the owner's module so that the module
+can be studied, preserved, and recovered. It is not a vulnerability assessment, remote-access
+project, or investigation of third-party vehicles. All live work is performed on an owned bench
+module over its wired diagnostic connector.
+
+- [`docs/sbl-DV6T-14C097-AB.md`](docs/sbl-DV6T-14C097-AB.md) — static analysis and bench results for
+  the `DV6T-14C097-AB` RAM SBL: stock erase/program/verify support, but no general flash-backup service.
+- [`docs/sbl-upload-patch.md`](docs/sbl-upload-patch.md) — reproduced the normal SBL download/call
+  protocol, documented the missing stock backup service, and validated a temporary SRAM addressed-
+  frame reader. The complete CFlash, shadow-flash, and DFlash backup workflow is bench proven.
 - `BCM_CAN_Pins` — pinout notes (repo root).
 
 ### Buses (a)+(b)
