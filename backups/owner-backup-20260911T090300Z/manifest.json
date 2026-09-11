@@ -1,0 +1,57 @@
+{
+  "format": "SPC560B64L7 owner backup",
+  "module": "Ford BCM (C1MCA)",
+  "mcu": "SPC560B64L7 / MPC5607B, PowerPC e200z0h, big-endian VLE",
+  "captured_utc": "2026-09-11T09:03:00Z",
+  "method": {
+    "loader": "OEM SBL DV6T-14C097-AB with an appended seventh SRAM block at 0x40006000",
+    "reader": "work/sbl-upload/build_backup_reader.py (bounded, SRAM-resident, no flash-controller writes)",
+    "transport": "raw CAN0 id 0x5A5, records of [address:u32-be][data:u32], completion marker FFFFFFFF#444F4E45",
+    "host": "work/sbl-upload/run_chunked_backup.py, 0x18000-byte chunks",
+    "validation": "every chunk required full address coverage, a DONE marker, zero rejected records and zero conflicting duplicates"
+  },
+  "validated_captures_per_region": 2,
+  "byte_exact_repeat": true,
+  "regions": [
+    {
+      "file": "cflash.bin",
+      "description": "code flash (PBL, calibration, application, remaining physical CFlash)",
+      "start": "0x00000000",
+      "end_exclusive": "0x00180000",
+      "length": "0x00180000",
+      "length_bytes": 1572864,
+      "sha256": "d90b84abe6aada40c8e491f495d5ca3d88d6c3733e9d1cc8b4f35f32087cc76d"
+    },
+    {
+      "file": "shadow.bin",
+      "description": "flash shadow array",
+      "start": "0x00200000",
+      "end_exclusive": "0x00204000",
+      "length": "0x00004000",
+      "length_bytes": 16384,
+      "sha256": "2b4e703abd8e8b28857a3e519b7815876956c402af8467b1a1f4aef8a56b16ce"
+    },
+    {
+      "file": "dflash.bin",
+      "description": "data flash / EEPROM emulation",
+      "start": "0x00800000",
+      "end_exclusive": "0x00810000",
+      "length": "0x00010000",
+      "length_bytes": 65536,
+      "sha256": "5bfe2886d3f25873e9cb13d43b9f00c69eae6cfb5364763845926a9d2381ca25"
+    }
+  ],
+  "notes": [
+    "Region bounds follow RM0037 Rev 10 user CFlash/shadow/DFlash ranges.",
+    "TestFlash and reserved/OTP areas were deliberately not read.",
+    "Each file is a flat image; file offset 0 corresponds to the region start address.",
+    "The recovered calibration region is byte-identical to JV6T-14C095-AB.",
+    "The recovered application differs from OEM JV6T-14C094-AD in five bytes (four configuration bytes plus the internal checksum byte); the as-read module content is preserved here."
+  ],
+  "independent_verification": {
+    "calibration_vs_JV6T-14C095-AB": "block @0x00C000 len 0x4000 is byte-identical (0 differing bytes)",
+    "application_vs_JV6T-14C094-AD": "differs in 4 configuration bytes at 0x017CAD, 0x017CAE, 0x017CAF and 0x017CBB, plus the internal checksum byte at 0x13FFFF",
+    "internal_sum8": "stored word @0x13FFFE is 0x75A5 and equals the recomputed sum of bytes 0x10000..0x13FFFE; guard word @0x13FFFC is 0xFFFF",
+    "self_consistency": "the captured configuration bytes sum to +51 relative to OEM -AD and the stored checksum is likewise +51 (0x75A5 vs 0x7572), so the image satisfies the firmware's own integrity algorithm"
+  }
+}

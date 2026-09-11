@@ -57,6 +57,9 @@ module over its wired diagnostic connector.
 - [`docs/sbl-upload-patch.md`](docs/sbl-upload-patch.md) — reproduced the normal SBL download/call
   protocol, documented the missing stock backup service, and validated a temporary SRAM addressed-
   frame reader. The complete CFlash, shadow-flash, and DFlash backup workflow is bench proven.
+- [`backups/owner-backup-20260911T090300Z/`](backups/owner-backup-20260911T090300Z/) — the resulting
+  owner backup (CFlash, shadow flash, DFlash) with hashes and a manifest. Each region was captured
+  twice byte-identically and cross-checked against the OEM VBFs and the firmware's internal `sum8`.
 - `BCM_CAN_Pins` — pinout notes (repo root).
 
 ### Buses (a)+(b)

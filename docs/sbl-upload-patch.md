@@ -40,9 +40,10 @@ tooling). This routine uses a direct mailbox path rather than the SBL's UDS disp
 transmit callback. It validates the building blocks needed by a minimal owner-backup reader:
 **run a temporary SRAM routine, read the module's memory, and transmit addressed CAN records.**
 
-The remaining repair-tooling work is to run the new bounded reader first against a 256-byte known
-CFlash sector range, validate mailbox completion and watchdog servicing on hardware, then expand to
-the documented physical regions and compare repeat captures.
+That plan was carried out: the bounded reader was proven on a 256-byte CFlash range, mailbox
+completion and the OEM keepalive were validated on hardware, and every documented physical region
+was then captured twice with matching hashes (§10). The resulting owner backup is committed at
+`backups/owner-backup-20260911T090300Z/`.
 
 ---
 
@@ -371,6 +372,27 @@ This strategy completed all physical user nonvolatile ranges twice:
 
 All recaptures passed byte-exact reference comparison. Every chunk had `DONE`, complete address
 coverage, and zero rejected records or conflicting duplicates.
+
+The accepted artifact is committed at `backups/owner-backup-20260911T090300Z/` (`cflash.bin`,
+`shadow.bin`, `dflash.bin`, plus `manifest.json`, `SHA256SUMS` and `README.txt`).
+
+### Independent cross-checks against the OEM VBFs
+
+Repeatability alone only proves the transport is deterministic, so the capture was also validated
+against known-good OEM images and against the firmware's own integrity algorithm:
+
+| Check | Result |
+|---|---|
+| Calibration block `0x00C000` len `0x4000` vs `JV6T-14C095-AB` | **0 differing bytes** |
+| Application vs `JV6T-14C094-AD` | differs only at `0x017CAD`, `0x017CAE`, `0x017CAF`, `0x017CBB` (configuration) and `0x13FFFF` (checksum) |
+| Internal `sum8` @ `0x13FFFE` (README §2.1 algorithm) | stored `0x75A5` == recomputed `0x75A5` |
+| Guard half-word @ `0x13FFFC` | `0xFFFF` as expected |
+| Checksum delta vs configuration delta | both **+51** (`0x75A5` − `0x7572`) — internally consistent |
+
+The last row is the strongest evidence: the four differing configuration bytes sum to exactly the
+same delta carried by the stored checksum word. A corrupted or partially mis-ordered transfer could
+not produce that agreement, so the image is a coherent, self-validating copy of the live module —
+the byte differences are genuine module configuration, not capture error.
 
 ---
 
