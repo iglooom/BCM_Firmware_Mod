@@ -1,0 +1,63 @@
+Symbol,,C,Parameter,Conditions(1),,Value,,,Unit
+,,,,,,Min,Typ,Max,
+"I (2)
+DDMAX",CC,D,"RUN mode maximum average
+current",—,,—,115,140(3),mA
+"I (4)
+DDRUN",CC,T,"RUN mode typical average
+current(5)","f = 8 MHz
+CPU",,—,12,—,mA
+,,T,,"f = 16 MHz
+CPU",,—,27,—,
+,,T,,"f = 32 MHz
+CPU",,—,43,—,
+,,P,,"f = 48 MHz
+CPU",,—,56,100,
+,,P,,"f = 64 MHz
+CPU",,—,70,125,
+"I
+DDHALT",CC,C,HALT mode current(6),"Slow internal RC
+oscillator (128 kHz)
+running","T = 25 °C
+A",—,10,18,mA
+,,P,,,"T = 125 °C
+A",—,17,28,
+"I
+DDSTOP",CC,P,STOP mode current(7),"Slow internal RC
+oscillator (128 kHz)
+running","T = 25 °C
+A",—,350,900(8),µA
+,,D,,,"T = 55 °C
+A",—,750,—,
+,,D,,,"T = 85 °C
+A",—,2,7,mA
+,,D,,,"T = 105 °C
+A",—,4,10,
+,,P,,,"T = 125 °C
+A",—,7,14,
+"I
+DDSTDBY2",CC,P,STANDBY2 mode current(9),"Slow internal RC
+oscillator (128 kHz)
+running","T = 25 °C
+A",—,30,100,µA
+,,D,,,"T = 55 °C
+A",—,75,—,
+,,D,,,"T = 85 °C
+A",—,180,700,
+,,D,,,"T = 105 °C
+A",—,315,1000,
+,,P,,,"T = 125 °C
+A",—,560,1700,
+"I
+DDSTDBY1",CC,T,STANDBY1 mode current(10),"Slow internal RC
+oscillator (128 kHz)
+running","T = 25 °C
+A",—,20,60,µA
+,,D,,,"T = 55 °C
+A",—,45,—,
+,,D,,,"T = 85 °C
+A",—,100,350,
+,,D,,,"T = 105 °C
+A",—,165,500,
+,,D,,,"T = 125 °C
+A",—,280,900,

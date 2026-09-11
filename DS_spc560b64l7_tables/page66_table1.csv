@@ -1,0 +1,59 @@
+Symbol,,C,Parameter,Conditions(1),,Value,,,Unit
+,,,,,,Min,Typ,Max,
+"V
+OH",CC,C,"Output high level
+MEDIUM configuration",Push Pull,"I = 3.8 mA,
+OH
+V = 5.0 V ± 10%, PAD3V5V = 0
+DD","0.8V
+DD",—,—,V
+,,P,,,"I = 2 mA,
+OH
+V = 5.0 V ± 10%, PAD3V5V = 0
+DD
+(recommended)","0.8V
+DD",—,—,
+,,C,,,"I = 1 mA,
+OH
+V = 5.0 V ± 10%, PAD3V5V = 1(2)
+DD","0.8V
+DD",—,—,
+,,C,,,"I = 1 mA,
+OH
+V = 3.3 V ± 10%, PAD3V5V = 1
+DD
+(recommended)","V 0.8
+DD",—,—,
+,,C,,,"I = 100 µA,
+OH
+V = 5.0 V ± 10%, PAD3V5V = 0
+DD","0.8V
+DD",—,—,
+"V
+OL",CC,C,"Output low level
+MEDIUM configuration",Push Pull,"I = 3.8 mA,
+OL
+V = 5.0 V ± 10%, PAD3V5V = 0
+DD",—,—,"0.2V
+DD",V
+,,P,,,"I = 2 mA,
+OL
+V = 5.0 V ± 10%, PAD3V5V = 0
+DD
+(recommended)",—,—,"0.1V
+DD",
+,,C,,,"I = 1 mA,
+OL
+V = 5.0 V ± 10%, PAD3V5V = 1(2)
+DD",—,—,"0.1V
+DD",
+,,C,,,"I = 1 mA,
+OL
+V = 3.3 V ± 10%, PAD3V5V = 1
+DD
+(recommended)",—,—,0.5,
+,,C,,,"I = 100 µA,
+OL
+V = 5.0 V ± 10%, PAD3V5V = 0
+DD",—,—,"0.1V
+DD",

@@ -1,0 +1,30 @@
+Symbol,,C,Parameter,Conditions(1),Value,,,Unit
+,,,,,Min,Typ,Max,
+"f
+PLLIN",SR,—,FMPLL reference clock(2),—,4,—,64,MHz
+"
+PLLIN",SR,—,"FMPLL reference clock duty
+cycle(2)",—,40,—,60,%
+"f
+PLLOUT",CC,P,FMPLL output clock frequency,—,16,—,64,MHz
+"f (3)
+VCO",CC,P,"VCO frequency without
+frequency modulation",—,256,—,512,MHz
+,,P,"VCO frequency with frequency
+modulation",—,245.76,—,532.48,
+"f
+CPU",SR,—,System clock frequency,—,—,—,64,MHz
+"f
+FREE",CC,P,Free-running frequency,—,20,—,150,MHz
+"t
+LOCK",CC,P,FMPLL lock time,"Stable oscillator (f = 16 MHz)
+PLLIN",,40,100,µs
+"t
+STJIT",CC,—,FMPLL short term jitter(4),"f maximum
+sys",–4,—,4,%
+"t
+LTJIT",CC,—,FMPLL long term jitter,"f at 64 MHz, 4000 cycles
+PLLCLK",—,—,10,ns
+"I
+PLL",CC,C,FMPLL consumption,"T = 25 °C
+A",—,—,4,mA

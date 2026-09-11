@@ -1,0 +1,72 @@
+Symbol,,C,Parameter,Conditions(1),Value,,,Unit
+,,,,,Min,Typ,Max,
+"C
+REGn",SR,—,"Internal voltage regulator external
+capacitance",—,200,—,500,nF
+"R
+REG",SR,—,"Stability capacitor equivalent serial
+resistance","Range:
+10 kHz to 20 MHz",—,—,0.2,W
+"C
+DEC1",SR,—,Decoupling capacitance(2) ballast,"V /V pair:
+DD_BV SS_LV
+V = 4.5 V to 5.5 V
+DD_BV",100(3),470(4),—,nF
+,,,,"V /V pair:
+DD_BV SS_LV
+V = 3 V to 3.6 V
+DD_BV",400,,—,
+"C
+DEC2",SR,—,"Decoupling capacitance regulator
+supply","V /V pair
+DD SS",10,100,—,nF
+"V
+MREG",CC,T,Main regulator output voltage,Before exiting from reset,—,1.32,—,V
+,,P,,After trimming,1.16,1.28,—,
+"I
+MREG",SR,—,"Main regulator current provided to
+V domain
+DD_LV",—,—,—,150,mA
+"I
+MREGINT",CC,D,"Main regulator module current
+consumption","I = 200 mA
+MREG",—,—,2,mA
+,,,,"I = 0 mA
+MREG",—,—,1,
+"V
+LPREG",CC,P,Low-power regulator output voltage,After trimming,1.16,1.28,—,V
+"I
+LPREG",SR,—,"Low-power regulator current
+provided to V domain
+DD_LV",—,—,—,15,mA
+"I
+LPREGINT",CC,D,"Low-power regulator module current
+consumption","I = 15 mA;
+LPREG
+T = 55 °C
+A",—,—,600,µA
+,,—,,"I = 0 mA;
+LPREG
+T = 55 °C
+A",—,5,—,
+"V
+ULPREG",CC,P,"Ultra low power regulator output
+voltage",After trimming,1.16,1.28,—,V
+"I
+ULPREG",SR,—,"Ultra low power regulator current
+provided to V domain
+DD_LV",—,—,—,5,mA
+"I
+ULPREGINT",CC,D,"Ultra low power regulator module
+current consumption","I = 5 mA;
+ULPREG
+T = 55 °C
+A",—,—,100,µA
+,,,,"I = 0 mA;
+ULPREG
+T = 55 °C
+A",—,2,—,
+"I
+DD_BV",CC,D,"In-rush average current on V
+DD_BV
+during power-up(5)",—,—,—,300(6),mA

@@ -1,0 +1,21 @@
+Symbol,,C,Parameter,Conditions(1),Value,,,Unit
+,,,,,Min,Typ,Max,
+"f
+SXOSC","S
+R",—,"Slow external crystal oscillator
+frequency",—,32,"32.76
+8",40,kHz
+"V
+SXOSC","C
+C",T,Oscillation amplitude,—,—,2.1,—,V
+"I
+SXOSCBIAS","C
+C",T,Oscillation bias current,—,2.5,,,µA
+"I
+SXOSC","C
+C",T,"Slow external crystal oscillator
+consumption",—,—,—,8,µA
+"t
+SXOSCSU","C
+C",T,"Slow external crystal oscillator
+start-up time",—,—,—,2(2),s

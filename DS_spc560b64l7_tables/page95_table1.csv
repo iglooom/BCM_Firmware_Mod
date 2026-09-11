@@ -1,0 +1,15 @@
+Symbol,,C,Parameter,Conditions(1),Value,,,Unit
+,,,,,Min,Typ,Max,
+"f
+SIRC",CC,P,"Slow internal RC oscillator low
+frequency","T = 25 °C, trimmed
+A",—,128,—,kHz
+,SR,—,,—,100,—,150,
+"I (2)
+SIRC",CC,C,"Slow internal RC oscillator low
+frequency current","T = 25 °C, trimmed
+A",—,—,5,µA
+"t
+SIRCSU",CC,P,"Slow internal RC oscillator start-up
+time","T = 25 °C, V = 5.0 V ± 10%
+A DD",—,8,12,µs

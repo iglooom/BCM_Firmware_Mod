@@ -1,0 +1,74 @@
+Symbol,,C,Parameter,Conditions,,"Typical
+value(2)",Unit
+"I
+DD_BV(CAN)",CC,T,"CAN (FlexCAN)
+supply current on
+V
+DD_BV","Bitrate:
+500 Kbyte/s","Total (static + dynamic)
+consumption:
+– FlexCAN in loop-back
+mode
+– XTAL at 8 MHz used as
+CAN engine clock source
+– Message sending period is
+580 µs","8 * f + 85
+periph",µA
+,,,,"Bitrate:
+125 Kbyte/s",,"8 * f + 27
+periph",
+"I
+DD_BV(eMIOS)",CC,T,"eMIOS supply current
+on V
+DD_BV","Static consumption:
+– eMIOS channel OFF
+– Global prescaler enabled",,"29 * f
+periph",µA
+,,,,"Dynamic consumption:
+– It does not change varying the frequency
+(0.003 mA)",,3,
+"I
+DD_BV(SCI)",CC,T,"SCI (LINFlex) supply
+current on V
+DD_BV","Total (static + dynamic) consumption:
+– LIN mode
+– Baudrate: 20 Kbyte/s",,"5 * f + 31
+periph",µA
+"I
+DD_BV(SPI)",CC,T,"SPI (DSPI) supply
+current on V
+DD_BV",Ballast static consumption (only clocked),,1,µA
+,,,,"Ballast dynamic consumption (continuous
+communication):
+– Baudrate: 2 Mbit/s
+– Transmission every 8 µs
+– Frame: 16 bits",,"16 * f
+periph",
+"I
+DD_BV
+(ADC_0/ADC_1)",CC,T,"ADC_0/ADC_1 supply
+current on V
+DD_BV","V = 5.5 V
+DD","Ballast static consumption (no
+conversion)(3)","41 * f
+periph",µA
+,,,,,"Ballast dynamic consumption
+(continuous conversion)(3)","46 * f
+periph",
+"I
+DD_HV_ADC0",CC,T,"ADC_0 supply current
+on V
+DD_HV_ADC0","V = 5.5 V
+DD","Analog static consumption
+(no conversion)",200,µA
+,,,,,"Analog dynamic consumption
+(continuous conversion)",3,mA
+"I
+DD_HV_ADC1",CC,T,"ADC_1 supply current
+on V
+DD_HV_ADC1","V = 5.5 V
+DD","Analog static consumption
+(no conversion)","300 * f
+periph",µA
+,,,,,"Analog dynamic consumption
+(continuous conversion)",4,mA

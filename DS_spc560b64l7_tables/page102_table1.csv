@@ -1,0 +1,47 @@
+Symbol,,C,Parameter,Conditions(1),Value,,,Unit
+,,,,,Min,Typ,Max,
+"V
+SS_ADC0",SR,—,"Voltage on VSS_HV_ADC0
+(ADC_0 reference) pin with
+respect to ground (V )(2)
+SS",—,0.1,—,0.1,V
+"V
+DD_ADC0",SR,—,"Voltage on VDD_HV_ADC pin
+(ADC reference) with respect to
+ground (V )
+SS",—,"V 0.1
+DD",—,"V + 0.1
+DD",V
+"V
+AINx",SR,—,Analog input voltage(3),—,"V
+SS_ADC0
+0.1",—,"V
+DD_ADC0
++ 0.1",V
+"I
+ADC0pwd",SR,—,"ADC_0 consumption in power
+down mode",—,—,—,50,µA
+"I
+ADC0run",SR,—,"ADC_0 consumption in running
+mode",—,—,—,5,mA
+"f
+ADC0",SR,—,ADC_0 analog frequency,—,6,—,32 + 4%,MHz
+"
+ADC0_SYS",SR,—,"ADC_0 digital clock duty cycle
+(ipg_clk)",ADCLKSEL = 1(4),45,—,55,%
+"t
+ADC0_PU",SR,—,ADC_0 power up delay,—,—,—,1.5,µs
+"t
+ADC0_S",CC,T,Sampling time(5),"f = 32 MHz,
+ADC
+INPSAMP = 17",0.5,—,,µs
+,,,,"f = 6 MHz,
+ADC
+INPSAMP = 255",—,—,42,
+"t
+ADC0_C",CC,P,Conversion time(6),"f = 32 MHz,
+ADC
+INPCMP = 2",0.625,—,—,µs
+"C
+S",CC,D,"ADC_0 input sampling
+capacitance",—,—,—,3,pF

@@ -1,0 +1,67 @@
+Date,Revision,Changes
+"12-Sep- 2011
+(continued)","6
+(continued)","Section “Program/erase characteristics”: removed table “FLASH_BIU settings vs.
+frequency of operation” and associated introduction
+“Program and erase specifications” table: updated symbols
+PFCRn settings vs. frequency of operation: replaced “FLASH_BIU” with “PFCRn” in
+table title; updated field names and frequencies
+“Flash power supply DC electrical characteristics” table: deleted footnote 2
+Crystal oscillator and resonator connection scheme: inserted footnote about possibly
+requiring a series resistor
+Fast external crystal oscillator (4 to 16 MHz) electrical characteristics: updated
+parameter classification for V
+FXOSCOP
+Slow external crystal oscillator (32 kHz) electrical characteristics: updated footnote 1
+Section “ADC electrical characteristics”: updated symbols for offset error and gain error
+Section “Input impedance and ADC accuracy”: changed “V /V ” to “V /V ” in
+A A2 A2 A
+Equation 11
+ADC input leakage current: updated I characteristics
+LKG
+ADC_0 conversion characteristics table: replaced instances of
+“ADCx_conf_sample_input” with “INPSAMP”; replaced instances of
+“ADCx_conf_comp” with “INPCMP
+ADC_1 characteristic and error definitions: replaced “AVDD” with “V
+DD_ADC”
+ADC_1 conversion characteristics table: replaced instances of
+“ADCx_conf_sample_input” with “INPSAMP”; replaced instances of
+“ADCx_conf_comp” with “INPCMP”
+Updated “On-chip peripherals current consumption” table
+Removed order codes tables."
+18-Sep-2013,7,Updated Disclaimer.
+05-May-2014,8,"Table 13: Recommended operating conditions (3.3 V), added minimum value of T
+VDD
+and footnote about it.
+Table 14: Recommended operating conditions (5.0 V), added minimum value of T
+VDD
+and footnote about it.
+Table 21: Output pin transition times, replaced T with t
+tr tr
+Table 25: Reset electrical characteristics, replaced T with t
+tr tr
+Updated Section 4.17.2: Input impedance and ADC accuracy
+Table 27: Low voltage detector electrical characteristics, changed V (min) and
+LVDHV3L
+V (min) from 2.7 V to 2.6 V.
+LVDHV3BL
+Table 29: Program and erase specifications, added footnote about t
+ESRT
+Table 41: FMPLL electrical characteristics, deleted footnote relative to maximum value
+of f
+CPU
+Table 45: ADC_0 conversion characteristics (10-bit ADC_0), changed I value
+ADC0run
+from 40 mA to 5 mA.
+Table 48: DSPI characteristics, in the heading row, replaced
+DSPI0/DSPI1/DSPI5/DSPI6 with DSPI0/DSPI1/DSPI3/DSPI5."
+22-Jan-2016,9,"In Table 1: Device summary, added SPC560B64L3 for 1.5 MB code flash devices.
+In Table 2: SPC560B54/6x family comparison, added column relating to “LQFP100”
+package in SPC560B64 devices.
+In Table 28: Power consumption on VDD_BV and VDD_HV:
+– changed footnote 2 “Running consumption does not include I/Os...” to “I is
+DDMAX
+drawn only from the VDD_BV pin. Running consumption does not include I/Os...”
+– changed footnote 4 “RUN current measured with...” to “I is drawn only from
+DDRUN
+the VDD_BV pin. RUN current measured with...”"

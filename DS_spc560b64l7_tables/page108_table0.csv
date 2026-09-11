@@ -1,0 +1,14 @@
+Symbol,,C,Parameter,Conditions,,"Typical
+value(2)",Unit
+"I
+DD_HV(FLASH)",CC,T,"CFlash + DFlash
+supply current on
+V
+DD_HV","V = 5.5 V
+DD",—,12,mA
+"I
+DD_HV(PLL)",CC,T,"PLL supply current on
+V
+DD_HV","V = 5.5 V
+DD",—,"30 * f
+periph",µA

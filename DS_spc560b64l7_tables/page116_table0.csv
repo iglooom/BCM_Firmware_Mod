@@ -1,0 +1,16 @@
+No.,Symbol,,C,Parameter,Value,,,Unit
+,,,,,Min,Typ,Max,
+5,"t
+EVTOV",CC,D,MCKO low to EVTO data valid,—,—,8,ns
+6,"t
+NTDIS",CC,D,TDI data setup time,15,—,—,ns
+,"t
+NTMSS",CC,D,TMS data setup time,15,—,—,ns
+7,"t
+NTDIH",CC,D,TDI data hold time,5,—,—,ns
+,"t
+NTMSH",CC,D,TMS data hold time,5,—,—,ns
+8,"t
+TDOV",CC,D,TCK low to TDO data valid,35,—,—,ns
+9,"t
+TDOI",CC,D,TCK low to TDO data invalid,6,—,—,ns

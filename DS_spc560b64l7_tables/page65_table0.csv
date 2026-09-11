@@ -1,0 +1,17 @@
+Symbol,,C,Parameter,Conditions(1),,Value,,,Unit
+,,,,,,Min,Typ,Max,
+"|I |
+WPU",CC,P,"Weak pull-up current
+absolute value","V = V , V = 5.0 V ± 10%
+IN IL DD",PAD3V5V = 0,10,—,150,µA
+,,C,,,"PAD3V5V =
+1(2)",10,—,250,
+,,P,,"V = V , V = 3.3 V ± 10%
+IN IL DD",PAD3V5V = 1,10,—,150,
+"|I |
+WPD",CC,P,"Weak pull-down current
+absolute value","V = V , V = 5.0 V ± 10%
+IN IH DD",PAD3V5V = 0,10,—,150,µA
+,,C,,,PAD3V5V = 1,10,—,250,
+,,P,,"V = V , V = 3.3 V ± 10%
+IN IH DD",PAD3V5V = 1,10,—,150,

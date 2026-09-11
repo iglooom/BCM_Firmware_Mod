@@ -1,0 +1,10 @@
+Symbol,,C,Parameter,Conditions(2),Pin count,Value,,,Unit
+,,,,,,Min,Typ,Max,
+"R
+JA",CC,D,"Thermal resistance, junction-to-
+ambient natural convection(3)",Single-layer board — 1s,100,—,—,64,°C/W
+,,,,,144,—,—,64,
+,,,,,176,—,—,64,
+,,,,Four-layer board — 2s2p,100,—,—,49.7,
+,,,,,144,—,—,48.3,
+,,,,,176,—,—,47.3,

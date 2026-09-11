@@ -1,0 +1,14 @@
+No.,Symbol,,C,Parameter,,DSPI0/DSPI1/DSPI3/DSPI5,,,DSPI2/DSPI4,,,Unit
+,,,,,,Min,Typ,Max,Min,Typ,Max,
+9,"t
+SUI",SR,D,Data setup time for inputs,Master mode,43,—,—,145,—,—,ns
+,,,,,Slave mode,5,—,—,5,—,—,
+10,"t
+HI",SR,D,Data hold time for inputs,Master mode,0,—,—,0,—,—,ns
+,,,,,Slave mode,2(6),—,—,2(6),—,—,
+11,"t (7)
+SUO",CC,D,Data valid after SCK edge,Master mode,—,—,32,—,—,50,ns
+,,,,,Slave mode,—,—,52,—,—,160,
+12,"t (7)
+HO",CC,D,Data hold time for outputs,Master mode,0,—,—,0,—,—,ns
+,,,,,Slave mode,8,—,—,13,—,—,

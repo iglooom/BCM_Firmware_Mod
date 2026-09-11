@@ -1,0 +1,10 @@
+No.,Symbol,,C,Parameter,Value,,,Unit
+,,,,,Min,Typ,Max,
+1,"t
+TCYC",CC,D,TCK cycle time,64,—,—,ns
+2,"t
+MCYC",CC,D,MCKO cycle time,32,—,—,ns
+3,"t
+MDOV",CC,D,MCKO low to MDO data valid,—,—,8,ns
+4,"t
+MSEOV",CC,D,MCKO low to MSEO_b data valid,—,—,8,ns

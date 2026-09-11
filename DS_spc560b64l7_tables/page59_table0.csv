@@ -1,0 +1,57 @@
+Symbol,,Parameter,Conditions,Value,,Unit
+,,,,Min,Max,
+"V
+SS",SR,Digital ground on VSS_HV pins,—,0,0,V
+"V (1)
+DD",SR,"Voltage on VDD_HV pins with respect to
+ground (V )
+SS",—,3.0,3.6,V
+"V (2)
+SS_LV",SR,"Voltage on VSS_LV (low voltage digital
+supply) pins with respect to ground (V )
+SS",—,"V 0.1
+SS","V + 0.1
+SS",V
+"V (3)
+DD_BV",SR,"Voltage on VDD_BV pin (regulator supply)
+with respect to ground (V )
+SS",—,3.0,3.6,V
+,,,"Relative to V
+DD","V 0.1
+DD","V + 0.1
+DD",
+"V
+SS_ADC",SR,"Voltage on VSS_HV_ADC0,
+VSS_HV_ADC1 (ADC reference) pin with
+respect to ground (V )
+SS",—,"V 0.1
+SS","V + 0.1
+SS",V
+"V (4)
+DD_ADC",SR,"Voltage on VDD_HV_ADC0,
+VDD_HV_ADC1 (ADC reference) with
+respect to ground (V )
+SS",—,3.0(5),3.6,V
+,,,"Relative to V
+DD","V 0.1
+DD","V + 0.1
+DD",
+"V
+IN",SR,"Voltage on any GPIO pin with respect to
+ground (V )
+SS",—,"V 0.1
+SS",—,V
+,,,"Relative to V
+DD",—,"V + 0.1
+DD",
+"I
+INJPAD",SR,"Injected input current on any pin during
+overload condition",—,5,5,mA
+"I
+INJSUM",SR,"Absolute sum of all injected input currents
+during overload condition",—,50,50,
+"TV
+DD",SR,"V slope to ensure correct power up(6)
+DD",—,3.0(7),"250 x 103
+(0.25
+[V/µs])",V/s

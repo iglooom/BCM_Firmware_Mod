@@ -1,0 +1,15 @@
+Port pin,Function,"I/O
+direction",Pad type,"Function
+after reset",Pin number,,
+,,,,,"LQFP
+100","LQFP
+144","LBGA
+208(1)"
+MCKO,Message clock out,O,F,—,—,—,T4
+MDO0,Message data out 0,O,M,—,—,—,H15
+MDO1,Message data out 1,O,M,—,—,—,H16
+MDO2,Message data out 2,O,M,—,—,—,H14
+MDO3,Message data out 3,O,M,—,—,—,H13
+EVTI,Event in,I,M,Pull-up,—,—,K1
+EVTO,Event out,O,M,—,—,—,L4
+MSEO,Message start/end out,O,M,—,—,—,G16

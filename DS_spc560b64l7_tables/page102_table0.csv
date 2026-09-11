@@ -1,0 +1,13 @@
+Symbol,,C,Parameter,Conditions,,Value,,,Unit
+,,,,,,Min,Typ,Max,
+"I
+LKG",CC,D,Input leakage current,"T = 40 °C
+A",No current injection on adjacent pin,—,1,70,nA
+,,D,,"T = 25 °C
+A",,—,1,70,
+,,D,,"T = 85 °C
+A",,,3,100,
+,,D,,"T = 105 °C
+A",,—,8,200,
+,,P,,"T = 125 °C
+A",,—,45,400,

@@ -1,0 +1,25 @@
+Symbol,,C,Parameter,Conditions,,Value,,,Unit
+,,,,,,Min,Typ,Max,
+—,SR,—,Scan range,—,,"0.15
+0",,1000,MHz
+"f
+CPU",SR,—,Operating frequency,—,,—,64,—,MHz
+"V
+DD_LV",SR,—,"LV operating
+voltages",—,,—,1.28,—,V
+"S
+EMI",CC,T,Peak level,"V = 5 V,
+DD
+T = 25 °C,
+A
+LQFP144 package
+Test conforming to
+IEC 61967-2,
+f = 8 MHz/f =
+OSC CPU
+64 MHz","No PLL frequency
+modulation",—,—,18,"dBµ
+V"
+,,,,,"± 2% PLL frequency
+modulation",—,—,14,"dBµ
+V"

@@ -1,0 +1,35 @@
+Symbol,,Parameter,Conditions(1),,Value,,,Unit
+,,,,,Min,Typ,Max,
+"I
+CFREAD",CC,"Sum of the current consumption on
+V and V on read access
+DD_HV DD_BV","Flash module read
+f = 64 MHz
+CPU",Code Flash,—,—,33,mA
+"I
+DFREAD",,,,Data Flash,—,—,33,
+"I
+CFMOD",CC,"Sum of the current consumption on
+V and V on matrix
+DD_HV DD_BV
+modification (program/erase)","Program/Erase
+on-going while reading
+Flash registers
+f = 64 MHz
+CPU",Code Flash,—,—,52,mA
+"I
+DFMOD",,,,Data Flash,—,—,33,
+"I
+CFLPW",CC,"Sum of the current consumption on
+V and V during Flash low
+DD_HV DD_BV
+power mode",—,Code Flash,—,—,1.1,mA
+"I
+DFLPW",,,,Data Flash,—,—,900,µA
+"I
+CFPWD",CC,"Sum of the current consumption on
+V and V during Flash
+DD_HV DD_BV
+power down mode",—,Code Flash,—,—,150,µA
+"I
+DFPWD",,,,Data Flash,—,—,150,

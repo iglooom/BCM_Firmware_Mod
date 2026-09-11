@@ -1,0 +1,25 @@
+Symbol,,C,Parameter,Conditions(1),,Value,,,Unit
+,,,,,,Min,Typ,Max,
+"V
+OH","C
+C",P,"Output high level
+SLOW configuration",Push Pull,"I = 2 mA,
+OH
+V = 5.0 V ± 10%,
+DD
+PAD3V5V = 0
+(recommended)","0.8V
+DD",—,—,V
+,,C,,,"I = 2 mA,
+OH
+V = 5.0 V ± 10%,
+DD
+PAD3V5V = 1(2)","0.8V
+DD",—,—,
+,,C,,,"I = 1 mA,
+OH
+V = 3.3 V ± 10%,
+DD
+PAD3V5V = 1
+(recommended)","V 0.8
+DD",—,—,

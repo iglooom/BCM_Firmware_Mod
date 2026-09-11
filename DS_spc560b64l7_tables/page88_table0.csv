@@ -1,0 +1,17 @@
+Symbol,Ratings,Conditions,Class,Max value(3),Unit
+"V
+ESD(HBM)","Electrostatic discharge voltage
+(Human Body Model)","T = 25 °C
+A
+conforming to AEC-Q100-002",H1C,2000,V
+"V
+ESD(MM)","Electrostatic discharge voltage
+(Machine Model)","T = 25 °C
+A
+conforming to AEC-Q100-003",M2,200,
+"V
+ESD(CDM)","Electrostatic discharge voltage
+(Charged Device Model)","T = 25 °C
+A
+conforming to AEC-Q100-011",C3A,500,
+,,,,750 (corners),

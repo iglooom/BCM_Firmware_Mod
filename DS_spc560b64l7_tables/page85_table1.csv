@@ -1,0 +1,5 @@
+Symbol,,C,Parameter,Conditions(1),Max,Unit
+"f
+READ",CC,P,Maximum frequency for Flash reading,2 wait states,64,MHz
+,,C,,1 wait state,40,
+,,C,,0 wait states,20,

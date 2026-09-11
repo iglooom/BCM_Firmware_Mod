@@ -1,0 +1,16 @@
+No.,Symbol,,C,Parameter,Value,,,Unit
+,,,,,Min,Typ,Max,
+1,"t
+JCYC",CC,D,TCK cycle time,64,—,—,ns
+2,"t
+TDIS",CC,D,TDI setup time,15,—,—,ns
+3,"t
+TDIH",CC,D,TDI hold time,5,—,—,ns
+4,"t
+TMSS",CC,D,TMS setup time,15,—,—,ns
+5,"t
+TMSH",CC,D,TMS hold time,5,—,—,ns
+6,"t
+TDOV",CC,D,TCK low to TDO valid,—,—,33,ns
+7,"t
+TDOI",CC,D,TCK low to TDO invalid,6,—,—,ns

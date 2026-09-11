@@ -1,0 +1,50 @@
+Symbol,,C,Parameter,Conditions(1),,Value,,,Unit
+,,,,,,Min,Typ,Max,
+"V
+OH","C
+C",P,"Output high level
+FAST
+configuration",Push Pull,"I = 14 mA,
+OH
+V = 5.0 V ± 10%,
+DD
+PAD3V5V = 0
+(recommended)","0.8V
+DD",—,—,V
+,,C,,,"I = 7 mA,
+OH
+V = 5.0 V ± 10%,
+DD
+PAD3V5V = 1(2)","0.8V
+DD",—,—,
+,,C,,,"I = 11 mA,
+OH
+V = 3.3 V ± 10%,
+DD
+PAD3V5V = 1
+(recommended)","V 
+DD
+0.8",—,—,
+"V
+OL","C
+C",P,"Output low level
+FAST
+configuration",Push Pull,"I = 14 mA,
+OL
+V = 5.0 V ± 10%,
+DD
+PAD3V5V = 0
+(recommended)",—,—,"0.1V
+DD",V
+,,C,,,"I = 7 mA,
+OL
+V = 5.0 V ± 10%,
+DD
+PAD3V5V = 1(2)",—,—,"0.1V
+DD",
+,,C,,,"I = 11 mA,
+OL
+V = 3.3 V ± 10%,
+DD
+PAD3V5V = 1
+(recommended)",—,—,0.5,

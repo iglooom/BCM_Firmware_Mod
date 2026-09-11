@@ -1,0 +1,18 @@
+Feature,SPC560B54,,SPC560B60,,,SPC560B64,,,
+OPWM / ICOC(9),13 ch,33 ch,13 ch,33 ch,33 ch,13 ch,33 ch,33 ch,33 ch
+SCI (LINFlex),4,8,4,8,10,4,8,10,10
+SPI (DSPI),3,5,3,5,6,3,5,6,6
+CAN (FlexCAN),6,,,,,,,,
+I2C,1,,,,,,,,
+32 KHz oscillator,Yes,,,,,,,,
+GPIO(10),77,121,77,121,149,77,121,149,149
+Debug,JTAG,,,,,,,,N2+
+Package,"LQFP
+100","LQFP
+144","LQFP
+100","LQFP
+144","LQFP
+176","LQFP
+100","LQFP
+144","LQFP
+176",LBGA208(11)

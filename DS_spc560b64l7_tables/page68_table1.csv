@@ -1,0 +1,22 @@
+Package,Supply segment,,,,,,,
+,1,2,3,4,5,6,7,8
+"LBGA208
+(1)",Equivalent to LQFP176 segment pad distribution,,,,,,MCKO,"MDOn
+/MSEO"
+LQFP176,"pin7 –
+pin27","pin28 –
+pin57","pin59 –
+pin85","pin86 –
+pin123","pin124 –
+pin150","pin151 –
+pin6",—,—
+LQFP144,"pin20 –
+pin49","pin51 –
+pin99","pin100 –
+pin122","pin 123 –
+pin19",—,—,—,—
+LQFP100,"pin16 –
+pin35","pin37 –
+pin69","pin70 –
+pin83","pin84 –
+pin15",—,—,—,—

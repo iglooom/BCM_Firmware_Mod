@@ -1,0 +1,17 @@
+Abbreviation,Meaning
+CMOS,Complementary metal oxide semiconductor
+CPHA,Clock phase
+CPOL,Clock polarity
+CS,Peripheral chip select
+EVTO,Event out
+MCKO,Message clock out
+MDO,Message data out
+MSEO,Message start/end out
+MTFE,Modified timing format enable
+SCK,Serial communications clock
+SOUT,Serial data out
+TBD,To be defined
+TCK,Test clock input
+TDI,Test data input
+TDO,Test data output
+TMS,Test mode select

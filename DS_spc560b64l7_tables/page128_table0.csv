@@ -1,0 +1,37 @@
+Date,Revision,Changes
+12-Jan-2009,1,Initial release
+07-Dec-2009,2,"Updated Device Summary-added LBGA208 Part number
+Updated Features
+Replaced 27 IRQs in place of 23
+ADC features
+External Ballast resistor support conditions
+Updated device summary-added 208 BGA details
+Updated block diagram to include WKUP
+Updated block diagram to include 5 ch ADC 12 -bit
+Updated Block summary table
+Updated LQFP 144, 176 and 100 pinouts. Applied new naming convention for ADC
+signals as ADCx_P[x] and ADCx_S[x]
+Section 1, “General description
+Updated SPC560B54/60/64 device comparison table
+Updated block diagram-aligned with 512k
+Updated block summary-aligned with 512k
+Section 2, “Package pinouts
+Updated 100,144,176,208 packages according to cut2.0 changes
+Added Section 3.5.1, “External ballast resistor recommendations
+Added NVUSRO [WATCHDOG_EN] field description
+Updated Absolute maximum ratings
+Updated LQFP thermal characteristics
+Updated I/O supply segments
+Updated Voltage regulator capacitance connection
+Updated Low voltage monitor electrical characteristics
+Updated Low voltage power domain electrical characteristics
+Updated DC electrical characteristics
+Updated Program/Erase specifications
+Updated Conversion characteristics (10 bit ADC)
+Updated FMPLL electrical characteristics
+Updated Fast RC oscillator electrical characteristics-aligned with
+SPC560B4x/B5x/C4x/C5x
+Updated On-chip peripherals current consumption
+Updated ADC characteristics and error definitions diagram
+Updated ADC conversion characteristics (10 bit and 12 bit)
+Added ADC characteristics and error definitions diagram for 12 bit ADC"

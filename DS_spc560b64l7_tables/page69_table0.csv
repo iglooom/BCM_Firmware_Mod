@@ -1,0 +1,93 @@
+Symbol,,C,Parameter,Conditions(1),,Value,,,Unit
+,,,,,,Min,Typ,Max,
+"I (2)
+SWTSLW",CC,D,"Dynamic I/O current for
+SLOW configuration","C = 25 pF
+L","V = 5.0 V ± 10%,
+DD
+PAD3V5V = 0",—,—,20,mA
+,,,,,"V = 3.3 V ± 10%,
+DD
+PAD3V5V = 1",—,—,16,
+"I (2)
+SWTMED",CC,D,"Dynamic I/O current for
+MEDIUM configuration","C = 25 pF
+L","V = 5.0 V ± 10%,
+DD
+PAD3V5V = 0",—,—,29,mA
+,,,,,"V = 3.3 V ± 10%,
+DD
+PAD3V5V = 1",—,—,17,
+"I (2)
+SWTFST",CC,D,"Dynamic I/O current for
+FAST configuration","C = 25 pF
+L","V = 5.0 V ± 10%,
+DD
+PAD3V5V = 0",—,—,110,mA
+,,,,,"V = 3.3 V ± 10%,
+DD
+PAD3V5V = 1",—,—,50,
+"I
+RMSSLW",CC,D,"Root mean square I/O
+current for SLOW
+configuration","C = 25 pF, 2 MHz
+L","V = 5.0 V ± 10%,
+DD
+PAD3V5V = 0",—,—,2.3,mA
+,,,,"C = 25 pF, 4 MHz
+L",,—,—,3.2,
+,,,,"C = 100 pF, 2 MHz
+L",,—,—,6.6,
+,,,,"C = 25 pF, 2 MHz
+L","V = 3.3 V ± 10%,
+DD
+PAD3V5V = 1",—,—,1.6,
+,,,,"C = 25 pF, 4 MHz
+L",,—,—,2.3,
+,,,,"C = 100 pF, 2 MHz
+L",,—,—,4.7,
+"I
+RMSMED",CC,D,"Root mean square I/O
+current for MEDIUM
+configuration","C = 25 pF, 13 MHz
+L","V = 5.0 V ± 10%,
+DD
+PAD3V5V = 0",—,—,6.6,mA
+,,,,"C = 25 pF, 40 MHz
+L",,—,—,13.4,
+,,,,"C = 100 pF, 13 MHz
+L",,—,—,18.3,
+,,,,"C = 25 pF, 13 MHz
+L","V = 3.3 V ± 10%,
+DD
+PAD3V5V = 1",—,—,5,
+,,,,"C = 25 pF, 40 MHz
+L",,—,—,8.5,
+,,,,"C = 100 pF, 13 MHz
+L",,—,—,11,
+"I
+RMSFST",CC,D,"Root mean square I/O
+current for FAST
+configuration","C = 25 pF, 40 MHz
+L","V = 5.0 V ± 10%,
+DD
+PAD3V5V = 0",—,—,22,mA
+,,,,"C = 25 pF, 64 MHz
+L",,—,—,33,
+,,,,"C = 100 pF, 40 MHz
+L",,—,—,56,
+,,,,"C = 25 pF, 40 MHz
+L","V = 3.3 V ± 10%,
+DD
+PAD3V5V = 1",—,—,14,
+,,,,"C = 25 pF, 64 MHz
+L",,—,—,20,
+,,,,"C = 100 pF, 40 MHz
+L",,—,—,35,
+"I
+AVGSEG",SR,D,"Sum of all the static I/O
+current within a supply
+segment","V = 5.0 V ± 10%, PAD3V5V = 0
+DD",,—,—,70,mA
+,,,,"V = 3.3 V ± 10%, PAD3V5V = 1
+DD",,—,—,65,

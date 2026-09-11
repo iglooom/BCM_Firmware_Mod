@@ -1,0 +1,29 @@
+"Nominal
+frequency
+(MHz)","NDK crystal
+reference","Crystal
+equivalent
+series
+resistance
+ESR ","Crystal
+motional
+capacitance
+(C ) fF
+m","Crystal
+motional
+inductance
+(L ) mH
+m","Load on
+xtalin/xtalout
+C1 = C2
+(pF)(1)","Shunt
+capacitance
+between
+xtalout
+and xtalin
+C0(2) (pF)"
+4,NX8045GB,300,2.68,591.0,21,2.93
+8,NX5032GA,300,2.46,160.7,17,3.01
+10,,150,2.93,86.6,15,2.91
+12,,120,3.11,56.5,15,2.93
+16,,120,3.90,25.3,10,3.00

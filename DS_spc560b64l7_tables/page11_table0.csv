@@ -1,0 +1,43 @@
+Block,Function
+"Analog-to-digital converter
+(ADC)",Converts analog voltages to digital values
+Boot assist module (BAM),"A block of read-only memory containing VLE code which is executed according
+to the boot mode of the device"
+"Clock generation module
+(MC_CGM)","Provides logic and control required for the generation of system and peripheral
+clocks"
+Clock monitor unit (CMU),Monitors clock source (internal and external) integrity
+Cross triggering unit (CTU),"Enables synchronization of ADC conversions with a timer event from the eMIOS
+or from the PIT"
+Crossbar switch (XBAR),"Supports simultaneous connections between two master ports and three slave
+ports. The crossbar supports a 32-bit address bus width and a 64-bit data bus
+width."
+"Deserial serial peripheral
+interface (DSPI)",Provides a synchronous serial interface for communication with external devices
+"Enhanced direct memory
+access (eDMA)","Performs complex data transfers with minimal intervention from a host processor
+via “n” programmable channels"
+"Enhanced modular input output
+system (eMIOS)",Provides the functionality to generate or measure events
+"Error correction status module
+(ECSM)","Provides a myriad of miscellaneous control functions for the device including
+program-visible information about configuration and revision levels, a reset status
+register, wakeup control for exiting sleep modes, and optional features such as
+information on memory errors reported by error-correcting codes"
+Flash memory,"Provides non-volatile storage for program code, constants and variables"
+"FlexCAN (controller area
+network)",Supports the standard CAN communications protocol
+"Frequency-modulated phase-
+locked loop (FMPLL)","Generates high-speed system clocks and supports programmable frequency
+modulation"
+Inter-integrated circuit (I2C) bus,"Two-wire bidirectional serial bus that provides a simple and efficient method of
+data exchange between devices"
+"Internal multiplexer (IMUX) SIU
+subblock",Allows flexible mapping of peripheral interface on the different pins of the device
+Interrupt controller (INTC),Provides priority-based preemptive scheduling of interrupt requests
+JTAG controller (JTAGC),"Provides the means to test chip functionality and connectivity while remaining
+transparent to system logic when not in test mode"
+LINFlex controller,"Manages a high number of LIN (Local Interconnect Network protocol) messages
+efficiently with a minimum of CPU load"
+Memory protection unit (MPU),"Provides hardware access control for all memory references generated in a
+device"

@@ -1,0 +1,16 @@
+Symbol,,C,Parameter,Conditions(1),Value,,,Unit
+,,,,,Min,Typ,Max,
+"
+SIRCPRE",CC,C,"Slow internal RC oscillator precision
+after software trimming of f
+SIRC","T = 25 °C
+A",2,—,2,%
+"
+SIRCTRIM",CC,C,"Slow internal RC oscillator trimming
+step",—,—,2.7,—,
+"
+SIRCVAR",CC,C,"Slow internal RC oscillator variation
+in temperature and supply with
+respect to f at T = 55 °C in high
+SIRC A
+frequency configuration",High frequency configuration,10,—,10,%

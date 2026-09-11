@@ -1,0 +1,56 @@
+Date,Revision,Changes
+13-Sep-2010,"4
+(cont.)","Table 26
+– Updated all values
+– Removed I and I rows
+VREGREF VREDLVD12
+– Added the footnote “The duration of the in-rush current depends on the capacitance
+placed on LV pins. BV decaps must be sized accordingly. Refer to IMREG value for
+minimum amount of current to be provided in cc.” to the I specification.
+DD_BV
+Table 27
+– Updated V min/max value
+PORH
+– Updated V min value
+LVDLVCORL
+Updated Table 28
+Table 29
+– T : added initial max value
+dwprogram
+– Inserted T row
+eslat
+Table 30: removed the “To be confirmed” footnote
+In the “Crystal oscillator and resonator connection scheme” figure, removed R .
+P
+Table 40
+– Removed g row
+mSXOSC
+– I : added min/typ/max value
+SXOSCBIAS
+Table 41:
+– Added f row
+VCO
+– Added t row
+STJIT
+Table 42
+– I : removed row for T = 55 °C
+FIRCPWD A
+– Updated T row
+FIRCSU
+Table 45: Added two rows: I and I
+ADC0pwd ADC0run
+Table 46
+– Added two rows: I and I
+ADC1pwd ADC1run
+– Updated values of f and t
+ADC_1 ADC1_PU
+– Updated t row
+ADC1_C
+Updated Table 47
+Updated Table 48
+Added Table 55"
+29-Oct- 2010,5,"Removed “Preliminary—Subject to Change Without Notice” marking. This data sheet
+contains specifications based on characterization data.
+Updated Table 55
+Added Table 56
+Updated Figure 37"

@@ -1,0 +1,48 @@
+No.,Symbol,,C,Parameter,,DSPI0/DSPI1/DSPI3/DSPI5,,,DSPI2/DSPI4,,,Unit
+,,,,,,Min,Typ,Max,Min,Typ,Max,
+1,"t
+SCK",SR,D,SCK cycle time,"Master mode
+(MTFE = 0)",125,—,—,333,—,—,ns
+,,,D,,"Slave mode
+(MTFE = 0)",125,—,—,333,—,—,
+,,,D,,"Master mode
+(MTFE = 1)",83,—,—,125,—,—,
+,,,D,,"Slave mode
+(MTFE = 1)",83,—,—,125,—,—,
+—,"f
+DSPI",SR,D,DSPI digital controller frequency,,—,—,"f
+CPU",—,—,"f
+CPU",MHz
+—,"t
+CSC",CC,D,"Internal delay between pad
+associated to SCK and pad
+associated to CSn in master
+mode for CSn1->0",Master mode,—,—,130(2),—,—,15(3),ns
+—,"t
+ASC",CC,D,"Internal delay between pad
+associated to SCK and pad
+associated to CSn in master
+mode for CSn1->1",Master mode,—,—,130(3),—,—,130(3),ns
+2,"t (4)
+CSCext",SR,D,CS to SCK delay,Slave mode,32,—,—,32,—,—,ns
+3,"t (5)
+ASCext",SR,D,After SCK delay,Slave mode,"1/f + 5
+DSPI",—,—,"1/f + 5
+DSPI",—,—,ns
+4,"t
+SDC",CC,D,SCK duty cycle,Master mode,—,"t
+SCK/2",—,—,"t
+SCK/2",—,ns
+,,SR,D,,Slave mode,"t
+SCK/2",—,—,"t
+SCK/2",—,—,
+5,"t
+A",SR,D,Slave access time,Slave mode,—,—,"1/f + 70
+DSPI",—,—,"1/f + 130
+DSPI",ns
+6,"t
+DI",SR,D,Slave SOUT disable time,Slave mode,7,—,—,7,—,—,ns
+7,"t
+PCSC",SR,D,PCSx to PCSS time,—,0,—,—,0,—,—,ns
+8,"t
+PASC",SR,D,PCSS to PCSx time,—,0,—,—,0,—,—,ns

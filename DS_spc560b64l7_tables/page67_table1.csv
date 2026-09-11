@@ -1,0 +1,21 @@
+Symbol,,C,Parameter,Conditions(1),,Value,,,Unit
+,,,,,,Min,Typ,Max,
+"t
+tr",CC,D,"Output transition time output pin(2)
+
+SLOW configuration","C = 25 pF
+L","V = 5.0 V ± 10%,
+DD
+PAD3V5V = 0",—,—,50,ns
+,,T,,"C = 50 pF
+L",,—,—,100,
+,,D,,"C = 100 pF
+L",,—,—,125,
+,,D,,"C = 25 pF
+L","V = 3.3 V ± 10%,
+DD
+PAD3V5V = 1",—,—,50,
+,,T,,"C = 50 pF
+L",,—,—,100,
+,,D,,"C = 100 pF
+L",,—,—,125,

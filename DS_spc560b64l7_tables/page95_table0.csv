@@ -1,0 +1,33 @@
+Symbol,,C,Parameter,Conditions(1),,Value,,,Unit
+,,,,,,Min,Typ,Max,
+"I
+FIRCSTOP",CC,T,"Fast internal RC oscillator high
+frequency and system clock
+current in stop mode","T = 25 °C
+A",sysclk = off,—,500,—,µA
+,,,,,sysclk = 2 MHz,—,600,—,
+,,,,,sysclk = 4 MHz,—,700,—,
+,,,,,sysclk = 8 MHz,—,900,—,
+,,,,,sysclk = 16 MHz,—,1250,—,
+"t
+FIRCSU",CC,C,"Fast internal RC oscillator start-
+up time","V = 5.0 V ± 10%
+DD",,—,1.1,2.0,µs
+"
+FIRCPRE",CC,C,"Fast internal RC oscillator
+precision after software
+trimming of f
+FIRC","T = 25 °C
+A",,1,—,1,%
+"
+FIRCTRIM",CC,C,"Fast internal RC oscillator
+trimming step","T = 25 °C
+A",,—,1.6,,%
+"
+FIRCVAR",CC,C,"Fast internal RC oscillator
+variation over temperature and
+supply with respect to f at
+FIRC
+T = 25 °C in high-frequency
+A
+configuration",—,,5,—,5,%

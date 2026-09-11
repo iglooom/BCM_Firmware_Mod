@@ -1,0 +1,33 @@
+Symbol,,C,Parameter,Conditions(1),,Value,,,Unit
+,,,,,,Min,Typ,Max,
+"I
+INJ",SR,—,Input current Injection,"Current
+injection on
+one ADC_1
+input,
+different
+from the
+converted
+one","V = 3.3 V ±
+DD
+10%",–5,—,5,mA
+,,,,,"V = 5.0 V ±
+DD
+10%",–5,—,5,
+| INLP |,CC,T,"Absolute integral nonlinearity
+– Precise channels",No overload,,—,1,3,LSB
+| INLX |,CC,T,"Absolute integral nonlinearity
+– Extended channels",No overload,,—,1.5,5,LSB
+| DNL |,CC,T,"Absolute differential
+nonlinearity",No overload,,—,0.5,1,LSB
+"| E |
+O",CC,T,Absolute offset error,—,,—,2,—,LSB
+"| E |
+G",CC,T,Absolute gain error,—,,—,2,—,LSB
+TUEP(7),CC,P,"Total unadjusted error for
+precise channels, input only
+pins",Without current injection,,–6,—,6,LSB
+,,T,,With current injection,,–8,—,8,
+TUEX(7),CC,T,"Total unadjusted error for
+extended channel",Without current injection,,–10,—,10,LSB
+,,T,,With current injection,,–12,—,12,

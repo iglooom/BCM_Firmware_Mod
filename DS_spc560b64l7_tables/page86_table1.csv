@@ -1,0 +1,12 @@
+Symbol,,C,Parameter,Conditions(1),Value,,,Unit
+,,,,,Min,Typ,Max,
+"t
+FLARSTEXIT",CC,T,Delay for Flash module to exit reset mode,—,—,—,125,µs
+"t
+FLALPEXIT",CC,T,Delay for Flash module to exit low-power mode,—,—,—,0.5,
+"t
+FLAPDEXIT",CC,T,Delay for Flash module to exit power-down mode,—,—,—,30,
+"t
+FLALPENTRY",CC,T,Delay for Flash module to enter low-power mode,—,—,—,0.5,
+"t
+FLAPDENTRY",CC,T,Delay for Flash module to enter power-down mode,—,—,—,1.5,

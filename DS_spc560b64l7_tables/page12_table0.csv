@@ -1,0 +1,32 @@
+Block,Function
+Mode entry module (MC_ME),"Provides a mechanism for controlling the device operational mode and mode
+transition sequences in all functional states; also manages the power control unit,
+reset generation module and clock generation module, and holds the
+configuration, control and status registers accessible for applications"
+Non-maskable interrupt (NMI),"Handles external events that must produce an immediate response, such as
+power down detection"
+Periodic interrupt timer (PIT),Produces periodic interrupts and triggers
+Power control unit (MC_PCU),"Reduces the overall power consumption by disconnecting parts of the device
+from the power supply via a power switching device; device components are
+grouped into sections called “power domains” which are controlled by the PCU"
+Real-time counter (RTC),"A free running counter used for time keeping applications, the RTC can be
+configured to generate an interrupt at a predefined interval independent of the
+mode of operation (run mode or low-power mode)"
+"Reset generation module
+(MC_RGM)",Centralizes reset sources and manages the device reset sequence of the device
+"Static random-access memory
+(SRAM)","Provides storage for program code, constants, and variables"
+"System integration unit lite
+(SIUL)","Provides control over all the electrical pad controls and up 32 ports with 16 bits of
+bidirectional, general-purpose input and output signals and supports up to 32
+external interrupts with trigger event configuration"
+"System status and configuration
+module (SSCM)","Provides system configuration and status data (such as memory size and status,
+device mode and security status), device identification data, debug status port
+enable and selection, and bus and peripheral abort enable/disable"
+System timer module (STM),"Provides a set of output compare events to support AUTOSAR (Automotive
+Open System Architecture) and operating system tasks"
+Software watchdog timer (SWT),Provides protection from runaway code
+Wakeup unit (WKPU),"The wakeup unit supports up to 27 external sources that can generate interrupts
+or wakeup events, of which 1 can cause non-maskable interrupt requests or
+wakeup events."

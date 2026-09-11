@@ -1,0 +1,40 @@
+Symbol,,C,Parameter,Conditions(1),,Value,,,Unit
+,,,,,,Min,Typ,Max,
+"t
+tr",CC,D,"Output transition time output pin(2)
+MEDIUM configuration","C = 25 pF
+L","V = 5.0 V ± 10%,
+DD
+PAD3V5V = 0
+SIUL.PCRx.SRC = 1",—,—,10,ns
+,,T,,"C = 50 pF
+L",,—,—,20,
+,,D,,"C = 100 pF
+ L",,—,—,40,
+,,D,,"C = 25 pF
+L","V = 3.3 V ± 10%,
+DD
+PAD3V5V = 1
+SIUL.PCRx.SRC = 1",—,—,12,
+,,T,,"C = 50 pF
+L",,—,—,25,
+,,D,,"C = 100 pF
+L",,—,—,40,
+"t
+tr",CC,D,"Output transition time output pin(2)
+FAST configuration","C = 25 pF
+L","V = 5.0 V ± 10%,
+DD
+PAD3V5V = 0",—,—,4,ns
+,,,,"C = 50 pF
+L",,—,—,6,
+,,,,"C = 100 pF
+ L",,—,—,12,
+,,,,"C = 25 pF
+L","V = 3.3 V ± 10%,
+DD
+PAD3V5V = 1",—,—,4,
+,,,,"C = 50 pF
+L",,—,—,7,
+,,,,"C = 100 pF
+L",,—,—,12,

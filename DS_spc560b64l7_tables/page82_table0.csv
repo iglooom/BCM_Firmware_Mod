@@ -1,0 +1,24 @@
+Symbol,,C,Parameter,Conditions(1),Value,,,Unit
+,,,,,Min,Typ,Max,
+"V
+PORUP",SR,P,Supply for functional POR module,"T = 25 °C,
+A
+after trimming",1.0,—,5.5,V
+"V
+PORH",CC,P,Power-on reset threshold,,1.5,—,2.6,
+"V
+LVDHV3H",CC,T,LVDHV3 low voltage detector high threshold,,—,—,2.95,
+"V
+LVDHV3L",CC,P,LVDHV3 low voltage detector low threshold,,2.6,—,2.9,
+"V
+LVDHV3BH",CC,P,LVDHV3B low voltage detector high threshold,,—,—,2.95,
+"V
+LVDHV3BL",CC,P,LVDHV3B low voltage detector low threshold,,2.6,—,2.9,
+"V
+LVDHV5H",CC,T,LVDHV5 low voltage detector high threshold,,—,—,4.5,
+"V
+LVDHV5L",CC,P,LVDHV5 low voltage detector low threshold,,3.8,—,4.4,
+"V
+LVDLVCORL",CC,P,LVDLVCOR low voltage detector low threshold,,1.08,—,1.16,
+"V
+LVDLVBKPL",CC,P,LVDLVBKP low voltage detector low threshold,,1.08,—,1.16,

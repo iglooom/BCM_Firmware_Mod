@@ -1,0 +1,15 @@
+Port pin,Function,Pin number,,,
+,,LQFP100,LQFP144,LQFP176,LBGA208
+VDD_BV,Internal regulator supply voltage,20,24,32,K3
+VSS_HV_ADC0,"Reference ground and analog
+ground for the A/D converter 0 (10-
+bit)",51,73,89,R15
+VDD_HV_ADC0,"Reference voltage and analog
+supply for the A/D converter 0 (10-
+bit)",52,74,90,P14
+VSS_HV_ADC1,"Reference ground and analog
+ground for the A/D converter 1 (12-
+bit)",59,81,98,N12
+VDD_HV_ADC1,"Reference voltage and analog
+supply for the A/D converter 1 (12-
+bit)",60,82,99,K13

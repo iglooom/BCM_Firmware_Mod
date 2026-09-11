@@ -1,0 +1,20 @@
+Symbol,,C,Parameter,Conditions(1),Value,,,Unit
+,,,,,Min,Typ,Max,
+"V
+SS_ADC1",SR,—,"Voltage on VSS_HV_ADC1
+(ADC_1 reference) pin with
+respect to ground (V )(2)
+SS",—,–0.1,—,0.1,V
+"V
+DD_ADC1",SR,—,"Voltage on VDD_HV_ADC1
+pin (ADC_1 reference) with
+respect to ground (V )
+SS",—,"V – 0.1
+DD",—,"V + 0.1
+DD",V
+"V
+AINx",SR,—,Analog input voltage(3),—,"V
+SS_ADC1
+– 0.1",—,"V
+DD_ADC1
++ 0.1",V

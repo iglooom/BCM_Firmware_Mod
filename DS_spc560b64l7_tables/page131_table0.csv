@@ -1,0 +1,55 @@
+Date,Revision,Changes
+12-Sep- 2011,6,"Editorial and formatting changes throughout
+Replaced instances of “e200z0” with “e200z0h”
+Device family comparison table:
+– added 1 MB code flash LQFP100 version
+– added 1.5 MB code flash LQFP144 version
+– removed 768 KB code flash LQFP176 version
+– changed LINFlex count for 144-pin LQFP—was ‘6’; is ‘8’
+– changed LINFlex count for 176-pin LQFP—was ‘8’; is ‘10’
+– replaced 105 °C with 125 °C in footnote 2
+SPC560B54/6x block diagram: added GPIO and VREG to legend
+SPC560B54/6x series block summary: added acronym “JTAGC”; in WKPU function
+changed “up to 18 external sources” to “up to 27 external sources”
+LQFP144 pin configuration: for pins 37–72, restored the pin labels that existed prior to
+27 July 2010
+LQFP176 pin configuration: corrected name of pin 4: was EPC[15]; is PC[15]
+Added following sections:
+– Pad configuration during reset phases
+– Pad configuration during standby mode exit
+– Voltage supply pins
+– Pad types
+– System pins
+– Functional port pins
+– Nexus 2+ pins
+Section “NVUSRO register”: edited content to separate configuration into electrical
+parameters and digital functionality; updated footnote describing default value of ‘1’
+in field descriptions NVUSRO[PAD3V5V] and NVUSRO[OSCILLATOR_MARGIN]
+Added section “NVUSRO[WATCHDOG_EN] field description”
+Tables “Absolute maximum ratings” and “Recommended operating conditions (3.3 V)”:
+replaced “VSS_HV_ADC0, VSS_HV_ADC1” with “VDD_HV_ADC0,
+VDD_HV_ADC1” in V parameter description
+DD_ADC
+“Recommended operating conditions (5.0 V)” table: replaced “VSS_HV_ADC0,
+VSS_HV_ADC1” with “VDD_HV_ADC0, VDD_HV_ADC1” in V parameter
+DD_ADC
+description; changed 3.6V to 3.0V in footnote 2
+Section “External ballast resistor recommendations”: replaced “low voltage monitor”
+with “low voltage detector (LVD)”
+“I/O input DC electrical characteristics” table: updated I characteristics
+LKG
+“MEDIUM configuration output buffer electrical characteristics” table: changed
+“I = 100 µA” to “I = 100 µA” in V conditions
+OH OL OL
+I/O weight: updated table (includes replacing instances of bit “SRE” with “SRC”)
+“Reset electrical characteristics” table: updated parameter classification for |I |
+WPU
+Updated voltage regulator electrical characteristics
+Section “Low voltage detector electrical characteristics”: changed title (was “Voltage
+monitor electrical characteristics”); changed “as well as four low voltage detectors” to
+“as well as five low voltage detectors”; added event status flag names found in RGM
+chapter of device reference manual to POR module and LVD descriptions; replaced
+instances of “Low voltage monitor” with “Low voltage detector”; updated values for
+V and V
+LVDLVBKPL LVDLVCORL
+Updated section “Power consumption”"

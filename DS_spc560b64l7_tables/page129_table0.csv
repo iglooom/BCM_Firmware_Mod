@@ -1,0 +1,46 @@
+Date,Revision,Changes
+23-Feb-2010,3,"Updated Features
+Updated block diagram to connect peripherals to pad I/O
+Updated block summary to include ADC 12-bit
+Updated 144, 176 and 100 pinouts to adjust format issues
+Table 26 Flash module life-retention value changed from 1-5 to 5 yrs
+Minor editing changes"
+13-Sep-2010,4,"Editorial changes and improvements.
+Cover page: removed LBGA208 package silhouette
+Updated “Features“ section
+Table 2: updated footnote concerning LBGA208
+In the block diagram:
+– Added “5ch 12-bit ADC“ block.
+– Updated Legend.
+– Added “Interrupt request with wakeup functionality” as an input to the WKPU block.
+Figure 2: removed alternate functions
+Figure 3: removed alternate functions
+Figure 4: removed alternate functions
+Table 3: added contents concerning the following blocks: CMU, eDMA, ECSM,
+MC_ME, MC_PCU, NMI, SSCM, SWT and WKPU
+Added Section 3.2, Pin muxing
+Section 4: Electrical characteristics: removed “Caution” note
+Section 4.2: NVUSRO register: removed “NVUSRO[WATCHDOG_EN] field
+description“ section
+Table 12: V : removed min value in “relative to V ”row
+IN DD
+Table 13
+– TV : contents merged into one row
+DD
+– V : changed min value in “relative to V ” row
+DD_BV DD
+Section 4.5: Thermal characteristics
+– Section 4.5.1: External ballast resistor recommendations: added new paragraph
+about power supply
+– Table 15: added R and R rows
+JB JC
+– Removed “LBGA208 thermal characteristics” table
+Table 16: rewrote parameter description of W and W
+FI NFI
+Section 4.6.5: I/O pad current specification
+– Removed I information
+DYNSEG
+– Updated “I/O supply segments” table
+Table 23: removed I row
+DYNSEG
+Added Table 24"

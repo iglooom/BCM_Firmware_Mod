@@ -1,0 +1,18 @@
+Symbol,,C,Parameter,Conditions(2),Pin count,Value,,,Unit
+,,,,,,Min,Typ,Max,
+"R
+JB",CC,,"Thermal resistance, junction-to-
+board(4)",Single-layer board — 1s,100,—,—,36,°C/W
+,,,,,144,—,—,38,
+,,,,,176,—,—,38,
+,,,,Four-layer board — 2s2p,100,—,—,33.6,
+,,,,,144,—,—,33.4,
+,,,,,176,—,—,33.4,
+"R
+JC",CC,,"Thermal resistance, junction-to-
+case(5)",Single-layer board — 1s,100,—,—,23,°C/W
+,,,,,144,—,—,23,
+,,,,,176,—,—,23,
+,,,,Four-layer board — 2s2p,100,—,—,19.8,
+,,,,,144,—,—,19.2,
+,,,,,176,—,—,18.8,

@@ -1,0 +1,28 @@
+Feature,SPC560B54,,SPC560B60,,,SPC560B64,,,
+CPU,e200z0h,,,,,,,,
+Execution speed(2),Up to 64 MHz,,,,,,,,
+Code flash memory,768 KB,,1 MB,,,1.5 MB,,,
+Data flash memory,64 (4  16) KB,,,,,,,,
+SRAM,64 KB,,80 KB,,,96 KB,,,
+MPU,8-entry,,,,,,,,
+eDMA,16 ch,,,,,,,,
+10-bit ADC,Yes,,,,,,,,
+dedicated(3),7 ch,15 ch,7 ch,15 ch,29 ch,7 ch,15 ch,29 ch,29 ch
+shared with 12-bit ADC,19 ch,,,,,,,,
+12-bit ADC,Yes,,,,,,,,
+dedicated(4),5 ch,,,,,,,,
+shared with 10-bit ADC,19 ch,,,,,,,,
+Total timer I/O(5) eMIOS,"37 ch,
+16-bit","64 ch,
+16-bit","37 ch,
+16-bit","64 ch,
+16-bit","64 ch,
+16-bit","37 ch,
+16-bit","64 ch,1
+6-bit","64 ch,
+16-bit","64 ch,
+16-bit"
+Counter / OPWM / ICOC(6),10 ch,,,,,,,,
+"O(I)PWM / OPWFMB /
+OPWMCB / ICOC(7)",7 ch,,,,,,,,
+O(I)PWM / ICOC(8),7 ch,14 ch,7 ch,14 ch,14 ch,7 ch,14 ch,14 ch,14 ch

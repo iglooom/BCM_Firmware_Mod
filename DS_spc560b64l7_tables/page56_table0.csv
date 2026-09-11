@@ -1,0 +1,8 @@
+Classification tag,Tag description
+P,Those parameters are guaranteed during production testing on each individual device.
+C,"Those parameters are achieved by the design characterization by measuring a statistically
+relevant sample size across process variations."
+T,"Those parameters are achieved by design characterization on a small sample size from
+typical devices under typical conditions unless otherwise noted. All values shown in the typical
+column are within this category."
+D,Those parameters are derived mainly from simulations.

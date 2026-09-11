@@ -1,0 +1,24 @@
+Symbol,,C,Parameter,Conditions,Value,,,,Unit
+,,,,,Min,"Typ
+(1)","Initial
+max
+(2)","Max
+(3)",
+"t
+dwprogram","C
+C",C,Double word (64 bits) program time(4),Code Flash,—,18,50,500,µs
+,,,,Data Flash,,22,,,
+"t
+16Kpperase",,,16 KB block preprogram and erase time,Code Flash,—,200,500,5000,ms
+,,,,Data Flash,,300,,,
+"t
+32Kpperase",,,32 KB block preprogram and erase time,Code Flash,—,300,600,5000,ms
+,,,,Data Flash,,400,,,
+"t
+128Kpperase",,,128 KB block preprogram and erase time,Code Flash,—,600,1300,7500,ms
+,,,,Data Flash,,800,,,
+"t
+esus",,D,Erase Suspend Latency,—,—,—,30,30,µs
+"t
+ESRT",,C,Erase Suspend Request Rate(5),Code Flash,20,—,—,—,ms
+,,,,Data Flash,10,—,—,—,

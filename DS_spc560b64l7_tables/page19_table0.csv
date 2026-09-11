@@ -1,0 +1,25 @@
+Port pin,Function,"noitcerid
+O/I","epyt
+daP","RESET
+configuration",Pin number,,,
+,,,,,"LQFP
+100","LQFP
+144","LQFP
+176","LBGA
+208(1)"
+RESET,"Bidirectional reset with Schmitt-
+Trigger characteristics and noise
+filter.",I/O,M,"Input weak
+pull-up after
+RGM PHASE2
+and 40 FIRC
+cycles",17,21,29,J1
+EXTAL,"Analog output of the oscillator
+amplifier circuit, when the oscillator is
+not in bypass mode. 
+Analog input for the clock generator
+when the oscillator is in bypass
+mode.",I/O,X,Tristate,36,50,58,N8
+XTAL,"Analog input of the oscillator amplifier
+circuit. Needs to be grounded if
+oscillator bypass mode is used.",I,X,Tristate,34,48,56,P8

@@ -1,0 +1,13 @@
+Symbol,Parameter,Conditions,Value,,,Unit
+,,,Min,Typ,Max,
+"L
+m",Motional inductance,—,—,11.796,—,KH
+"C
+m",Motional capacitance,—,—,2,—,fF
+C1/C2,"Load capacitance at OSC32K_XTAL and
+OSC32K_EXTAL with respect to ground(2)",—,18,—,28,pF
+"R (3)
+m",Motional resistance,AC coupled at C0 = 2.85 pF(4),—,—,65,kW
+,,AC coupled at C0 = 4.9 pF(4),—,—,50,
+,,AC coupled at C0 = 7.0 pF(4),—,—,35,
+,,AC coupled at C0 = 9.0 pF(4),—,—,30,

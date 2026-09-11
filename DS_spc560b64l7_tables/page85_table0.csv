@@ -1,0 +1,27 @@
+Symbol,,C,Parameter,Conditions,Value,,,Unit
+,,,,,Min,Typ,Max,
+P/E,CC,C,"Number of program/erase
+cycles per block for 16 KB
+blocks over the operating
+temperature range (T )
+J",—,100000,—,—,cycles
+P/E,CC,C,"Number of program/erase
+cycles per block for 32 KB
+blocks over the operating
+temperature range (T )
+J",—,10000,100000,—,cycles
+P/E,CC,C,"Number of program/erase
+cycles per block for 128 KB
+blocks over the operating
+temperature range (T )
+J",—,1000,100000,—,cycles
+Retention,CC,C,"Minimum data retention at
+85 °C average ambient
+temperature(1)","Blocks with
+0–1000 P/E cycles",20,—,—,years
+,,,,"Blocks with
+1001–10000 P/E
+cycles",10,—,—,years
+,,,,"Blocks with
+10001–100000 P/E
+cycles",5,—,—,years
