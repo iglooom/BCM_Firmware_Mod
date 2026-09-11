@@ -1,0 +1,487 @@
+[
+ {
+  "start": 0,
+  "end": 32767,
+  "name": "Code flash memory array 0"
+ },
+ {
+  "start": 32768,
+  "end": 49151,
+  "name": "Code flash memory array 0"
+ },
+ {
+  "start": 49152,
+  "end": 65535,
+  "name": "Code flash memory array 0"
+ },
+ {
+  "start": 65536,
+  "end": 98303,
+  "name": "Code flash memory array 0"
+ },
+ {
+  "start": 98304,
+  "end": 131071,
+  "name": "Code flash memory array 0"
+ },
+ {
+  "start": 131072,
+  "end": 262143,
+  "name": "Code flash memory array 0"
+ },
+ {
+  "start": 262144,
+  "end": 393215,
+  "name": "Code flash memory array 0"
+ },
+ {
+  "start": 393216,
+  "end": 524287,
+  "name": "Code flash memory array 0"
+ },
+ {
+  "start": 524288,
+  "end": 655359,
+  "name": "Code flash memory array 1"
+ },
+ {
+  "start": 655360,
+  "end": 786431,
+  "name": "Code flash memory array 1"
+ },
+ {
+  "start": 786432,
+  "end": 917503,
+  "name": "Code flash memory array 1"
+ },
+ {
+  "start": 917504,
+  "end": 1048575,
+  "name": "Code flash memory array 1"
+ },
+ {
+  "start": 1048576,
+  "end": 1179647,
+  "name": "Code flash memory array 2"
+ },
+ {
+  "start": 1179648,
+  "end": 1310719,
+  "name": "Code flash memory array 2"
+ },
+ {
+  "start": 1310720,
+  "end": 1441791,
+  "name": "Code flash memory array 2"
+ },
+ {
+  "start": 1441792,
+  "end": 1572863,
+  "name": "Code flash memory array 2"
+ },
+ {
+  "start": 1572864,
+  "end": 2097151,
+  "name": "Reserved"
+ },
+ {
+  "start": 2097152,
+  "end": 2113535,
+  "name": "Flash memory shadow array"
+ },
+ {
+  "start": 2113536,
+  "end": 4194303,
+  "name": "Reserved"
+ },
+ {
+  "start": 4194304,
+  "end": 4210687,
+  "name": "Code flash memory array 0 test sector"
+ },
+ {
+  "start": 4210688,
+  "end": 8388607,
+  "name": "Reserved"
+ },
+ {
+  "start": 8388608,
+  "end": 8404991,
+  "name": "Data flash memory array 0"
+ },
+ {
+  "start": 8404992,
+  "end": 8421375,
+  "name": "Data flash memory array 0"
+ },
+ {
+  "start": 8421376,
+  "end": 8437759,
+  "name": "Data flash memory array 0"
+ },
+ {
+  "start": 8437760,
+  "end": 8454143,
+  "name": "Data flash memory array 0"
+ },
+ {
+  "start": 12582911,
+  "end": null,
+  "name": "Reserved"
+ },
+ {
+  "start": 12582912,
+  "end": 12599295,
+  "name": "Data flash memory array 0 test sector"
+ },
+ {
+  "start": 12599296,
+  "end": 16777215,
+  "name": "Reserved"
+ },
+ {
+  "start": 16777216,
+  "end": 536870911,
+  "name": "Flash memory emulation mapping"
+ },
+ {
+  "start": 536870912,
+  "end": 1073741823,
+  "name": "Reserved"
+ },
+ {
+  "start": 1073741824,
+  "end": 1073840127,
+  "name": "SRAM"
+ },
+ {
+  "start": 1073840128,
+  "end": 3221225471,
+  "name": "Reserved"
+ },
+ {
+  "start": 3221225472,
+  "end": 3287842815,
+  "name": "Reserved"
+ },
+ {
+  "start": 3287842816,
+  "end": 3287859199,
+  "name": "Code flash memory A configuration"
+ },
+ {
+  "start": 3287859200,
+  "end": 3287875583,
+  "name": "Data flash memory A configuration"
+ },
+ {
+  "start": 3287875584,
+  "end": 3287891967,
+  "name": "SIUL"
+ },
+ {
+  "start": 3287891968,
+  "end": 3287908351,
+  "name": "WKPU"
+ },
+ {
+  "start": 3287908352,
+  "end": 3287941119,
+  "name": "Reserved"
+ },
+ {
+  "start": 3287941120,
+  "end": 3287957503,
+  "name": "eMIOS_0"
+ },
+ {
+  "start": 3287957504,
+  "end": 3287973887,
+  "name": "eMIOS_1"
+ },
+ {
+  "start": 3287973888,
+  "end": 3288170495,
+  "name": "Reserved"
+ },
+ {
+  "start": 3288170496,
+  "end": 3288186879,
+  "name": "SSCM"
+ },
+ {
+  "start": 3288186880,
+  "end": 3288203263,
+  "name": "MC_ME"
+ },
+ {
+  "start": 3288203264,
+  "end": 3288219647,
+  "name": "MC_CGM"
+ },
+ {
+  "start": 3288219648,
+  "end": 3288236031,
+  "name": "MC_RGM"
+ },
+ {
+  "start": 3288236032,
+  "end": 3288252415,
+  "name": "MC_PCU"
+ },
+ {
+  "start": 3288252416,
+  "end": 3288268799,
+  "name": "RTC/API"
+ },
+ {
+  "start": 3288268800,
+  "end": 3288285183,
+  "name": "PIT"
+ },
+ {
+  "start": 3288285184,
+  "end": 4292870143,
+  "name": "Reserved"
+ },
+ {
+  "start": 4292870144,
+  "end": 4292886527,
+  "name": "ADC_0"
+ },
+ {
+  "start": 4292886528,
+  "end": 4292902911,
+  "name": "ADC_1"
+ },
+ {
+  "start": 4292902912,
+  "end": 4293066751,
+  "name": "Reserved"
+ },
+ {
+  "start": 4293066752,
+  "end": 4293083135,
+  "name": "I2C_0"
+ },
+ {
+  "start": 4293083136,
+  "end": 4293132287,
+  "name": "Reserved"
+ },
+ {
+  "start": 4293132288,
+  "end": 4293148671,
+  "name": "LINFlex_0"
+ },
+ {
+  "start": 4293148672,
+  "end": 4293165055,
+  "name": "LINFlex_1"
+ },
+ {
+  "start": 4293165056,
+  "end": 4293181439,
+  "name": "LINFlex_2"
+ },
+ {
+  "start": 4293181440,
+  "end": 4293197823,
+  "name": "LINFlex_3"
+ },
+ {
+  "start": 4293197824,
+  "end": 4293214207,
+  "name": "LINFlex_4"
+ },
+ {
+  "start": 4293214208,
+  "end": 4293230591,
+  "name": "LINFlex_5"
+ },
+ {
+  "start": 4293230592,
+  "end": 4293246975,
+  "name": "LINFlex_6"
+ },
+ {
+  "start": 4293246976,
+  "end": 4293263359,
+  "name": "LINFlex_7"
+ },
+ {
+  "start": 4293263360,
+  "end": 4293279743,
+  "name": "Reserved"
+ },
+ {
+  "start": 4293279744,
+  "end": 4293296127,
+  "name": "CTU"
+ },
+ {
+  "start": 4293296128,
+  "end": 4293328895,
+  "name": "Reserved"
+ },
+ {
+  "start": 4293328896,
+  "end": 4293345279,
+  "name": "CAN sampler"
+ },
+ {
+  "start": 4293345280,
+  "end": 4293394431,
+  "name": "Reserved"
+ },
+ {
+  "start": 4293394432,
+  "end": 4293918719,
+  "name": "Mirrored range 0x3F80000\u2014 0xC3FFFFFF"
+ },
+ {
+  "start": 4293918720,
+  "end": 4293984255,
+  "name": "Reserved"
+ },
+ {
+  "start": 4293984256,
+  "end": 4294000639,
+  "name": "MPU"
+ },
+ {
+  "start": 4294000640,
+  "end": 4294148095,
+  "name": "Reserved"
+ },
+ {
+  "start": 4294148096,
+  "end": 4294164479,
+  "name": "SWT"
+ },
+ {
+  "start": 4294164480,
+  "end": 4294180863,
+  "name": "STM"
+ },
+ {
+  "start": 4294180864,
+  "end": 4294197247,
+  "name": "ECSM"
+ },
+ {
+  "start": 4294197248,
+  "end": 4294213631,
+  "name": "eDMA"
+ },
+ {
+  "start": 4294213632,
+  "end": 4294230015,
+  "name": "INTC"
+ },
+ {
+  "start": 4294230016,
+  "end": 4294508543,
+  "name": "Reserved"
+ },
+ {
+  "start": 4294508544,
+  "end": 4294524927,
+  "name": "DSPI_0"
+ },
+ {
+  "start": 4294524928,
+  "end": 4294541311,
+  "name": "DSPI_1"
+ },
+ {
+  "start": 4294541312,
+  "end": 4294557695,
+  "name": "DSPI_2"
+ },
+ {
+  "start": 4294557696,
+  "end": 4294574079,
+  "name": "DSPI_3"
+ },
+ {
+  "start": 4294574080,
+  "end": 4294590463,
+  "name": "DSPI_4"
+ },
+ {
+  "start": 4294590464,
+  "end": 4294606847,
+  "name": "DSPI_5"
+ },
+ {
+  "start": 4294606848,
+  "end": 4294639615,
+  "name": "Reserved"
+ },
+ {
+  "start": 4294639616,
+  "end": 4294655999,
+  "name": "LINFlex_8"
+ },
+ {
+  "start": 4294656000,
+  "end": 4294672383,
+  "name": "LINFlex_9"
+ },
+ {
+  "start": 4294672384,
+  "end": 4294705151,
+  "name": "Reserved"
+ },
+ {
+  "start": 4294705152,
+  "end": 4294721535,
+  "name": "FlexCAN_0"
+ },
+ {
+  "start": 4294721536,
+  "end": 4294737919,
+  "name": "FlexCAN_1"
+ },
+ {
+  "start": 4294737920,
+  "end": 4294754303,
+  "name": "FlexCAN_2"
+ },
+ {
+  "start": 4294754304,
+  "end": 4294770687,
+  "name": "FlexCAN_3"
+ },
+ {
+  "start": 4294770688,
+  "end": 4294787071,
+  "name": "FlexCAN_4"
+ },
+ {
+  "start": 4294787072,
+  "end": 4294803455,
+  "name": "FlexCAN_5"
+ },
+ {
+  "start": 4294803456,
+  "end": 4294819839,
+  "name": "Reserved"
+ },
+ {
+  "start": 4294819840,
+  "end": 4294836223,
+  "name": "DMA_MUX"
+ },
+ {
+  "start": 4294836224,
+  "end": 4294950911,
+  "name": "Reserved"
+ },
+ {
+  "start": 4294950912,
+  "end": 4294967295,
+  "name": "BAM"
+ }
+]

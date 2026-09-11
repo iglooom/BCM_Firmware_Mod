@@ -40,23 +40,27 @@ The trailing field is a **13-bit command code + 1 valid/"update" bit**, spanning
   ⇒ **d6 image = `0x4000091E`, d7 image = `0x4000091F`** (LOCK/UNLOCK byte).
 - (HS-CAN 0x100 = MB34, separate image; the lock press was seen on MS.)
 
-## 3. Handling path — OPEN (needs decompilation)
+## 3. Handling path — NOT LOCATED, and provably not findable statically (CLOSED)
 
 - The Volcano routing records for the `0x100` image only shuffle **d0–d6** among themselves
-  (self/adjacent-byte normalization). **d7 (`0x4000091F`) has ZERO references** anywhere:
-  no 4-aligned pointer, no raw pointer, no Ghidra code/data xref.
-- The MS-net status flag `0x400004FE` and the frame-image page likewise have **no CODE xrefs**
-  (only F10A data-table entries).
-- ⇒ The lock/unlock byte is read by **application door-lock logic via computed (base+offset)
-  addressing** that Ghidra's ref DB does not resolve (the classic MPC/VLE `e_lis`+displacement case).
-- Next: decompile the RKE-message consumer. Leads: RX copier `FUN_000fc63e`; find the function that
-  holds `0x40000918`/`0x40000900`-page base in a register and loads `+6/+7`; then find the
-  **ignition gate** (lock-with-ignition-on is blocked by default) — a test of an ignition/run signal
-  guarding the RKE-lock action. Goal: neutralize that gate so RKE LOCK works with ignition ON.
+  (self/adjacent-byte normalisation). **d7 (`0x4000091F`) has ZERO references** anywhere: no
+  4-aligned pointer, no raw pointer, no Ghidra code/data xref.
+- The MS-net arrival-flag byte `0x400004FE` and the frame-image page likewise have **no code xrefs**
+  (only calibration data-table entries).
 
-Page-base scan (`work/rke_pagescan.py`) — `0x4000` high-half with a `0x09xx` low-half nearby in code:
-`0x018CB3`, `0x04EC25`, `0x07D32B` (candidates to inspect; 0x018Cxx is in the reception-descriptor
-data region, likely not code).
+> **Resolution (owner full-flash analysis, `owner_flash_layers.md` §20.2):** this is not a gap in
+> *this* frame's trace — it is the project-wide **unpack-stage** problem. **Zero** application
+> functions touch *any* RX frame-image byte by absolute address; the packed images
+> (`0x40000600…`) and the app signal planes (`0x40001E00`/`0x40002800`/`0x40003C00`) are disjoint
+> memory with an unlocated bridge. Static scanning is proven ineffective here — the page-base
+> candidates this note once listed (`0x018CB3`, `0x04EC25`, `0x07D32B`) led nowhere, and
+> `0x018Cxx` is descriptor data, not code.
+>
+> **This never needed solving.** The shipped `rke-lock` mod injects at the TX mailbox and reads the
+> inputs straight from the RX image, so the consumer's identity is irrelevant. Finding the ignition
+> gate in code was the original plan; it was abandoned for the mailbox-injection approach and the
+> result is on-vehicle proven. Re-opening this requires bench instrumentation, not more scanning
+> (README §8 item 1).
 
-Scripts: `work/rke_field.py` (bit decode), `work/rke_rxdesc.py`, `work/rke_coderefs.py` (xref scan),
-`work/rke_pagescan.py` (page-base scan).
+Scripts: `work/rke_field.py` (bit decode), `work/rke_rxdesc.py` (reception descriptor),
+`work/rke_coderefs.py` (xref scan), `work/rke_pagescan.py` (page-base scan — negative result).

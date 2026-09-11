@@ -4,17 +4,75 @@
 PCR92). Can we find where firmware reads these pins, locate the central-lock logic cluster, and just
 trigger the lock pin instead of injecting CAN frames?
 
-**Verdict: neither pin is serviced by this firmware.** They are not polled through SIUL GPIO, and
+> ## ⚠ STATUS: REOPENED AND REVERSED (2026-09-11)
+>
+> **The verdict below was WRONG. Both pins are configured AND polled by this firmware.**
+>
+> | | |
+> |---|---|
+> | Configured by | the **149-record pad table** @ `0x00017380`, applied at boot by `FUN_0003F3E0` ← `APP_mcu_driver_init` |
+> | PI15 record | `8f 41 0100` → pad 143, **PCR `0x0100` = IBE** (digital input, buffer ON) |
+> | PF12 record | `5c 82 0100` → pad 92, **PCR `0x0100` = IBE** (digital input, buffer ON) |
+> | Read by | `FUN_0003B4AE(pad)` — a **generic reader taking the pad number as an argument** |
+> | Read sites | `FUN_0003B4AE(0x8F)` = PI15 (**9×**), `FUN_0003B4AE(0x5C)` = PF12 (**5×**) |
+> | Debounced into | PI15 → `0x40004300` → state `0x40003AA5` **bit 5**; PF12 → `0x400042A4` → state `0x40003AA5` **bit 4** |
+> | Consumed by | `FUN_00050726`, which repacks bits 4/5 into the signal plane |
+>
+> **Why every previous scan missed it — the negatives were all methodologically void.**
+> Both the pad number *and* the PCR value live in **data**; the addresses are computed as
+> `&SIUL_PCR_PA0 + pad` / `&SIUL_GPDI_PA0 + pad`. **No PI15/PF12 register address exists anywhere in
+> the image** — which is exactly what §2 measured and misread as "not serviced". An address scan
+> cannot see a table-driven HAL. The same blind spot hid the LIN0 pads (`owner_flash_layers.md` §28.6)
+> and the WKPU driver (§2a below) — this document had *already* been corrected once for precisely
+> this reason, and the lesson was not applied to its own main conclusion.
+>
+> The §3.1 "only three pads touched" and §5 "no pad configuration whatsoever" cross-checks were the
+> *same* method re-run, so they added confidence without adding independence.
+>
+> Evidence: `work/owner/136`–`145`, `owner_flash_layers.md` §30. The active-low debounce
+> (`LZCOUNT(v)>>5` = "pin == 0") and the two adjacent state bits fed through identical gates are the
+> signature of a paired LOCK/UNLOCK switch to ground.
+>
+> **Consequence:** the "trigger the lock pin" shortcut is **not** ruled out. Note it is an *input*,
+> so one does not "drive" it — the exploitable move is to force the debounced state bit or its
+> consumer. Not yet attempted; no bench measurement is required to proceed.
+
+<details>
+<summary><b>Superseded original verdict (kept for the method lesson)</b></summary>
+
+**~~Verdict: neither pin is serviced by this firmware.~~** ~~They are not polled through SIUL GPIO, and
 neither pin is eligible for EIRQ/WKPU wakeup. The other plausible input-peripheral routes are also
 closed: PI15's `ADC0_S[23]` (absolute channel 55) is absent from every ADC conversion mask, and
 PF12's eMIOS1 channel 25 is not read. The "trigger the lock pin" shortcut is therefore unavailable on this image. The
-bus-injection approach (rke-lock on `0x3A`) remains the correct firmware mechanism.
+bus-injection approach (rke-lock on `0x3A`) remains the correct firmware mechanism.~~
 
 > **Correction (wakeup/interrupt route re-audited).** An earlier revision of this doc implied the
 > WKPU peripheral was untouched. **That was wrong** — the firmware *does* drive WKPU at
 > `0xC3F94000`, but through a **generic table-driven driver**, so the exact-constant scan of §2
 > never saw a WKPU base. The wakeup path is now enumerated positively rather than assumed absent,
 > and the PI15/PF12 conclusion is unchanged. See §2a.
+
+> ~~**Status: CLOSED (negative result), and later re-confirmed on the full flash.**~~ This document is
+> the exhaustive enumeration that ruled the GPIO route out. Two follow-ups have since strengthened
+> it, so **do not re-open it from the firmware side**:
+> - `owner_flash_layers.md` §3.1 — an instruction-level scan that provably resolves `e_lis`-built
+>   addresses finds only **three** pads touched in the whole image (PA0, PB2, PB3). Neither PI15 nor
+>   PF12 appears in the PBL's 48 SIUL accesses either. A materially stronger negative than the
+>   literal scan below.
+> - `owner_backup_analysis.md` §5 — the §2f coverage gap is **closed**: the 48 KB PBL, the shadow
+>   array and DFlash were all read and contain **no pad configuration whatsoever**.
+>
+> **Remaining hypothesis (single, by elimination):** the traced wires do not reach the MCU as
+> digital/analog inputs — they land on a companion device (UJA1078 SBC or an analog mux) reporting
+> over SPI/LIN, or the press is detected elsewhere and relayed on the bus. **The only remaining step
+> is a bench measurement** (scope PI15 during a press); no further static analysis can decide it.
+
+**The ADC/eMIOS/WKPU eliminations in §2–§2b below remain valid** — those routes genuinely are unused.
+The error was concluding "therefore the pin is unserviced" when the plain-GPIO route had only been
+tested by address scanning.
+
+</details>
+
 
 ## Register addresses (SPC560B64, SIUL base 0xC3F90000 — confirmed)
 
@@ -457,6 +515,22 @@ single stack at `0x4000CAC8`.
 - Reading the bootloader would require a **debug-port dump** (JTAG/Nexus) or a Ford `14A073` VBF;
   it cannot be recovered from the files in this repo.
 
+> ### ✅ RESOLVED by the owner full-flash backup — see `docs/owner_backup_analysis.md`
+> `backups/owner-backup-20260911T090300Z/` (captured via the SBL + SRAM reader) supplies **all**
+> the regions this section listed as unread: the 48 KB PBL, the shadow array and DFlash.
+> Result for the pin question: **nothing new enables PI15/PF12.**
+> - The PBL is real code with a valid RCHW at `0x0` (entry `0x160`) and identifies itself as
+>   `FORD-PBL-V013` / `DV6T-14A073-FK` — confirming this section's inference about part `14A073`.
+> - **The PBL references ZERO SIUL pad registers** (it touches only FlexCAN, LINFlex, DSPI, eDMA,
+>   ECSM) — it configures no pins at all. Target-register scans for PI15/PF12 PCR/GPDI/GPDO,
+>   ADC0 CDR55, both PSMI words and eMIOS_1 CCR25 return **zero hits across PBL + shadow + DFlash**.
+> - **DFlash holds no variant coding** — just 32 bytes of EEPROM-emulation wear-level log, retiring
+>   the concern below that pin behaviour might be variant-coded in unread data flash.
+> - **The MCU is not censored** (`NVPWD0/1`, `NVSCC0/1` all erased), so a JTAG/Nexus dump is
+>   available as an independent cross-check, including TestFlash/OTP which the backup skipped.
+> - The backup's app region matches OEM `-AD` in all but 5 bytes, none of which lie in the ADC,
+>   EIRQ/WKUP, PWM or INTC-vector tables (they select a different gateway calibration record).
+
 ## Method + evidence (continued)
 
 4. **The firmware's discrete-GPIO footprint** (pads whose GPDO/GPDI registers appear as
@@ -511,12 +585,13 @@ single stack at `0x4000CAC8`.
 
 ## Recommended next steps (if pursuing the GPIO angle further)
 
-- **Decode the config table @`~0x146850`** fully to confirm the `0xFFE4_x000` bases are LINFlex and
-  name the PA/PB/PC pin roles (rules them in/out as anything lock-related). Script:
-  extend `work/rke_siul_map.py`.
-- **Verify on the bench:** with a multimeter/scope, check whether PI15/PF12 actually toggle when the
-  interior button is pressed, and whether they connect to the MCU or to the SBC. If they never reach
-  the MCU, hypothesis (1) is confirmed and the firmware-GPIO route is closed.
+⚠ **Only the bench measurement can still change the answer** — every static route below has been
+enumerated and closed (see the status note at the top).
+
+- **Verify on the bench (decisive):** with a multimeter/scope, check whether PI15/PF12 actually
+  toggle when the interior button is pressed, and whether they connect to the MCU or to the SBC. If
+  they never reach the MCU, the companion-device hypothesis is confirmed and the route is closed
+  for good.
 - **If a discrete lock trigger is still wanted:** the only firmware-drivable discrete outputs are the
   LIN-control GPDOs (PA5/PA7/PB2/PC6/PC8) — none is a lock relay, so there is nothing simpler than
   the existing `0x3A` bus command to actuate the locks from this MCU.
@@ -549,4 +624,7 @@ Scripts: `work/rke_gpio_raw.py`, `work/rke_siul_map.py`, `work/rke_periph_resolv
 `work/rke_boot_path.py` (control transfers / pointers into the un-flashed low 48 KB),
 `work/rke_vectors.py` (**decode the 256 INTC vectors as VLE `e_b` branches**),
 `work/rke_os_id.py` (RTOS/toolchain string scan + INTC IACKR + startup callees),
+`work/rke_backup_analyze.py` (**owner backup: target registers in PBL/shadow/DFlash**),
+`work/rke_pbl_deep.py` (**PBL structure, strings, peripheral-page census; shadow NV words**),
+`work/rke_backup_diff.py` (backup-vs-OEM per region + the 5 differing app bytes),
 `work/rke_rm_regmap.py` (pdfplumber ADC/eDMA register maps from the RM) — all read-only analysis.

@@ -17,21 +17,37 @@ The technical work focuses on its role as a **CAN gateway** between HS-CAN (500k
 
 **Status (high-level):**
 - ✅ VBF files parsed & verified; raw binaries extracted; merged flash image built.
-- ✅ Ghidra project created, VLE-disassembled, auto-analyzed (~129k instr, ~2229 funcs).
+- ✅ **Owner full-flash dump analysed layer-by-layer** — `ghidra_proj_owner`, **938 verified symbols**
+  across 16 layers, incl. the 48 KB PBL that no OEM VBF contains. This is the **primary** project.
+  See **`docs/owner_flash_layers.md`** (analysis) and **`docs/owner_artifacts.md`** (outputs).
+- ✅ **Full code sweep done** — 2,403 → **13,588 functions** (483k code units) by linear-sweeping the
+  unreferenced code the recursive disassembler could not reach, with a per-range quality gate that
+  rejected 91 data regions. See `owner_flash_layers.md` §23.
 - ✅ Gateway architecture understood: **table-driven Volcano network database**, not hand-coded.
-- ✅ Complete per-bus CAN-ID inventory (RX/TX) extracted from FlexCAN acceptance filters.
+  Complete per-bus CAN-ID inventory extracted from FlexCAN acceptance filters and **cross-validated
+  against the vehicle databases** (58 MS directions agree, 0 mismatches). See **`docs/gateway_map.md`**.
+- ✅ **`frameObj → CAN-ID` binding RESOLVED** (long the key open item). RX and TX record layouts were
+  decoded from the consuming code, yielding **279 RX frames, 15 HS TX, 43 MS TX** with per-byte
+  addresses. All four addresses the shipped mods rely on (`0x40000707`, `0x40000705`, `0xFFFC0080`,
+  `0xFFFC4090`) are reproduced independently by the tables.
+- ✅ Application diagnostics mapped: 492-entry DID table, **476 per-identifier readers named**,
+  validated against a real scan-tool session (146/147 supported, 29/29 security-gated).
 - ✅ One cross-bus signal link **proven**: HS `0x0C0` → MS `0x020` (shared signal-RAM).
-- ⚠️ **Key open item:** the `frameObj → CAN-ID` binding is NOT yet resolved. Without it, per-ID
-  routing/forwarding and per-ID signal membership cannot be stated exhaustively.
 - ✅ **Shipped modification `acc-fix`** (on-vehicle proven): remaps the new SWM steering-wheel
-  cruise buttons in TX HS-CAN `0x030` so the old PCM understands them. See **§5.4** and
-  **`docs/acc-fix.md`** + **`AGENTS.md`** (porting guide for other OEM BCM versions).
+  cruise buttons in TX HS-CAN `0x030` so the old PCM understands them. **§5.4**, `docs/acc-fix.md`,
+  porting guide `AGENTS.md`.
 - ✅ **Shipped modification `rke-lock`** (on-vehicle proven): lets the remote key **lock the car with
   the ignition ON** (stock BCM blocks it), gated on **key-outside**. TX-mailbox injection on MS-CAN
-  `0x3A` (lock-command byte), layered into the same caves as acc-fix → **one combined VBF**. See **§5.5** and
-  **`docs/rke-lock.md`**.
-- ❗ **Retracted mistakes** (do not repeat — see §7): "same-ID on both buses = forwarding" is FALSE;
-  "spec1 = id<<18" is FALSE; "frameObj numeric range = bus" is FALSE.
+  `0x3A`, layered into the same caves as acc-fix → **one combined VBF**. **§5.5**, `docs/rke-lock.md`.
+- ⚠️ **Module identity lives in the BOOTLOADER block** — `F111`/`F113`/`F180`/`F18C` are served by app
+  readers from literals at `0x006B10..0x006BA8`, and the **VIN** sits at `0x008000`. No OEM VBF
+  contains any of it, so it is **restorable only from the owner backup**. This module also reports
+  different `F111`/`F113` than the vehicle's as-built data (replacement unit).
+  See `docs/owner_flash_layers.md` §21.
+- ⚠️ **Key open item:** the **unpack stage** (packed RX frame images → the app signal planes) is not
+  located. Measured: zero app functions touch image bytes by absolute address, so static analysis
+  cannot find it — needs bench instrumentation (`owner_flash_layers.md` §20.2).
+- ❗ **12 retracted assumptions — read §7 before building on anything.**
 
 ---
 
@@ -118,11 +134,12 @@ recompute each block CRC-16 → recompute file CRC-32 into the header. Also note
 change can span **two VBF files** (e.g. a descriptor-pointer edit in the APP block + a routing
 record in the F10A cal block = two container checksum domains); repair and flash both.
 
-Helper scripts (in `work/`): `cmp_ab_ad.py` / `diff_ab_ad.py` (OEM version diff), `hunt_cksum.py`
-/ `hunt_const.py` / `find_algo.py` (integrity-word hunt), `check_internal.py` (validate layer 3),
-`build_resplus.py` (patch + repair all three layers), `verify_resplus.py` / `diff_resplus.py`
-(re-parse, decode, differential audit). Whatever flashing/repack step is used must deliver the app
-block **byte-exact** (no re-alignment/re-padding) or the `sum8` drifts again.
+Helper scripts (in `work/`): `cmp_ab_ad.py` (OEM version diff), `hunt_cksum.py` / `hunt_const.py` /
+`find_algo.py` (integrity-word hunt), `check_internal.py` (validate layer 3),
+`vbf_crc_validate.py` (container CRC check). The per-mod builders under `work/acc-fix/` and
+`work/rke-lock/` repair all three layers automatically (§5.4/§5.5). Whatever flashing/repack step is
+used must deliver the app block **byte-exact** (no re-alignment/re-padding) or the `sum8` drifts
+again.
 
 **Extraction pipeline** (all in `work/`):
 ```
@@ -138,7 +155,30 @@ app@0x10000, F10A@0x140000. **This is the file to struct-scan and to load in Ghi
 
 ## 3. Ghidra project
 
-- **Location:** `ghidra_proj/` — project `BCM_C1MCA`, program `flash_merged.bin`.
+Two projects exist. **Use the right one for the question:**
+
+| Project | Program | Covers | Use for |
+|---|---|---|---|
+| `ghidra_proj/` · `BCM_C1MCA` | `flash_merged.bin` | app + both cals, re-assembled from OEM VBFs | the historical `acc-fix` / `rke-lock` builds (their addresses are quoted against this image) |
+| **`ghidra_proj_owner/` · `BCM_OwnerFlash`** | `cflash.bin` | the module's **real** nonvolatile memory — **incl. the 48 KB PBL**, shadow array and DFlash | **everything else — now the primary project** |
+
+The owner project is built straight from `backups/owner-backup-20260911T090300Z/` and carries
+**938 verified user-defined symbols** across 16 analysed layers. Because no OEM VBF ships the primary
+bootloader, **everything below `0xC000` is invisible in `ghidra_proj/`**.
+
+See [`docs/owner_flash_layers.md`](docs/owner_flash_layers.md) for the full layer-by-layer analysis and
+`work/owner/` for the scripts (each layer is reproducible — §27 of that doc lists the commands).
+
+What the owner project now maps, beyond the bootloader:
+
+| Area | Detail |
+|---|---|
+| **CAN codec** | TX/RX record layouts decoded from consumer code; **279 RX + 15 HS TX + 43 MS TX frames** enumerated with per-byte addresses |
+| **Bus map** | CAN_0 HS 500k / CAN_1 MS 125k / CAN_2 MSX 125k — derived from the FlexCAN `CTRL` registers, not assumed |
+| **Diagnostics** | 492-entry DID table, **476 per-identifier reader functions** individually named |
+| **Memory** | retained RAM / `.data` / `.bss` boundaries read from the reset path |
+| **Validation** | all three addresses the shipped on-vehicle mods use (`0x40000707`, `0x40000705`, `0xFFFC0080`, `0xFFFC4090`) fall out of the decoded tables independently |
+
 - **Ghidra:** 12.1.2 at `/opt/ghidra`. Language **`PowerPC:BE:64:VLE-32addr`**.
 - **Critical setup already applied:** `vle` context register = 1 on the code region (0x10000–0x13FFFF)
   — without it nothing disassembles. Entry point 0x0010F4A0 (from RCHW `005A005A` @0x10000). SRAM
@@ -161,48 +201,47 @@ open read-only; only ONE process may hold the project at a time.** Reference scr
 ## 4. How the Volcano gateway works (mental model)
 
 The BCM is a **table-driven Volcano gateway**. Application code is generic; **all** CAN behavior is
-data in the F10A block, walked at runtime (`FUN_0004471a → FUN_000fbc48(&PTR_00140000)`). **Proof:**
-no CAN-ID and no FlexCAN base appears as a code immediate anywhere (a).
+data in the calibration blocks, walked at runtime (`FUN_0004471a → FUN_000fbc48(&PTR_00140000)`).
+**Proof (a):** no CAN-ID and no FlexCAN base appears as a code immediate anywhere.
 
-Table stack (details + byte layouts in `docs/gateway_map_format.md`):
 ```
-[1] Master net table 0x178B0  (0x5C/rec)  → +0x04 controller descriptor
-[2] Controller desc 0x1464E0/0x146900/0x146C50  FlexCAN base, CTRL/baud, +0x44 → RX desc table
-[3] MB acceptance/ID filter list 0x146530/0x146950/0x146CA0  (12B: [id<<18][dir 0x04=RX/0x08=TX][mask])
-[4] Reception descriptors 0x18000  (32B: …[handler→routing rec @+0x0C]…[frame-image RAM @+0x18])
-[5] Signal-routing records 0x140000–0x15BF00  (20B: [sigA][sigB][frameObj][spec1][spec2])
+[1] Master net table 0x0178AC/0x017A78/0x017AD4   +0x08 → controller descriptor  (stride NOT uniform)
+[2] Controller desc  0x1464E0/0x146900/0x146C50   FlexCAN base (+0x10), CTRL/baud (+0x30)
+[3] MB filter list   0x146530/0x146950/0x146CA0   12B: [id<<18][dir 0x04=RX/0x08=TX][mask]
+                                                  list position == hardware mailbox index
+[4] RX/TX descriptor arrays — anchored at RUNTIME (S+0x44 → T), no flash pointer exists
+[5] Signal-routing records 0x140000–0x15BF00      28B, marker-anchored
 [6] Signal descriptors 0x15A920 (24B) + defaults in F124@0xC000
 ```
 
-**Signal-routing record (20 B, the core map):** `[sigA src signal-RAM][sigB dst signal-RAM][frameObj]
-[spec1 pack-spec][spec2 pack-spec]`. (Note field order: the reception-descriptor handler pointer
-lands on `sigA`; `frameObj` is the 3rd word = handler+8.) Signals live in RAM `0x40000600–0x40000D2F`.
-
-**Codec code (a):** RX copier `FUN_000fc63e` (MB→frame-image), TX packer `FUN_000fc218`/`FUN_000fc2f6`
-(frame-image→MB), net bring-up `FUN_000fbc48`.
+**Codec code (a):** RX copier `FUN_000fc63e` (MB→frame-image, **compacting** byte copy), TX packers
+`FUN_000fc218` (single) / `FUN_000fc2f6` (walker) (frame-image→MB), net bring-up `FUN_000fbc48`,
+hardware init `FUN_000fceb8`. Signals live in RAM `0x40000600–0x40000D2F`.
 
 **Gateway translation = shared signal-RAM:** a cell written while unpacking an RX frame and read
 while packing a TX frame. That is the ONLY reliable evidence of cross-bus content flow.
-**Same CAN-ID number on both buses is NOT evidence of forwarding** (see §7).
+**Same CAN-ID number on both buses is NOT evidence of forwarding** (§7).
+
+Full layouts, per-bus ID inventory, frame maps and routing evidence: **`docs/gateway_map.md`**.
 
 ---
 
 ## 5. Established results
 
-### 5.1 Full per-bus CAN-ID inventory (authoritative, from MB filters) (b)
-Run `python3 work/gw_mbfull.py`. Summary: **HS-CAN** 46 RX / 17 TX; **MS-CAN** 14 RX / 49 TX;
-**MSX-CAN** obstacle IDs only (0x1xx/0x3xx/0x5xx/0x7xx). Full lists in
-`docs/volcano_calibration_documentation.md` §3. Diag IDs seen: 0x72E, 0x7CC, 0x7CE.
+### 5.1 Per-bus CAN-ID inventory (authoritative, from MB filters) (b)
+`python3 work/gw_mbfull.py`. **HS-CAN** 46 RX / 17 TX · **MS-CAN** 14 RX / 49 TX · **MSX-CAN**
+obstacle IDs only. Cross-validated against the vehicle CAN databases: **58 MS directions agree, 0
+mismatches**. Full lists: `docs/gateway_map.md` §2.1.
 
-### 5.2 Proven cross-bus signal link (b)
+### 5.2 Frame maps — every RX/TX frame byte has an address (a)
+RX and TX record layouts decoded from the consuming code: **279 RX frames, 15 HS TX, 43 MS TX**
+with per-byte absolute addresses (`work/owner/rx_frame_map.json` / `tx_frame_map.json`). All four
+addresses the shipped mods rely on fall out of the tables independently. `docs/gateway_map.md` §3.
+
+### 5.3 Proven cross-bus signal link (b)
 **HS-CAN 0x0C0 → MS-CAN 0x020**, via 7 shared signal-RAM cells
-`0x40000751/774/77B/78A/78D/79F/7A1`. This is the answer to the original 0x0C0 half of the task.
-The **0x060 path is not yet mapped** (its records were not isolated because the `spec1=id<<18`
-assumption was wrong — see §7).
-
-### 5.3 frameObj membership (record counts) (b)
-`python3 work/gw_membership.py` groups all 1229 routing records by frameObj with signal counts.
-⚠ The bus label in that table is a disproven heuristic (§7) — trust only the counts/spans.
+`0x40000751/774/77B/78A/78D/79F/7A1` — the answer to the original 0x0C0 half of the task. The
+**0x060 path is not mapped** (§8). `docs/gateway_map.md` §6.
 
 ### 5.4 ACC-FIX — SWM cruise-button remap in TX HS-CAN 0x030 (a) — ON-VEHICLE PROVEN
 **Purpose:** adapt a **new SWM** (steering-wheel module) to the **old PCM**. The BCM reads the SWM
@@ -336,71 +375,126 @@ Full method: **`docs/rke-lock.md`**.
 
 ---
 
-## 6. Deliverable docs (in `docs/`)
-- **`acc-fix.md`** — the shipped SWM cruise-button remap (§5.4): exact bit map, RES+ context gate,
-  verified cave disassembly, integrity, reproduce steps. Porting guide: **`../AGENTS.md`**.
-- **`rke-lock.md`** — the shipped RKE lock-with-ignition-on mod (§5.5): signals, one-shot strobe
-  mechanism, combined-VBF build, on-vehicle design history. Evidence notes below.
-- **`rke_0x100_lock.md`** — RKE button decode on MS `0x100` (lock/unlock bits, key-outside bit).
-- **`ign_powermode_0x80.md`** — ignition/power state (`0x80` d2 field, `0x3A0` ignition-status frame), from captures.
-- **`clockcmd_0x3a.md`** — central-lock command (`0x3A` d3) + full RKE→lock chain evidence, from captures.
-- **`key_outside_gate.md`** — key-outside gate derivation + complete v1→v2→v3 design/debug history.
-- **`0c0_standby_read.md`** — how the `0x0C0` cruise-status read address (`0x40000707`) was proven.
-- **`030_composition_trace.md`** — `0x030` composition + LIN→button chain (why injection was needed).
-- **`volcano_calibration_documentation.md`** — master reference: file layout, table architecture,
-  full CAN-ID inventory, routing, signal↔frame membership, proven-vs-open. **Start here.**
-- **`gateway_map_format.md`** — exact byte layouts of every table (for re-parsing/extending).
-- **`gateway_id_interaction_map.md`** — HS↔MS ID interaction, with the forwarding caveat.
-- **`gateway_map_current.md`** — signal-level notes on the 0x0C0→0x020 link.
-- `work/gateway_translation_report.md` — earlier detailed checkpoint (some claims since corrected;
-  cross-check against the docs above).
+## 6. Document map (`docs/`)
+
+| Document | What it is |
+|---|---|
+| **`owner_flash_layers.md`** | **Primary RE reference.** Layer-by-layer analysis of the real full-flash dump (16 layers, PBL boot path → CAN codec), plus the derivation of every correction. Start here for how the module works. |
+| **`gateway_map.md`** | **Condensed CAN reference.** Table stack, per-bus ID inventory, RX/TX frame maps, routing model, retracted readings, open items. |
+| `owner_artifacts.md` | Index of the machine-readable outputs (`work/owner/*.json`) and their validation status. |
+| `owner_backup_analysis.md` | Backup verification + memory-map recon (how the dump was proven genuine). |
+
+**Shipped modifications**
+
+| Document | What it is |
+|---|---|
+| **`acc-fix.md`** | SWM cruise-button remap (§5.4): bit map, RES+ context gate, verified cave disassembly, integrity, rebuild steps. Porting guide: **`../AGENTS.md`**. |
+| **`rke-lock.md`** | RKE lock-with-ignition-on (§5.5): signals, one-shot strobe, combined VBF, on-vehicle design history. |
+
+**Evidence notes** (each feeds one of the above; none is a standalone conclusion)
+
+| Document | Backs |
+|---|---|
+| `030_composition_trace.md` | acc-fix — `0x030` LIN→button composition, and why a TX-time hook was required |
+| `0c0_standby_read.md` | acc-fix — how the `0x40000707` / `0x40000705` read addresses were proven |
+| `scratch_ram.md` | acc-fix + rke-lock — proof that `0x40011000..02` is unused SRAM |
+| `rke_0x100_lock.md` | rke-lock — RKE button decode on MS `0x100` |
+| `key_outside_gate.md` | rke-lock — key-outside gate + full v1→v5 capture-driven debug history |
+| `clockcmd_0x3a.md` | rke-lock — `0x3A` d3 lock command + RKE→lock chain |
+| `ign_powermode_0x80.md` | rke-lock — ignition/power state (`0x80` d2; the shipped gate uses `0x3A0`) |
+
+**Hardware / recovery**
+
+| Document | What it is |
+|---|---|
+| `sbl-DV6T-14C097-AB.md` | Static analysis + bench results for the RAM SBL (no stock backup service). |
+| `sbl-upload-patch.md` | The SRAM addressed-frame reader and the bench-proven full-backup workflow. |
+| `interior_button_gpio_trace.md` | Interior lock/unlock button pin investigation (PI15/PF12) — negative result, exhaustively enumerated. |
 
 ---
 
 ## 7. ⚠️ Retracted assumptions — DO NOT REPEAT
 
-1. **"Same CAN-ID appearing RX-on-one-bus and TX-on-other = forwarding" — FALSE.** It is
-   acceptance-filter coincidence. Verified: no shared signal-RAM between the HS-receive and
-   MS-transmit paths for these IDs. The BCM **independently consumes** the incoming frame and
-   **independently builds its own same-numbered frame** on the other bus (user-confirmed for `0x040`).
-   Only prove a forward via **shared signal-RAM** through the descriptor chain.
-2. **"spec1 (routing record +0x0C… word) = CAN_id << 18" — FALSE.** Measured `(spec1>>18)` matches
-   the bus ID list only 23.8 % (chance level; `work/gw_test_spec1.py`). `spec1` is a pack/conversion
-   spec. CAN IDs come from tables [3]/[4], never from routing records.
-3. **"frameObj numeric range = bus" — FALSE.** Ranges are not bus-exclusive; e.g. `0x400004FC`
-   (once mislabeled "MS") appears on the **HS receive path** in the reception descriptors.
+Gateway-model retractions (1–6) are restated with evidence in `docs/gateway_map.md` §7; the full
+derivation of all of them is in `docs/owner_flash_layers.md` §26.
+
+1. **"Same CAN-ID RX-on-one-bus + TX-on-other = forwarding" — FALSE.** Acceptance-filter
+   coincidence. No shared signal-RAM exists between the HS-receive and MS-transmit paths for those
+   IDs; the BCM independently consumes the incoming frame and independently builds its own
+   same-numbered frame (user-confirmed for `0x040`). Prove a forward only via **shared signal-RAM**.
+2. **"`spec1` = `CAN_id << 18`" — FALSE.** `(spec1>>18)` matches the bus ID list 23.8 % of the time
+   = chance (`work/gw_test_spec1.py`). CAN IDs come from the filter list / descriptor chain only.
+3. **"frameObj numeric range = bus" — FALSE.** Ranges are not bus-exclusive. `0x400004FC..FF`, once
+   mislabelled "MS frameObj", is the **MS-CAN RX arrival-flag page** — an address, not a frame
+   object. The arrival-flag page *is* the reliable per-net discriminator (§19.1).
+4. **"`ctrlDesc+0x44` points at the descriptor table" — FALSE.** The controller descriptor hangs off
+   net record `+0x08`, not `+0x04`; `+0x44` is a field of the per-net **RAM** state block, and the
+   array anchor is built at bring-up, so no flash pointer to it exists (§15.1).
+5. **"MS-CAN is TX-only" — FALSE.** 63 configured mailboxes, 14 RX / 49 TX (§19).
+6. **Routing records are 28 bytes, not 20.** The inherited 20-byte parse is misaligned — two
+   permanently-zero columns and a flat column profile (§16.2). All field semantics derived from it
+   (`sigA`/`sigB`/`spec1`/`spec2` positions) are reading shifted data.
+7. **"`0x40006400–0x400064FF` is a CAN TX change-flag bus" — FALSE.** It is the per-signal
+   **validity / error-substitution** layer; no CAN code reads it (§13.1).
+8. **"The `0x28xx` as-built DIDs are patchable calibration values" — FALSE.** All 85 cells are in
+   **retained RAM**, accumulated at runtime (§12.2); five of them are one rolling event buffer, not
+   five config items (§12.3).
+9. **"`FUN_0010DAB8` is the shared signal-access API" — FALSE.** It is `memset()`; 79 of 83 modules
+   call it to zero their state blocks. **No signal-access API exists** (§14.6).
+10. **"The mailbox is the only place a frame's 8 bytes are contiguous" — TOO STRONG.** The assembled
+    TX frame image holds d0–d7 adjacently one stage earlier (§18.3). Does not affect the shipped
+    acc-fix, which hooks the mailbox and is on-vehicle proven.
+11. **`0x030` remap by editing F10A routing records + EXE image pointers — DOESN'T WORK.** The
+    `0x40007Axx` pool that edit targeted is the RX/gateway path, not the transmitted `0x030`; the
+    flashed edit was a confirmed no-op. Composition-side remap is impossible anyway — d1 and d5/d6
+    live in different PDUs (`docs/030_composition_trace.md` §5).
+12. **Single-byte `0x0C0` d0 tests for "cruise paused" — ALL FAILED on the vehicle.** bit3-alone,
+    `(d0&0x28)==0x08`, and bit6-alone each broke in a different state; the status byte **decays**
+    ~2 s after a cancel. The working gate needs a second frame (`acc-fix.md` §3).
 
 ---
 
 ## 8. Recommended next steps (resume here)
 
-1. **Resolve `frameObj → CAN-ID` binding** (the master key). Parse the reception-descriptor tables at
-   `ctrlDesc+0x44` (HS @0x18000; find MS/MSX equivalents) — each 32-byte record ties an MB (hence
-   CAN ID, in filter-list order) → frame-image RAM (`0x40007Axx`) → routing-record handler → frameObj.
-   Once bound, every routing record gets a real (bus, CAN-ID); then:
-2. **Rebuild the true forwarding map** by intersecting shared signal-RAM between RX-path and TX-path
-   frameObjs per ID (extend `work/gw_shared.py`). Confirm/deny each same-ID pair as real vs independent.
-3. **Map the 0x060 path** the same way as 0x0C0.
-4. **Decode `spec1`/`spec2`** fully into (start_bit, length, byte_order, scaling) — use the 24-byte
-   descriptor table at `0x15A920` (proven bitmask=high byte of spec2) and the codec bit-loops in
-   `FUN_000fc63e` / `FUN_000fc218` as ground truth.
-5. **Optional extras:** frame periods/TX cycle times (0x90-stride records near 0x146060); signal
-   defaults/timeout values (F124@0xC000). End goal: a full **signal map** export
-   for both buses, reconstructed from the firmware's own embedded routing tables.
+> The `frameObj → CAN-ID` binding — for a long time the project's blocking item — is **resolved**
+> (`docs/gateway_map.md` §3): RX and TX record layouts were decoded from the consumer code, giving
+> 279 RX / 15 HS TX / 43 MS TX frames with per-byte addresses. `0x060` and `0x0C0` fall out of the
+> general formula instead of needing individual traces.
+
+1. **Find the unpack stage** — packed RX images (`0x40000600…`) and the app signal planes
+   (`0x40001E00`/`0x40002800`/`0x40003C00`) are disjoint memory, and **zero** app functions touch
+   image bytes by absolute address (§20.2). Static scanning is proven ineffective; use bench
+   instrumentation or trace from an arrival-flag byte (§17.4).
+2. **Decode the pack-spec** into (start_bit, length, byte_order, scaling) — ground truth is the
+   24-byte descriptor table at `0x15A920` plus the codec bit-loops. ⚠ Read §16.1 first: three models
+   have been refuted, and the inherited 20-byte parse is misaligned (§7.6).
+3. **Determine which paired control block is live** per bus (§19.4) — selected at bring-up in RAM.
+   **Required before any record-level patch**; frame-image addresses are shared and safe.
+4. **Rebuild the true forwarding map** by intersecting shared signal-RAM between RX-path and TX-path
+   frameObjs per ID (extend `work/gw_shared.py`); confirm/deny each same-ID pair.
+5. **Locate MSX's control block** (§20.3) — its 23 RX records are scattered, not arrayed.
+6. **Optional:** frame periods / TX cycle times (0x90-stride records near `0x146060`); signal
+   defaults and timeout values (F124 @`0xC000`).
 
 ---
 
-## 9. Script index (`work/`, 51 scripts)
-Struct scanners (no Ghidra; operate on `flash_merged.bin`, big-endian):
-`vbf_extract, crc_check, crc32_check, build_image` (pipeline);
-`gw_mbfull`/`gw_mblist` (ID filter lists), `gw_nettbl` (master net table), `gw_aligned`
-(routing records → `aligned_records.txt`), `gw_membership` (frameObj groups), `gw_shared`
-(shared sigRAM), `gw_forward` (same-ID pairs — see §7 caveat), `gw_rxdesc` (reception descriptors),
-`gw_test_spec1` (disproves spec1=id<<18), `decode_baud`/`decode_ctrl` (baud), `gw_sig*` (24/28-byte
-signal descriptors), `gw_targets` (records by would-be ID).
-pyghidra (need `.venv`): `gw_dec` (decompile), `gw_mkfunc*` (create funcs), `gw_refs*` (xrefs),
-`pg_*` (setup/analyze/state helpers), `gw_findcan` (proved no FlexCAN immediates).
-Data outputs: `aligned_records.txt`, `routing_records.txt`, `sig24.txt`, `sig_desc*.txt`, `allframes.txt`.
+## 9. Script index (`work/`)
+
+**Pipeline (no Ghidra; operate on `work/flash_merged.bin`, big-endian):**
+`vbf_extract.py`, `crc_check.py`, `crc32_check.py`, `build_image.py`.
+
+**Gateway struct scanners:** `gw_mbfull.py` / `gw_mblist.py` (ID filter lists — authoritative),
+`gw_nettbl.py` (master net table), `gw_rxdesc.py` (reception descriptors), `gw_shared.py` (shared
+signal-RAM), `gw_membership.py` (frameObj groups — **counts only**, §7.3), `decode_baud.py` /
+`decode_ctrl.py` (baud), `gw_sig*.py` (signal descriptors), `gw_targets.py` (records by would-be ID).
+
+⚠ Superseded, kept only for historical comparison: `gw_aligned.py` / `gw_route20.py` (the misaligned
+**20-byte** routing-record parse, §7.6 — output `aligned_records.txt`), `gw_forward.py` (same-ID
+pairs, §7.1), `gw_test_spec1.py` (the script that *disproved* `spec1 = id<<18`, §7.2).
+
+**pyghidra (need `.venv`):** `gw_dec.py` (decompile), `gw_mkfunc*.py` (create functions),
+`gw_refs*.py` (xrefs), `pg_*.py` (setup/analyze/state helpers), `gw_findcan.py` (proved no FlexCAN
+immediates).
 
 **ACC-FIX build (`work/acc-fix/`):** `build_caves.py` → `build_vbf.py` → `verify.py` →
 `annotate_ghidra.py`, plus `patch_blobs.json` and the artifact `JV6T-14C094-AD_acc-fix.VBF`. Integrity
@@ -413,10 +507,33 @@ rke-lock in one VBF). RE helper scripts used while deriving the mod (all read-on
 `flash_merged.bin` / candump logs): `rke_field.py`, `rke_rxdesc.py`, `rke_coderefs.py`,
 `rke_bandrefs.py`, `rke_txwalk.py`, `rke_3a.py`, `rke_cavespace.py`. See §5.5 / `docs/rke-lock.md`.
 
+**Owner full-flash analysis (`work/owner/`, ~60 numbered scripts + helpers):** operate on
+`backups/owner-backup-20260911T090300Z/cflash.bin` and the `ghidra_proj_owner` project. Numbered in
+execution order — `00`–`07` project setup and analysis, `09`–`24` signal planes, `25`–`27` CAN/DB
+cross-reference, `28`–`40` dispatch tables and the diagnostic layer, `41`–`46` memory architecture,
+`47`–`53` the validity layer, `54`–`61` the CAN codec, `62`–`72` the descriptor chain, `73`–`79`
+routing records, `80`–`88` the RX/TX frame maps, `89`–`98` per-net binding and MSX.
+
+Key reusable helpers, not tied to one pass:
+
+| Script | Purpose |
+|---|---|
+| `gq.py` | read-only query helper — `dec` / `dis` / `xref` / `funcs` / `stats` |
+| `dump.py` | hex dump by address range |
+| `36_force_functions.py` | force-create functions Ghidra never discovered (see §11.1/§14.1 of the doc — this exposed two whole subsystems) |
+| `verify_pass.sh` | annotation read-back + proprietary-identifier leak check |
+| `leak_check.py` | greps 2,294 vehicle-DB identifiers against `work/owner/` and `docs/` |
+| `99_project_audit.py` | full project audit: analysed flag, symbol counts, bookmarks, key-address check |
+
+Full index of outputs: `docs/owner_artifacts.md`. Reproduce sequence: `docs/owner_flash_layers.md` §27.
+
 ---
 
 ## 10. Environment quick-reference
 - Repo: `/home/gl/Projects/ford/BCM/Research`
 - Ghidra: `/opt/ghidra` (12.1.2); pyghidra venv: `./.venv` (`. .venv/bin/activate`)
-- Merged image: `work/flash_merged.bin` · Ghidra project: `ghidra_proj/BCM_C1MCA`
+- Owner project (**primary**): `ghidra_proj_owner/BCM_OwnerFlash` on `cflash.bin`
+- Mod-build project: `ghidra_proj/BCM_C1MCA` on `work/flash_merged.bin`
+- Never mix the two: the owner image contains everything below `0xC000` (incl. the PBL); the merged
+  VBF image does not.
 - Always verify against real tool output; keep the (a)/(b)/(c) evidence discipline; cite addresses.

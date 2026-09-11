@@ -79,6 +79,16 @@ Issuing RequestUpload against a real flash address cannot back it up: the reques
 program path (a write), not a read-out. There is no code anywhere that takes an
 externally-supplied address, reads flash at it, and returns the bytes over CAN.
 
+> **Contrast with the PRIMARY bootloader** (`docs/owner_flash_layers.md` §6, analysed from the owner
+> full-flash dump — the PBL is not shipped in any VBF, so it could not be examined before).
+> The PBL is a *different* binary and behaves differently here: its `0x34`/`0x35` share one handler
+> that **is** genuinely address-parameterised, and `PBL_transfer_data_read` @ `0x33BA` is a real
+> 32-byte-per-block read-out path. It is nonetheless still not a general backup primitive, because a
+> hook (`PBL_upload_address_filter` @ `0x76EC`) vetoes every upload outside
+> `0x008000–0x00BFFF` and `0x140000–0x17FFFF` — **the application block is excluded**.
+> The PBL likewise has **no `0x23`**, so the headline conclusion of §2 above holds for both loaders.
+> Net new capability: the **F10A calibration block can be read out with stock services**.
+
 The blank-check validator `FUN_400037DC(addr,len)` shows the same design: for the sentinel it reads
 the fixed buffer; every other address is only *scanned for 0xFF* (erased check), never returned.
 

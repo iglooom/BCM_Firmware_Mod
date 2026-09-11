@@ -61,6 +61,31 @@ ON, NO RKE) — the BCM's own native lock-with-ignition-on sequence on `0x3A`:
 So a valid lock = **one** frame with `d3=01 AND d1 bit6=1`. Repeating the strobe every frame makes the
 actuator re-fire → rapid clicking (the v2 failure, below).
 
+> **Firmware confirmation (added later).** The one-shot behaviour above was established *purely from
+> captures*. It is now confirmed in the firmware itself: the Volcano TX packer
+> (`VOL_tx_pack_single` @ `0x0FC218`, see `docs/owner_flash_layers.md` §14.2) ends every transmit with
+>
+> ```c
+> for each present byte:  *img &= desc[k];      // post-TX AND-mask
+> ```
+>
+> i.e. the packer **clears command bits in the frame image immediately after transmitting them**. That
+> is the hardware-level reason a strobe bit is naturally one-shot, and why a cave that forces a mailbox
+> byte produces a *sticky* value: the cave writes downstream of this loop, so nothing ever clears it.
+> The capture-derived design in §4 was correct; this is the mechanism behind it.
+>
+> **The frame's RAM addresses are now known too** (`owner_flash_layers.md` §19.3). The MS-CAN TX
+> record for `0x3A` gives MB1, **CS `0xFFFC4090`** — matching the cave's hook — and frame image base
+> **`0x40000A0F`** with `present = 0xFF`, so all eight bytes are contiguous:
+>
+> | byte | address | role |
+> |---|---|---|
+> | d1 | `0x40000A10` | execute strobe, bit6 |
+> | d3 | `0x40000A12` | `0x01` = LOCK, `0x02` = UNLOCK |
+>
+> The frame image is one stage **earlier** than the mailbox and holds the same two bytes adjacently,
+> so it is a candidate hook site if this mod is ever reworked. Nothing here changes the shipped v6.
+
 ---
 
 ## 4. Cave logic — fire-once press latch + independent re-strobe suppression (v5)

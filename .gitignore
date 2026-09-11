@@ -17,3 +17,6 @@ work/sbl-upload/backup_*.bin.json
 work/sbl-upload/backup_cflash_*/
 work/sbl-upload/backup_set_*/
 work/sbl-upload/owner-backup-*/
+work/owner/
+work/bins/
+work/backups/

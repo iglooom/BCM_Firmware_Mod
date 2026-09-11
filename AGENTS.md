@@ -5,8 +5,9 @@ OEM version** of this Ford BCM firmware (different part suffix, MY, or calibrati
 was developed on (`JV6T-14C094-AD`). This is a **method** guide: every address below is
 version-specific and **must be re-derived** on the target image — do not paste them in blind.
 
-Read first: `README.md` (esp. §2.1 integrity, §4 gateway model, §5.4 ACC-FIX), `docs/acc-fix.md`
-(exact current build), `docs/0c0_standby_read.md` and `docs/030_composition_trace.md` (evidence).
+Read first: `README.md` (§2.1 integrity, §4 gateway model, §5.4 ACC-FIX, §7 retractions),
+`docs/acc-fix.md` (exact current build), `docs/gateway_map.md` (table layouts + frame maps),
+`docs/0c0_standby_read.md` and `docs/030_composition_trace.md` (evidence).
 
 > **Worked second example — same method, different bus/frame:** the shipped **`rke-lock`** mod
 > (`docs/rke-lock.md`, README §5.5) reuses this exact TX-mailbox-injection technique on **MS-CAN
@@ -27,10 +28,12 @@ its cruise combo buttons on bits the **old PCM** ignores. ACC-FIX installs a sma
 trampoline** at the FlexCAN TX choke point that, **only for the mailbox carrying `0x030`**, rewrites
 the assembled payload:
 
-- `ACC_Res_Plus` (d1 bit6) → **CC_Res** (d5 bit5) if cruise/limiter is *cancelled/really-paused*,
-  else **CC_Set_Plus** (d5 bit7); clears d1 bit6.
+- `ACC_Res_Plus` (d1 bit6) → **CC_Res** (d5 bit5) if cruise/limiter is *cancelled with a stored
+  set-speed*, else **CC_Set_Plus** (d5 bit7); clears d1 bit6. The decision is **edge-latched** for
+  the whole press (§F2).
 - `ACC_Lim` (d1 bit5) → **CC_Lim** 2-bit field d6[5:6] = `0b10` (pressed); clears d1 bit5.
-- Paused-ness is read from the **received `0x0C0` d0** (PCM status), gated on **bit6 (0x40)**.
+- The Resume-vs-Set+ discriminator needs **two** received frames — `0x0C0` d0 (PCM status) AND
+  `0x060` d6 (stored set-speed). Single-byte tests on `0x0C0` d0 all failed on the vehicle (§E).
 
 The remap is done at the mailbox because d1 and d5/d6 come from **different composition PDUs** and
 cannot be moved earlier. See §7 of this file if the target maps buttons differently.
@@ -56,6 +59,31 @@ cannot be moved earlier. See §7 of this file if the target maps buttons differe
 6. **The final proof is a candump on the car.** Static analysis cannot fully close the
    frame→mailbox binding; confirm on the bus. Worst realistic failure is a no-op (gate never fires),
    not a brick — provided integrity is repaired.
+7. **A scan whose result is *constant* across every input is as suspect as one returning zero.**
+   Both usually mean the scan is broken, not that the target is empty/uniform. Before reporting
+   "X is 0 everywhere", check that the field you are reading *can vary at all* — the SIUL `PA`
+   fiasco (`owner_flash_layers.md` §28.1) reported `PA = 0` on 48 values from a bit position that
+   was identically zero for every value the firmware writes, and that tautology was then re-measured
+   and written up as two independent negative results.
+8. **Coverage is not agreement.** A cross-check that asks "does *some* entry overlap this bit?"
+   will answer yes for almost any input and proves nothing. Compare the *meanings*, not the
+   presence: the `0x3A`/`0x100` database check reported a clean "6/6 covered", but reading the
+   actual signal names showed only 3 exact matches, 1 partial and **1 outright contradiction**
+   (the database calls rke-lock's proven execute strobe a vehicle-speed quality field) — the
+   vehicle databases are a generic platform export, not this part number. Where a database and an
+   on-vehicle capture disagree, **the capture wins**, and the conflict gets written into the
+   listing so nobody later trusts the label. (`docs/owner_flash_layers.md` §36.5.)
+9. **Make injectivity the acceptance test for any map that must be one-to-one.** If two sources
+   claim the same destination, the *extraction* is broken — drop the clashing pairs rather than
+   picking one. `148`'s pad→bit map was non-injective and had to be discarded entirely; the redo
+   (`171`) kept only unambiguous pairs (37 of 60), reproduced both capture-verified pads as a
+   regression, and independently agreed with the rejected map on 31 of 33 shared pads. Report the
+   dropped entries explicitly; a map with honest holes beats a complete one with invented cells.
+10. **Validate a bitfield decode with a falsifiable prediction against independent evidence.**
+   Not "the datasheet says so" — derive a consequence the decode does not know about and test it.
+   For `PA` it was *a pad muxed to a peripheral must never be written via GPDO*: 9/0 vs 0/11,
+   perfect separation (§28.3). When a cross-check contradicts you on the one case you understand
+   best, suspect the instrument before rationalising the data.
 
 ---
 
@@ -69,6 +97,59 @@ python3 work/gw_mbfull.py                           # dump FlexCAN MB acceptance
 ```
 Merged flat image: `work/flash_merged.bin` (BE; app block at file/mem `0x10000`; SRAM `0x40000000`).
 Build the merged image for a new OEM set with the `vbf_extract`/`build_image` pipeline (README §2).
+
+### 2.1 pyghidra pitfalls — bake these into every script you write
+
+Two environment traps that cost real time on this project. They apply to **any** pyghidra script in
+this repo, not just the porting work.
+
+**1. The GUI claims the project "has not been analyzed yet" even when it has.**
+`AutoAnalysisManager.startAnalysis()` populates the database correctly but never writes the
+`PROGRAM_INFO` option `"Analyzed"` — only `GhidraScript.analyzeAll()` and the GUI's own analyze
+action do. Answering "No" to the resulting prompt makes the GUI persist `Analyzed=False` +
+`Should Ask To Analyze=True`, so the nag becomes sticky. Call
+`GhidraProgramUtilities.markProgramAnalyzed()` + `markProgramNotToAskToAnalyze()` before saving
+(as `work/owner/01_analyze.py` does). To check or repair an existing project:
+
+```bash
+python3 work/owner/07_check_analyzed_flag.py         # report only
+python3 work/owner/07_check_analyzed_flag.py --fix   # set the flags and save
+```
+
+It prints the real database contents first (instructions / functions / defined data / user symbols)
+so you can confirm you are fixing a **stale flag** rather than masking genuinely missing analysis.
+
+**2. The pyghidra JVM never exits.** Non-daemon threads keep the interpreter alive indefinitely — a
+39-minute zombie was observed after a 19-second analysis had already saved. End every script with:
+
+```python
+sys.stdout.flush(); sys.stderr.flush(); os._exit(0)
+```
+
+The flush is **mandatory**: `os._exit()` bypasses buffer flushing, so with stdout redirected to a
+file all output is silently discarded.
+
+Also: only one process may hold a Ghidra project at a time; always `project.close()` in `finally`;
+open read-only unless the script's whole purpose is annotation.
+
+**3. Three write-path traps that all report success on stdout.** Each of these printed a confident,
+wrong result while the database on disk was unchanged:
+
+- **`os._exit(0)` kills the JVM mid-flush on a large save.** A sweep script printed
+  `13,592 functions`; disk still held `2,402`. Small annotation saves had always completed in time,
+  which is why this never surfaced earlier. **A large save must exit normally** — trap 2 above
+  applies only to scripts that have finished writing.
+- **`program.getDomainFile().save(monitor)` can never work under `GhidraProject`.** `openProgram()`
+  leaves a transaction open for the program's lifetime, so the save raises
+  `IOException: Unable to lock due to active transaction`. Corollary: `getCurrentTransactionInfo()`
+  is **never** `None` — polling it for "transaction closed" is an infinite loop. Use
+  **`project.save(program)`**, which handles it.
+- **Aborting a nested transaction rolls back the enclosing one.** Rejecting one bad result with
+  `endTransaction(tx, False)` discarded **all 646 good results** along with the 91 bad ones. Fix:
+  **always commit**, and undo a bad unit of work explicitly (e.g. `listing.clearCodeUnits(...)`).
+
+> **General rule: after any bulk Ghidra write, reopen the project read-only and re-read the counts.**
+> Every one of the failures above reported success.
 
 ---
 
@@ -99,7 +180,17 @@ d6=`0x5(base)`.)
 
 ### Step D — Find the `0x0C0` status read address (paused discriminator)
 The BCM **receives** `0x0C0` on HS-CAN. Find the **decoded RAM frame-image** byte for `0x0C0` d0 and
-read that (safe plain RAM), NOT the raw mailbox. Method (see `docs/0c0_standby_read.md`):
+read that (safe plain RAM), NOT the raw mailbox.
+
+> **⚡ Shortcut (owner full-flash project):** this whole lookup is now **precomputed for every RX
+> frame** in `work/owner/rx_frame_map.json` — 279 frames, each with its mailbox, CAN ID, copymask and
+> the absolute address of every present byte. Generate it for a new image with
+> `python3 work/owner/80_rx_record_decode.py` then `83_annotate_l13_rxmap.py`. The record layout was
+> read out of `VOL_rx_copy_to_image`'s own field accesses, and the result reproduces the two addresses
+> this mod already depends on (`0x40000707`, `0x40000705`) — see `docs/owner_flash_layers.md` §17.
+> Use the manual method below only to verify, or when the JSON is unavailable.
+
+Method (see `docs/0c0_standby_read.md`):
 1. In the CAN0 acceptance-filter list, find `0x0C0` (dir=RX) and its **filter-list position** =
    hardware MB index (verify via the bring-up loop that programs `MB[i].ID = list[i]`).
 2. In the reception-descriptor table, find the 32-byte record whose MB-index field matches; its
@@ -254,7 +345,8 @@ Reusable RE helpers in `work/`: `gw_dec.py` (decompile), `gw_mbfull.py` (MB filt
   **both** halves (as the walker does), returning past both.
 - **`0x0C0` not received / different status frame:** find whichever frame the PCM uses to advertise
   cruise/limiter cancel state; repeat Step D/E for it. If no such frame exists, the RES+ gate can't
-  be data-driven — fall back to unconditional Set+ (the earlier `out_inject`/`out_reslim` behavior).
+  be data-driven — fall back to **unconditional Set+** (drop the latch's decide branch and always
+  set d5 bit7).
 - **No in-block `0xFF` padding big enough:** find a smaller pair of caves, or split the logic; never
   place a cave outside the `sum8`-covered region (it wouldn't be checksummed and, worse, may not be
   flashed as part of the app block).
