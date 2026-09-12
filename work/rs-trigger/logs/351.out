@@ -1,0 +1,38 @@
+WARNING: Final field name in class ghidra.util.charset.CharsetInfo has been mutated reflectively by class com.google.gson.internal.bind.ReflectiveTypeAdapterFactory$2 in unnamed module @28b46423 (file:/opt/ghidra/Ghidra/Framework/Generic/lib/gson-2.13.2.jar)
+WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
+WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
+======================================================================
+C1 control (0x0AEEC6): BFS from 0x0AEEC6, visited 2 nodes
+  REACHES APP_feature_periodic.  Shortest edge path (target->start):
+     0x062848 --CALL@0x0628FC--> 0x0AEEC6
+======================================================================
+C2 unrelated-site control (0x07890A): BFS from 0x07890A, visited 2 nodes
+  REACHES APP_feature_periodic.  Shortest edge path (target->start):
+     0x062848 --CALL@0x062884--> 0x07890A
+======================================================================
+C3 non-vacuity probe (0x000200): BFS from 0x000200, visited 1 nodes
+  DOES NOT REACH APP_feature_periodic within cap
+======================================================================
+SUBJECT FUN_000ADADA: BFS from 0x0ADADA, visited 27 nodes
+  REACHES APP_feature_periodic.  Shortest edge path (target->start):
+     0x0AD97C --FALLTHROUGH@0x0ADAD8--> 0x0ADADA
+     0x0AD970 --FALLTHROUGH@0x0AD97A--> 0x0AD97C
+     0x0AD924 --FALLTHROUGH@0x0AD96E--> 0x0AD970
+     0x0AD888 --FALLTHROUGH@0x0AD922--> 0x0AD924
+     0x0AD7D4 --FALLTHROUGH@0x0AD884--> 0x0AD888
+     0x0AD7C8 --FALLTHROUGH@0x0AD7D2--> 0x0AD7D4
+     0x0AD754 --FALLTHROUGH@0x0AD7C6--> 0x0AD7C8
+     0x0AD74A --FALLTHROUGH@0x0AD750--> 0x0AD754
+     0x0AD6C6 --JUMP@0x0AD6DA--> 0x0AD74A
+     0x0AEB18 --CALL@0x0AEB18--> 0x0AD6C6
+     0x0AEB14 --FALLTHROUGH@0x0AEB14--> 0x0AEB18
+     0x0AEA22 --JUMP@0x0AEAAC--> 0x0AEB14
+     0x0AEA16 --FALLTHROUGH@0x0AEA20--> 0x0AEA22
+     0x0AE958 --JUMP@0x0AE9AC--> 0x0AEA16
+     0x0AE922 --JUMP@0x0AE94C--> 0x0AE958
+     0x0AE8DC --JUMP@0x0AE91A--> 0x0AE922
+     0x0AEEC6 --CALL@0x0AEF64--> 0x0AE8DC
+     0x062848 --CALL@0x0628FC--> 0x0AEEC6
+
+CONTROLS: C1=PASS C2=PASS C3(should be NOT-reached)=PASS
+SUBJECT reaches periodic spine: True

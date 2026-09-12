@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  /* The host chat frame injects --foreground / --card / --muted-foreground /
+     --border. Opened as a plain file NONE of them exist, so an unqualified
+     var() resolved to nothing and rendered BLACK ON BLACK. Every var carries a
+     fallback; the frame's real values still win where they exist. */
+  :root {
+    --fg:  var(--foreground, #1a1d21);
+    --mut: var(--muted-foreground, #5b6470);
+    --bd:  var(--border, #d6dae0);
+    --cd:  var(--card, #ffffff);
+    --code-bg: #11151a;
+  }
+  /* NO @media (prefers-color-scheme) here -- that was a BUG. It reports the
+     OS theme, not the background this widget is actually painted on. With a
+     dark OS but a white host pane it selected the light-grey fallbacks and
+     rendered near-invisible grey-on-white. The palette is now MEASURED at
+     runtime from the real composited background (see fitPalette()). */
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 0; color: var(--fg); }
+  .wrap { display: inline-block; }
+  h2 { font-size: 15px; margin: 0 0 2px 0; font-weight: 600; }
+  .sub { font-size: 11px; color: var(--mut); margin-bottom: 10px; }
+
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 10.5px;
+            margin-bottom: 10px; align-items: center; }
+  .lg { display: flex; align-items: center; gap: 5px; }
+  .sw { width: 20px; height: 3px; border-radius: 2px; }
+  .dotk { width: 9px; height: 9px; border-radius: 50%; }
+
+  .cols { display: flex; gap: 14px; align-items: flex-start; }
+  svg { display: block; flex: none; }
+  .node rect { rx: 5; transition: filter .12s; }
+  .node:hover rect { filter: brightness(1.35); }
+  .node { cursor: pointer; }
+  .node.sel rect.bx { stroke-width: 2.6; }
+  .lbl { font: 600 11px ui-monospace, "SF Mono", Menlo, monospace; fill: var(--fg); }
+  .addr { font: 10px ui-monospace, Menlo, monospace; fill: var(--mut); }
+  .note { font: 9.5px ui-sans-serif, system-ui; fill: var(--mut); }
+  .hdr  { font: 700 11px ui-sans-serif, system-ui; letter-spacing: .06em; }
+
+  .edge { fill: none; stroke-width: 1.6; }
+  .e-proven  { stroke: #4ea3ff; }
+  .e-bench   { stroke: #2fbf71; }
+  .e-open    { stroke: #e0b341; stroke-dasharray: 5 4; }
+  .e-refuted { stroke: #d9534f; stroke-dasharray: 2 3; opacity: .65; }
+
+  /* ---- right pane ---- */
+  #pane { width: 560px; flex: none; border: 1px solid var(--bd);
+          border-radius: 7px; background: var(--cd); overflow: hidden;
+          display: flex; flex-direction: column; height: 700px; }
+  #ptop { padding: 9px 11px; border-bottom: 1px solid var(--bd); }
+  #ptitle { font: 600 12.5px ui-monospace, Menlo, monospace; }
+  #paddr { font: 10.5px ui-monospace, Menlo, monospace; color: var(--mut); }
+  .tag { display:inline-block; padding:1px 6px; border-radius:3px; font-size:9.5px;
+         font-weight:700; letter-spacing:.04em; margin-left:6px; vertical-align:1px; }
+  #pdesc { font-size: 11.5px; line-height: 1.5; margin-top: 6px; }
+  #pnote { font-size: 11px; line-height: 1.45; margin-top: 5px; color: var(--mut); }
+
+  .tabs { display: flex; gap: 0; margin-top: 9px; border-bottom: 1px solid var(--bd); }
+  .tab { font: 600 10.5px ui-sans-serif, system-ui; padding: 5px 11px;
+         cursor: pointer; color: var(--mut); border-bottom: 2px solid transparent;
+         user-select: none; }
+  .tab:hover { color: var(--fg); }
+  .tab.on { color: #4ea3ff; border-bottom-color: #4ea3ff; }
+  .tab.dis { opacity: .35; cursor: not-allowed; }
+
+  #pbody { flex: 1; overflow: auto; background: var(--code-bg); }
+  /* Long decompiler comment lines ran past the pane's right edge with
+     `white-space: pre`. Wrap them instead of clipping: losing the tail of a
+     caveat is exactly the kind of silent truncation that makes a doc lie. */
+  pre { margin: 0; padding: 10px 12px; font: 11px/1.45 ui-monospace, "SF Mono",
+        Menlo, Consolas, monospace; color: #cfd6e0;
+        white-space: pre-wrap; overflow-wrap: anywhere; tab-size: 4; }
+  .blkhdr { font: 600 10px ui-sans-serif, system-ui; color: #7f8c9b;
+            padding: 6px 12px 2px; background: var(--code-bg);
+            border-top: 1px solid #232a33; letter-spacing:.04em; }
+  .blkhdr:first-child { border-top: none; }
+  .k  { color: #c98bdf; }   /* keyword */
+  .ty { color: #6fc3df; }   /* type */
+  .nu { color: #e2a45c; }   /* number */
+  .cm { color: #6b7b8c; font-style: italic; }  /* comment */
+  .fn { color: #e6d06a; }   /* symbol */
+  .empty { padding: 14px 12px; color: #6b7b8c; font: 11.5px ui-sans-serif; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h2>RKE → central-locking call chain</h2>
+  <div class="sub">Ford BCM <code>JV6T-14C094-AD</code> · <code>BCM_OwnerFlash</code> · click a node → decompiled C on the right</div>
+
+  <div class="legend">
+    <div class="lg"><div class="sw" style="background:#4ea3ff"></div>proven statically (a)</div>
+    <div class="lg"><div class="sw" style="background:#2fbf71"></div>confirmed on bench</div>
+    <div class="lg"><div class="sw" style="background:#e0b341"></div>open / unresolved</div>
+    <div class="lg"><div class="sw" style="background:#d9534f"></div>refuted</div>
+    <div class="lg"><div class="dotk" style="background:#8b5cf6"></div>found only by p-code</div>
+  </div>
+
+  <div class="cols">
+    <svg id="svg" width="790" height="700" viewBox="0 0 790 700"></svg>
+    <div id="pane">
+      <div id="ptop">
+        <div><span id="ptitle">Select a node</span><span id="ptag"></span></div>
+        <div id="paddr"></div>
+        <div id="pdesc" class="">Click any box in the diagram to load its decompiled C.</div>
+        <div id="pnote"></div>
+        <div class="tabs">
+          <div class="tab on"  data-v="ghidra">Ghidra C</div>
+          <div class="tab"     data-v="pseudo">Pseudocode</div>
+          <div class="tab"     data-v="asm">Listing</div>
+        </div>
+      </div>
+      <div id="pbody"><div class="empty">No node selected.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- INLINED-CODE-START -->
+<script>window.__CHAIN_CODE__ = {"demux":{"kind":"func","blocks":[{"addr":"0x992B2","name":"APP_rke_command_demux","code":"\n/* RKE COMMAND DEMUX (layer 31) -- turns the command\n   code into one-hot per-command bits.\n   \n     if (VOL_test_and_clear_dirty(&APP_rke_code_valid /*0x40003F53*/, 1)) {\n         code = APP_rke_command_code;          // 0x40002DA2\n         n    = code & 0xF;                    // the command ENUM (values 0..8 seen)\n         // branchless n==k tests, emitted as LZCOUNT(n ^ k) >> 5:\n         APP_rke_cmd_bits_38 = <one bit per matched k>;   // 0x40009038\n         APP_rke_cmd_bits_34 = ...;                       // 0x40009034\n     }\n   \n   Reached from the spine: APP_feature_periodic 0x62848 <- 0x9BA92 <- 0x9B41C <-\n   0x99A60 <- here (true entry recovered by the backwards walk, script 196).\n   \n   *** The low nibble is a command ENUM, not a bitfield. ***\n   docs/rke_0x100_lock.md gives d7 bit0 = LOCK / bit1 = UNLOCK on the WIRE; in the\n   firmware the value is consumed as `(code & 0xF) == k`. Script 194 looked for a\n   0x01/0x02 bitmask and wrongly reported \"no button decode found\" -- a\n   wrong-expectation bug, not a missing decode. */\n\nvoid APP_rke_command_demux(void)\n\n{\n  byte bVar1;\n  ushort uVar2;\n  uint uVar3;\n  uint uVar4;\n  uint uVar5;\n  int iVar6;\n  undefined1 uVar7;\n  char cVar8;\n  \n  FUN_0010df50();\n  bVar1 = DAT_40003c1d;\n  if (((((bVar1 & 1) == 0) && (cVar8 = DAT_40009051, cVar8 == '\\0')) &&\n      (cVar8 = DAT_40009050, cVar8 == '\\0')) && (cVar8 = DAT_4000904f, cVar8 == '\\0')) {\n    if (DAT_00008116 - 2 < 2) {\n      uVar4 = VOL_test_and_clear_dirty(&APP_rke_code_valid,1);\n      bVar1 = DAT_40002d25;\n      uVar5 = APP_rke_cmd_bits_38;\n      uVar3 = APP_rke_cmd_bits_34;\n      APP_rke_cmd_bits_38 = (uVar4 & 1) << 0x1c | uVar5 & 0xefffffff;\n      APP_rke_cmd_bits_34 = (bVar1 >> 4 & 1) << 5 | uVar3 & 0xffffffdf;\n      if ((uVar4 & 1) == 0) {\n        return;\n      }\n      uVar2 = APP_rke_command_code;\n      uVar3 = APP_rke_cmd_bits_38;\n      APP_rke_cmd_bits_38 = (uVar2 >> 4 & 1) << 0x15 | uVar3 & 0xffdfffff;\n      if ((uVar2 >> 4 & 1) == 0) {\n        cVar8 = RXsig_REDACTED;\n        if (cVar8 == '\\x01') {\n          uVar7 = 0;\n        }\n        else if (cVar8 == '\\x02') {\n          uVar7 = 1;\n        }\n        else if (cVar8 == '\\x04') {\n          uVar7 = 2;\n        }\n        else if (cVar8 == '\\b') {\n          uVar7 = 3;\n        }\n        else if (cVar8 == '\\x10') {\n          uVar7 = 4;\n        }\n        else if (cVar8 == ' ') {\n          uVar7 = 5;\n        }\n        else if (cVar8 == '@') {\n          uVar7 = 6;\n        }\n        else {\n          if (cVar8 != -0x80) goto LAB_0009939a;\n          uVar7 = 7;\n        }\n        DAT_4000902e = uVar7;\n      }\nLAB_0009939a:\n      uVar5 = uVar2 & 0xf;\n      uVar3 = APP_rke_cmd_bits_38;\n      APP_rke_cmd_bits_38 =\n           ((uint)LZCOUNT(uVar5 ^ 3) >> 4 & 2 | (uint)LZCOUNT(uVar5 ^ 2) >> 5 |\n           ((uint)LZCOUNT(uVar5 ^ 5) >> 4 & 2 | (uint)LZCOUNT(uVar5 ^ 6) >> 5 |\n           ((uint)LZCOUNT(uVar5 ^ 4) >> 4 & 0xffffffe | (uint)LZCOUNT(uVar5 ^ 1) >> 5) << 2) << 2)\n           << 0x16 | uVar3 & 0xf03fffff;\n      uVar3 = APP_rke_cmd_bits_34;\n      APP_rke_cmd_bits_34 = ((uint)LZCOUNT(uVar5 ^ 7) >> 5) << 4 | uVar3 & 0xffffffef;\n      return;\n    }\n    bVar1 = DAT_40001f80._0_1_;\n    if ((bVar1 >> 5 & 1) != 0) {\n      uVar5 = VOL_test_and_clear_dirty(&DAT_40003dd0,0);\n      uVar3 = APP_rke_cmd_bits_34;\n      APP_rke_cmd_bits_34 = (uVar5 & 1) << 1 | uVar3 & 0xfffffffd;\n      iVar6 = VOL_test_and_clear_dirty(&DAT_40003dd1,0);\n      uVar3 = APP_rke_cmd_bits_38;\n      APP_rke_cmd_bits_38 = iVar6 << 0x1f | uVar3 & 0x7fffffff;\n      uVar5 = VOL_test_and_clear_dirty(&DAT_40003dd2,0);\n      uVar3 = APP_rke_cmd_bits_34;\n      APP_rke_cmd_bits_34 = uVar5 & 1 | uVar3 & 0xfffffffe;\n      uVar5 = VOL_test_and_clear_dirty(&DAT_40003dd3,0);\n      uVar3 = APP_rke_cmd_bits_38;\n      APP_rke_cmd_bits_38 = (uVar5 & 1) << 0x1d | uVar3 & 0xdfffffff;\n      uVar5 = VOL_test_and_clear_dirty(&DAT_40003dd4,0);\n      uVar3 = APP_rke_cmd_bits_38;\n      APP_rke_cmd_bits_38 = (uVar5 & 1) << 0x1e | uVar3 & 0xbfffffff;\n      uVar5 = VOL_test_and_clear_dirty(&DAT_40003dcf,0);\n      uVar3 = APP_rke_cmd_bits_34;\n      APP_rke_cmd_bits_34 = (uVar5 & 1) << 3 | uVar3 & 0xfffffff7;\n      uVar5 = VOL_test_and_clear_dirty(&DAT_40003e22,0);\n      uVar3 = APP_rke_cmd_bits_34;\n      APP_rke_cmd_bits_34 = (uVar5 & 1) << 2 | uVar3 & 0xfffffffb;\n      if ((((uVar5 & 1) == 0 && (uVar3 & 0xb) == 0) &&\n          (uVar3 = APP_rke_cmd_bits_38, (uVar3 & 0xe0000000) == 0)) &&\n         ((iVar6 = VOL_test_and_clear_dirty(&DAT_40003dce,0), iVar6 != 1 &&\n          (bVar1 = DAT_40001f80._0_1_, (bVar1 >> 5 & 1) != 0)))) {\n        return;\n      }\n    }\n    bVar1 = DAT_40003c41;\n    uVar5 = APP_rke_cmd_bits_38;\n    uVar3 = APP_rke_cmd_bits_34;\n    APP_rke_cmd_bits_38 =\n         (bVar1 >> 1 & 1) << 0x17 |\n         (bVar1 >> 2 & 1) << 0x16 |\n         (bVar1 >> 3 & 1) << 0x1a |\n         (bVar1 >> 4 & 1) << 0x19 | (bVar1 >> 5 & 1) << 0x1b | uVar5 & 0xf03fffff;\n    cVar8 = DAT_40003c68;\n    APP_rke_cmd_bits_34 = (uint)(bVar1 >> 7) << 5 | (bVar1 >> 6 & 1) << 4 | uVar3 & 0xffffffcf;\n    if (cVar8 == '\\0') {\n      cVar8 = '\\0';\n    }\n    else {\n      cVar8 = cVar8 + -1;\n    }\n  }\n  else {\n    uVar3 = APP_rke_cmd_bits_38;\n    APP_rke_cmd_bits_38 = uVar3 & 0xe01fffff;\n    uVar3 = APP_rke_cmd_bits_34;\n    cVar8 = '\\0';\n    APP_rke_cmd_bits_34 = uVar3 & 0xffffffcf;\n  }\n  DAT_4000902e = cVar8;\n  return;\n}\n\n"}]},"tobody":{"kind":"func","blocks":[{"addr":"0x8D522","name":"APP_rke_to_body_cmd","code":"\n/* RKE -> LOCK MODULE JOIN SITE (layer 35). This is where the key-fob command\n   enters the body-control request bus.\n   \n       0008d52a  se_cmpi r7,0x0                  ; gate on 0x40008D3A\n       0008d532  se_bseti r0,0xf                 ; APP_req_word_74 value bit 16\n       0008d54a  e_lhz  r0,0x82(r5)              ; <-- APP_rke_command_code 0x40002DA2\n       0008d54e  se_cmpi r0,0x0\n       0008d556  e_rlwinm r0,r0,0x0,0xd,0x10     ; mask req_word_74\n       0008d562  se_li  r7,0x3                   ; command 3\n       0008d56a  se_li  r7,0x1                   ; command 1\n       0008d56c  e_rlwimi r0,r7,0xb,0x12,0x14    ; -> APP_body_cmd_bus value bits 11..13\n   \n   So the RKE command code selects a 3-bit COMMAND ENUM written into APP_body_cmd_bus\n   (0x40008E58) bits 11..13 -- an enum, not a bitmask (the rule-12 pattern again).\n   \n   *** This ANSWERS open item 37's core question: the RKE path does NOT flow through the\n   layer-33/34 lock-request input chain. Those are disjoint code paths. The RKE press joins\n   the lock module HERE, by writing a command field on the body bus. ***\n   \n   \u26a0 NOT ESTABLISHED: the hop from this field to APP_lock_command 0x40002E70. Neither\n   FUN_00088504 nor FUN_0008D522 touches the lock command cell, and the field-extraction\n   scan that would find its consumers is UNRELIABLE (see APP_body_cmd_bus's comment).\n   \u26a0 NOT ESTABLISHED: how this function is scheduled -- the flow-edge climb reached\n   0x93890 / 0x8F8F2 and no further, never touching a spine symbol. */\n\nvoid APP_rke_to_body_cmd(undefined8 param_1,undefined1 *param_2,int param_3,int param_4)\n\n{\n  uint uVar1;\n  char cVar2;\n  int iVar3;\n  \n  cVar2 = APP_rke_join_gate;\n  if (cVar2 == '\\0') {\n    *(uint *)(param_4 + 0x8c) = *(uint *)(param_4 + 0x8c) | 0x10000;\n  }\n  else if ((*(uint *)(param_4 + 0x8c) & 0x68000) == 0) goto LAB_0008d54a;\n  *param_2 = 2;\nLAB_0008d54a:\n  if ((*(short *)(param_3 + 0x82) == 0) && ((*(uint *)(param_4 + 0x8c) & 0x78000) != 0)) {\n    uVar1 = *(uint *)(param_4 + 0x70);\n    iVar3 = 3;\n  }\n  else {\n    uVar1 = *(uint *)(param_4 + 0x70);\n    iVar3 = 1;\n  }\n  *(uint *)(param_4 + 0x70) = iVar3 << 0xb | uVar1 & 0xffffc7ff;\n  return;\n}\n\n"}]},"per":{"kind":"func","blocks":[{"addr":"0x62848","name":"APP_feature_periodic","code":"\n/* FEATURE PERIODIC layer (layer 21)\n   46 callees = the body-feature modules' runtime bodies (the ones\n   Sec.7.4/8.4 could not find, because APP_feature_init only runs\n   their constructors). Nearly every callee references the signal\n   planes 0x40001E00 / 0x40002800 / 0x40003C00 -- this is the\n   feature <-> signal-plane boundary. */\n\nvoid APP_feature_periodic(void)\n\n{\n  short sVar1;\n  \n  FUN_0010df84();\n  sVar1 = DAT_40004d6e;\n  DAT_40004d6e = sVar1 + 1;\n  FUN_00085784();\n  FUN_000a49ba();\n  FUN_000a5756();\n  FUN_00082adc();\n  FUN_00084628();\n  FUN_0009ba92();\n  FUN_0006ef42();\n  FUN_000b6b00();\n  FUN_00063bb2();\n  FUN_000c4b28();\n  FUN_0007890a();\n  FUN_00078b3c();\n  FUN_0006fb14();\n  FUN_000b955a();\n  FUN_000a590e();\n  FUN_0007effa();\n  FUN_000b688e();\n  APP_lock_chain_01();\n  FUN_000991fa();\n  FUN_000b7884();\n  FUN_000bec38();\n  FUN_00083f78();\n  FUN_0008437a();\n  FUN_0009e778();\n  FUN_000820cc();\n  FUN_0007c56e();\n  FUN_0007c448();\n  FUN_0007d0d8();\n  FUN_0007dea6();\n  FUN_0007ef04();\n  FUN_000810e2();\n  FUN_00062eda();\n  FUN_000630fc();\n  FUN_000c43ca();\n  FUN_000a9a48();\n  FUN_0009cf8c();\n  FUN_0009d6bc();\n  FUN_000796c4();\n  FUN_00063aa8();\n  FUN_000ac356();\n  FUN_000aeec6();\n  FUN_000b4482();\n  thunk_FUN_000b4b06();\n  thunk_FUN_00064c2c();\n  FUN_00085298();\n  return;\n}\n\n"}]},"sm":{"kind":"func","blocks":[{"addr":"0x95770","name":"APP_lock_src_state_machine","code":"\n/* LOCK-REQUEST SOURCE STATE MACHINE (layer 34) -- the origin of the chain.\n   \n   658-byte state machine; writes APP_lock_src_origin (0x40008D6B) at 0x959C2 with a value\n   selected by branching logic, NOT a constant:\n   \n       000959ae  se_lwz r6,0x18(r3) ; se_li r0,0x1 ; e_rlwimi   <- state 1 path\n       000959b8  se_lwz r6,0x18(r3) ; se_li r0,0x2 ; e_rlwimi   <- state 2 path\n       000959c0  se_li r0,0x0\n       000959c2  se_stb r0,0x3(r7)                              <- stores the selection\n   \n   It also writes 0x40008D6C at 0x959FA. This is what makes the whole RKE->lock chain LIVE:\n   \n     FUN_00095770 -> APP_lock_src_origin 0x40008D6B\n       -[0x97994]-> APP_lock_src_level 0x40008EF7\n       -[0x9749A]-> APP_lock_request_input 0x40008D2C   (unswept block)\n       -> APP_lock_req_edge_detect -> APP_req_word_74 bit10\n       -> APP_lock_req_gate -> APP_lock_req_producer -> APP_req_word_70 bit3\n       -> APP_lock_request_dispatch -> APP_lock_command -> MS 0x3A d3 -> DDM/PDM\n   \n   \u26a0 NOT ESTABLISHED: this function has **0 callers** and its true entry (0x95716) also has\n   none, so how it is scheduled is unknown -- it is presumably reached from the unswept\n   region around 0x95716. Do not assume it runs every tick.\n   \u26a0 NOT ESTABLISHED: that this state machine is the RKE path specifically. It is the\n   *origin of the lock-request level*; whether its input is the RKE demux output, a door\n   switch, or something else is NOT yet traced. */\n\nvoid APP_lock_src_state_machine\n               (uint *param_1,int param_2,undefined8 param_3,undefined8 param_4,int param_5)\n\n{\n  ushort uVar1;\n  byte bVar2;\n  uint in_r0;\n  uint uVar3;\n  short sVar4;\n  undefined1 uVar5;\n  \n  uVar3 = in_r0 >> 0xc & 3;\n  if (uVar3 == 1) {\n    bVar2 = APP_bss_start;\n    if ((bVar2 & 1) == 0) goto LAB_0009581e;\nLAB_0009580c:\n    *(undefined2 *)(param_1 + 2) = 0;\n    uVar3 = param_1[6] & 0xffffcfff | 0x2000;\nLAB_00095818:\n    param_1[6] = uVar3 & 0xffffff3f | 0x80;\n  }\n  else {\n    if (uVar3 != 2) goto LAB_0009580c;\n    bVar2 = APP_bss_start;\n    if ((bVar2 & 1) != 0) {\n      uVar3 = param_1[6] >> 6 & 3;\n      if (uVar3 == 1) {\n        if (*(char *)(param_2 + 0x8c) == '\\0') {\n          uVar3 = param_1[6] & 0xffffff3f | 0x80;\n          goto LAB_000957c8;\n        }\n        goto LAB_0009581e;\n      }\n      if (uVar3 == 2) {\n        if (*(char *)(param_2 + 0x8c) != '\\x01') goto LAB_0009581e;\n        param_1[6] = param_1[6] & 0xffffff3f | 0x40;\n        uVar1 = *(ushort *)(param_1 + 2);\n        if (*(ushort *)(param_1 + 3) < uVar1) {\n          if (uVar1 < *(ushort *)((int)param_1 + 0xe)) {\n            sVar4 = *(short *)(param_1 + 5);\n            goto LAB_000957fe;\n          }\n          if (uVar1 <= *(ushort *)(param_1 + 4)) {\n            sVar4 = uVar1 + 5;\n            goto LAB_000957fe;\n          }\n        }\n        else {\n          sVar4 = uVar1 + 0x23;\nLAB_000957fe:\n          *(short *)(param_1 + 2) = sVar4;\n        }\n        param_1[7] = param_1[7] | 0x80000000;\n        *(undefined1 *)(param_5 + 5) = 1;\n        goto LAB_0009581e;\n      }\n      *(undefined2 *)(param_1 + 2) = 0;\n      uVar3 = param_1[6];\n      goto LAB_00095818;\n    }\n    uVar3 = param_1[6] & 0xffffcf3f | 0x1000;\nLAB_000957c8:\n    param_1[6] = uVar3;\n  }\nLAB_0009581e:\n  uVar3 = param_1[6] >> 2 & 3;\n  if (uVar3 == 1) {\n    bVar2 = APP_bss_start;\n    if ((bVar2 & 1) == 0) goto LAB_000958c4;\nLAB_000958b0:\n    *(undefined2 *)((int)param_1 + 10) = 0;\n    param_1[6] = param_1[6] & 0xfffffcf3 | 0x108;\n  }\n  else {\n    if (uVar3 != 2) goto LAB_000958b0;\n    bVar2 = APP_bss_start;\n    if ((bVar2 & 1) == 0) {\n      uVar3 = param_1[6] & 0xfffffcf3 | 4;\nLAB_00095862:\n      param_1[6] = uVar3;\n    }\n    else {\n      uVar3 = param_1[6] >> 8 & 3;\n      if (uVar3 != 1) {\n        if (uVar3 == 2) {\n          if (*(char *)(param_2 + 0x8d) != '\\0') goto LAB_000958c4;\n        }\n        else {\n          *(undefined2 *)((int)param_1 + 10) = 0;\n        }\n        uVar3 = param_1[6] & 0xfffffcff | 0x100;\n        goto LAB_00095862;\n      }\n      if (*(char *)(param_2 + 0x8d) == '\\x01') {\n        param_1[6] = param_1[6] & 0xfffffcff | 0x200;\n        uVar1 = *(ushort *)((int)param_1 + 10);\n        if (*(ushort *)(param_1 + 3) < uVar1) {\n          if (uVar1 < *(ushort *)((int)param_1 + 0xe)) {\n            sVar4 = *(short *)(param_1 + 5);\n            goto LAB_00095898;\n          }\n          if (uVar1 <= *(ushort *)(param_1 + 4)) {\n            sVar4 = uVar1 + 5;\n            goto LAB_00095898;\n          }\n        }\n        else {\n          sVar4 = uVar1 + 0x23;\nLAB_00095898:\n          *(short *)((int)param_1 + 10) = sVar4;\n        }\n        param_1[7] = param_1[7] | 0x40000000;\n        *(undefined1 *)(param_5 + 6) = 1;\n      }\n    }\n  }\nLAB_000958c4:\n  uVar3 = param_1[6] >> 0xe & 3;\n  if (uVar3 == 0) {\nLAB_0009591e:\n    param_1[6] = param_1[6] & 0xffff3fff | 0x8000;\n  }\n  else {\n    if (uVar3 != 1) {\n      if (2 < uVar3) {\n        if (uVar3 != 3) goto LAB_0009591e;\n        if ((uint)*(ushort *)((int)param_1 + 0x16) <= *param_1) {\n          param_1[6] = param_1[6] & 0xffff3fff | 0x4000;\n          if (*(short *)(param_1 + 2) != 0) {\n            *(short *)(param_1 + 2) = *(short *)(param_1 + 2) + -1;\n          }\n          goto LAB_00095928;\n        }\n        *param_1 = *param_1 + 10;\n      }\n      if (-1 < (int)param_1[7]) goto LAB_00095928;\n    }\n    param_1[6] = param_1[6] | 0xc000;\n    *param_1 = 0;\n    *(undefined2 *)((int)param_1 + 0x16) = 1000;\n    param_1[7] = param_1[7] & 0x7fffffff;\n  }\nLAB_00095928:\n  uVar3 = param_1[6] >> 4 & 3;\n  if (uVar3 == 0) {\nLAB_00095982:\n    param_1[6] = param_1[6] & 0xffffffcf | 0x20;\n  }\n  else {\n    if (uVar3 != 1) {\n      if (2 < uVar3) {\n        if (uVar3 != 3) goto LAB_00095982;\n        if ((uint)*(ushort *)(param_1 + 6) <= param_1[1]) {\n          param_1[6] = param_1[6] & 0xffffffcf | 0x10;\n          if (*(short *)((int)param_1 + 10) != 0) {\n            *(short *)((int)param_1 + 10) = *(short *)((int)param_1 + 10) + -1;\n          }\n          goto LAB_0009598c;\n        }\n        param_1[1] = param_1[1] + 10;\n      }\n      if ((param_1[7] >> 0x1e & 1) == 0) goto LAB_0009598c;\n    }\n    param_1[6] = param_1[6] | 0x30;\n    param_1[1] = 0;\n    *(undefined2 *)(param_1 + 6) = 1000;\n    param_1[7] = param_1[7] & 0xbfffffff;\n  }\nLAB_0009598c:\n  uVar3 = param_1[6] >> 10 & 3;\n  if (uVar3 == 1) {\n    if (*(ushort *)(param_1 + 2) < *(ushort *)((int)param_1 + 0x12)) {\nLAB_000959b8:\n      uVar3 = param_1[6] & 0xfffff3ff | 0x800;\n      uVar5 = 0;\n      goto LAB_000959c2;\n    }\n  }\n  else {\n    if (uVar3 != 2) goto LAB_000959b8;\n    if (*(ushort *)(param_1 + 2) <= *(ushort *)((int)param_1 + 0x12)) goto LAB_000959c6;\n    uVar5 = 1;\n    uVar3 = param_1[6] & 0xfffff3ff | 0x400;\nLAB_000959c2:\n    *(undefined1 *)(param_5 + 3) = uVar5;\n    param_1[6] = uVar3;\n  }\nLAB_000959c6:\n  if ((param_1[6] & 3) == 1) {\n    if (*(ushort *)((int)param_1 + 0x12) <= *(ushort *)((int)param_1 + 10)) {\n      return;\n    }\n  }\n  else if ((param_1[6] & 3) == 2) {\n    if (*(ushort *)((int)param_1 + 10) <= *(ushort *)((int)param_1 + 0x12)) {\n      return;\n    }\n    uVar5 = 1;\n    uVar3 = param_1[6] & 0xfffffffc | 1;\n    goto LAB_000959fa;\n  }\n  uVar3 = param_1[6] & 0xfffffffc | 2;\n  uVar5 = 0;\nLAB_000959fa:\n  *(undefined1 *)(param_5 + 4) = uVar5;\n  param_1[6] = uVar3;\n  return;\n}\n\n"}]},"prod":{"kind":"func","blocks":[{"addr":"0x978D2","name":"APP_lock_src_producer","code":"\n/* Writes the SOURCE cells of the lock-request\n   latch (layer 33).\n   \n       00097994  e_stb  r6,0xf(r21)     -> 0x40008EF7  (-> APP_lock_request_input)\n       0009799c  se_stb r6,0x0(r28)     -> 0x40008EF8  (-> APP_lock_request_input_2)\n   \n   Both are then copied into the lock-request input cells by the unswept latch-copy block at\n   0x9749A/0x9749E, which is where APP_lock_req_edge_detect_A/B pick them up.\n   \n   So the live chain is:\n       APP_lock_src_producer -> 0x40008EF7 -> [latch copy 0x9749A] -> APP_lock_request_input\n         -> edge detect -> req74 bit10 -> gate -> producer -> req70 bit3\n         -> APP_lock_request_dispatch -> APP_lock_command -> MS 0x3A d3 -> DDM/PDM\n   \n   \u26a0 What sets r6 here is NOT yet established -- that is the remaining unknown, and it is\n   where the RKE demux output would have to arrive. Do not assume it. */\n\nvoid APP_lock_src_producer(undefined1 param_1,undefined1 param_2,undefined1 param_3)\n\n{\n  undefined1 uVar1;\n  undefined1 uVar2;\n  byte bVar3;\n  byte in_r0;\n  int in_r12;\n  int unaff_r14;\n  int unaff_r15;\n  int unaff_r20;\n  undefined1 *unaff_r21;\n  undefined1 *unaff_r22;\n  undefined1 *unaff_r23;\n  undefined1 unaff_r24;\n  int unaff_r27;\n  undefined1 *unaff_r28;\n  int unaff_r29;\n  undefined1 *unaff_r30;\n  undefined1 *unaff_r31;\n  int in_stack_00000008;\n  int in_stack_0000000c;\n  \n  bVar3 = APP_mode_flags;\n  if ((bVar3 >> 1 & 1) == 0) {\n    in_r0 = in_r0 | 0x10;\n  }\n  unaff_r22[0xe] = param_3;\n  uVar1 = *(undefined1 *)(unaff_r14 + 0x150);\n  *unaff_r21 = unaff_r24;\n  *unaff_r23 = uVar1;\n  unaff_r21[2] = *(undefined1 *)(unaff_r27 + 0xd);\n  unaff_r21[3] = *(undefined1 *)(in_r12 + 7);\n  unaff_r23[1] = *(undefined1 *)(unaff_r14 + 0x11f);\n  unaff_r21[4] = *(undefined1 *)(unaff_r27 + 5);\n  unaff_r21[5] = *(undefined1 *)(unaff_r27 + 6);\n  uVar1 = APP_vehicle_state_mode;\n  unaff_r23[2] = uVar1;\n  unaff_r23[3] = unaff_r30[0xe];\n  unaff_r21[6] = unaff_r30[0xf];\n  unaff_r23[4] = unaff_r31[4];\n  uVar1 = *(undefined1 *)(unaff_r20 + 4);\n  *(byte *)(unaff_r14 + 0x152) = in_r0;\n  unaff_r23[5] = uVar1;\n  uVar1 = unaff_r31[5];\n  unaff_r22[0xf] = param_2;\n  *(undefined1 *)(in_stack_0000000c + 0xbf) = 0xff;\n  unaff_r21[1] = param_1;\n  unaff_r21[7] = uVar1;\n  unaff_r23[6] = unaff_r30[0xc];\n  unaff_r23[7] = *(undefined1 *)(unaff_r20 + 6);\n  unaff_r21[8] = unaff_r30[0xd];\n  uVar2 = unaff_r31[0xc];\n  unaff_r21[0xb] = bVar3 >> 1 & 1;\n  unaff_r23[10] = *unaff_r30;\n  unaff_r21[0xc] = unaff_r30[1];\n  unaff_r23[0xb] = unaff_r31[0xe];\n  unaff_r21[0xd] = unaff_r31[0xf];\n  unaff_r21[0xe] = unaff_r31[3];\n  unaff_r23[0xc] = unaff_r31[2];\n  unaff_r21[0xf] = *(undefined1 *)(unaff_r15 + 0xb);\n  *unaff_r28 = *(undefined1 *)(unaff_r15 + 0xc);\n  uVar1 = *(undefined1 *)(unaff_r15 + 0xe);\n  unaff_r23[8] = uVar2;\n  uVar2 = unaff_r30[2];\n  unaff_r28[1] = uVar1;\n  uVar1 = *(undefined1 *)(unaff_r15 + 0xd);\n  unaff_r23[9] = uVar2;\n  uVar2 = unaff_r31[0xd];\n  unaff_r28[2] = uVar1;\n  uVar1 = unaff_r30[4];\n  unaff_r21[9] = uVar2;\n  uVar2 = unaff_r30[3];\n  unaff_r23[0xd] = uVar1;\n  uVar1 = unaff_r30[5];\n  unaff_r21[10] = uVar2;\n  unaff_r28[3] = uVar1;\n  unaff_r28[4] = *(undefined1 *)(unaff_r15 + 7);\n  unaff_r23[0xe] = in_r0;\n  unaff_r28[6] = unaff_r31[0xb];\n  unaff_r23[0xf] = unaff_r31[10];\n  *unaff_r22 = *(undefined1 *)(unaff_r20 + 0xe);\n  unaff_r28[7] = unaff_r31[9];\n  unaff_r22[1] = unaff_r31[8];\n  unaff_r28[8] = unaff_r31[1];\n  unaff_r22[2] = *unaff_r31;\n  unaff_r22[3] = *(undefined1 *)(unaff_r29 + 1);\n  bVar3 = DAT_40001d82;\n  unaff_r28[9] = bVar3 >> 4 & 1;\n  unaff_r22[4] = unaff_r31[6];\n  unaff_r28[10] = unaff_r31[7];\n  unaff_r22[5] = *(undefined1 *)(in_stack_00000008 + 0x67);\n  uVar1 = *(undefined1 *)(unaff_r15 + 8);\n  unaff_r22[6] = unaff_r30[10];\n  uVar2 = unaff_r30[0xb];\n  unaff_r28[5] = uVar1;\n  unaff_r28[0xb] = uVar2;\n  unaff_r22[7] = unaff_r30[8];\n  unaff_r22[8] = *(undefined1 *)(unaff_r29 + 6);\n  unaff_r28[0xc] = unaff_r30[9];\n  bVar3 = DAT_40003ce5;\n  unaff_r28[0xd] = bVar3 >> 6 & 1;\n  unaff_r22[9] = *(undefined1 *)(unaff_r20 + 3);\n  unaff_r22[10] = unaff_r30[6];\n  unaff_r28[0xe] = unaff_r30[7];\n  FUN_0010dff4();\n  return;\n}\n\n"}]},"edge":{"kind":"func","blocks":[{"addr":"0x86F90","name":"APP_lock_req_edge_detect_A","code":"\n/* LOCK-REQUEST RISING-EDGE DETECTOR (layer 32).\n   \n       b = APP_lock_request_input;                          // 0x40008D2C, boolean level\n       if (b == 1 && !(req74 & bit9))  req74 |= bit10;       // rising  edge -> raise event\n       if (b == 0 &&  (req74 & bit9))  req74 &= ~bit10;      // falling edge -> drop event\n       req74 = (b & 1) << 9 | (req74 & ~bit9);               // bit9 = previous level\n   \n   So APP_req_word_74 **value bit 9 = level memory** and **value bit 10 = edge event**.\n   Bit 10 then gates the bit-3 producers (0x894D2 / 0x897B2 fall through into\n   APP_lock_req_producer_A/B), which raise APP_req_word_70 bit 3 and write\n   APP_lock_command -- i.e. this is the entry to the whole lock-command chain.\n   \n   \u26a0 Its input byte has NO WRITER (see APP_lock_request_input), so on this build the\n   detector can never fire. Documented in docs/tx_pack_stage.md Sec.9. */\n\nvoid APP_lock_req_edge_detect_A(void)\n\n{\n  byte bVar1;\n  uint uVar2;\n  \n  bVar1 = APP_lock_request_input;\n  if ((bVar1 == 1) && (uVar2 = APP_req_word_74, (uVar2 >> 9 & 1) == 0)) {\n    uVar2 = APP_req_word_74;\n    APP_req_word_74 = uVar2 | 0x400;\n  }\n  if ((bVar1 == 0) && (uVar2 = APP_req_word_74, (uVar2 >> 9 & 1) != 0)) {\n    uVar2 = APP_req_word_74;\n    APP_req_word_74 = uVar2 & 0xfffffbff;\n  }\n  uVar2 = APP_req_word_74;\n  APP_req_word_74 = (bVar1 & 1) << 9 | uVar2 & 0xfffffdff;\n  return;\n}\n\n"},{"addr":"0x8A812","name":"APP_lock_req_edge_detect_B","code":"\n/* LOCK-REQUEST RISING-EDGE DETECTOR (layer 32).\n   \n       b = APP_lock_request_input;                          // 0x40008D2C, boolean level\n       if (b == 1 && !(req74 & bit9))  req74 |= bit10;       // rising  edge -> raise event\n       if (b == 0 &&  (req74 & bit9))  req74 &= ~bit10;      // falling edge -> drop event\n       req74 = (b & 1) << 9 | (req74 & ~bit9);               // bit9 = previous level\n   \n   So APP_req_word_74 **value bit 9 = level memory** and **value bit 10 = edge event**.\n   Bit 10 then gates the bit-3 producers (0x894D2 / 0x897B2 fall through into\n   APP_lock_req_producer_A/B), which raise APP_req_word_70 bit 3 and write\n   APP_lock_command -- i.e. this is the entry to the whole lock-command chain.\n   \n   \u26a0 Its input byte has NO WRITER (see APP_lock_request_input), so on this build the\n   detector can never fire. Documented in docs/tx_pack_stage.md Sec.9.\n   \n   Variant B additionally gates on APP_req_word_78 (0x40008E78) value bit 20 before\n   running the same edge logic. That word HAS 41 writers, so B's outer gate is live even\n   though its inner input is not. */\n\nvoid APP_lock_req_edge_detect_B(void)\n\n{\n  byte bVar1;\n  uint uVar2;\n  \n  uVar2 = APP_req_word_78;\n  if ((uVar2 >> 0x14 & 1) != 0) {\n    bVar1 = APP_lock_request_input;\n    if ((bVar1 == 1) && (uVar2 = APP_req_word_74, (uVar2 >> 9 & 1) == 0)) {\n      uVar2 = APP_req_word_74;\n      APP_req_word_74 = uVar2 | 0x400;\n    }\n    if ((bVar1 == 0) && (uVar2 = APP_req_word_74, (uVar2 >> 9 & 1) != 0)) {\n      uVar2 = APP_req_word_74;\n      APP_req_word_74 = uVar2 & 0xfffffbff;\n    }\n    uVar2 = APP_req_word_74;\n    APP_req_word_74 = (bVar1 & 1) << 9 | uVar2 & 0xfffffdff;\n  }\n  return;\n}\n\n"}]},"gate":{"kind":"func","blocks":[{"addr":"0x894D2","name":"APP_lock_req_gate_A","code":"\n/* Gate that falls through into APP_lock_req_producer_A.\n   \n       if (*(u8*)0x40008D2D == 1 || (APP_req_word_74 & bit10))\n           -> fall through -> raise APP_req_word_70 bit 3 -> APP_lock_command\n   \n   Note this is a FALLTHROUGH, not a call: the producer has zero incoming references and\n   is the byte-adjacent continuation of this block (the linear sweep split them). Both\n   conditions are dead on this build -- 0x40008D2D also has no writer. */\n\nvoid APP_lock_req_gate_A(int param_1,int param_2,undefined1 *param_3,int param_4)\n\n{\n  byte bVar1;\n  char cVar2;\n  undefined1 in_r0;\n  int unaff_r31;\n  \n  *param_3 = in_r0;\n  cVar2 = APP_lock_request_input_2;\n  if ((cVar2 != '\\x01') || ((*(uint *)(param_4 + 0x8c) >> 10 & 1) != 0)) {\n    DAT_40008d13 = 1;\n    DAT_40008d80 = 1;\n    DAT_40008d79 = 1;\n    *(uint *)(param_4 + 0x8c) = *(uint *)(param_4 + 0x8c) & 0xfffffbff;\n    *(undefined1 *)(param_1 + 0x150) = 6;\n    APP_lock_command_dirty = 0xff;\n    *(uint *)(param_4 + 0x88) = *(uint *)(param_4 + 0x88) & 0xffffffdf;\n    *(byte *)(param_2 + 0x54) = *(byte *)(param_2 + 0x54) | 8;\n    if ((*(byte *)(unaff_r31 + 0x1b) >> 3 & 1) != 0) {\n      bVar1 = APP_switch_bits_3AA7;\n      APP_switch_bits_3AA7 = bVar1 | 2;\n    }\n  }\n  return;\n}\n\n"},{"addr":"0x894FE","name":"APP_lock_req_producer_A","code":"\n/* Producer for APP_req_word_70 value bit 3 (the lock-request bit\n   APP_lock_request_dispatch consumes). Writes APP_lock_command = 6 and raises\n   APP_lock_command_dirty = 0xFF directly, then clears bit 5 of the word.\n   \n   NOTE the command value 6: the firmware's lock-command enumeration is wider than\n   the two codes seen on the wire (0x01 LOCK / 0x02 UNLOCK). Codes emitted across\n   the module: 0x02, 0x06, 0x1F, 0x3F and (x<<1)|1. Meanings of the others are\n   NOT established (open item 28). */\n\nvoid APP_lock_req_producer_A(int param_1,int param_2,undefined8 param_3,int param_4)\n\n{\n  byte bVar1;\n  uint in_r0;\n  int unaff_r31;\n  \n  *(uint *)(param_4 + 0x8c) = in_r0 & 0xfffffbff;\n  *(undefined1 *)(param_1 + 0x150) = 6;\n  APP_lock_command_dirty = 0xff;\n  *(uint *)(param_4 + 0x88) = *(uint *)(param_4 + 0x88) & 0xffffffdf;\n  *(byte *)(param_2 + 0x54) = *(byte *)(param_2 + 0x54) | 8;\n  if ((*(byte *)(unaff_r31 + 0x1b) >> 3 & 1) != 0) {\n    bVar1 = APP_switch_bits_3AA7;\n    APP_switch_bits_3AA7 = bVar1 | 2;\n  }\n  return;\n}\n\n"}]},"disp":{"kind":"func","blocks":[{"addr":"0x87A0E","name":"APP_lock_request_dispatch","code":"\n/* CENTRAL-LOCK REQUEST DISPATCHER (layer 29/30).\n   \n   The consumer end of the request bus. Branches on four bits of\n   APP_req_word_70 (0x40008E70) and emits a different APP_lock_command for each:\n   \n     value bit 4  (se_btsti r3,0x1B) -> command 0x1F, sets APP_power_mode = 1\n     value bit 3  (se_btsti r3,0x1C) -> command 0x02 (UNLOCK) or (x<<1)|1\n     value bit 2  (se_btsti r3,0x1D) -> command 0x1F / 0x3F, selected by\n                                        Ram4000247C bit 25\n     value bit 10                    -> the 0x1F/0x3F pair as well\n   \n   Every arm also sets APP_lock_command_dirty = 0xFF so the TX pack stage\n   (APP_tx_compose) emits the byte on the next tick.\n   \n   *** This is the ignition intersection. *** It both TESTS APP_power_mode\n   (0x40001D85: == 1, == 3) and WRITES it (= 1), while writing the lock command.\n   It is the only function in the image that does both.\n   \n   \u26a0 NOT ESTABLISHED: that any branch here is the \"RKE lock refused with ignition\n   on\" gate. No such comparison has been isolated -- see docs/tx_pack_stage.md\n   Sec.7.4 and Sec.4.4 (the execute strobe has no pack descriptor at all, so the\n   refusal may be a MISSING code path rather than a gate). Do not describe this\n   function as the refusal without a capture. */\n\nvoid APP_lock_request_dispatch(undefined8 param_1,int param_2,undefined8 param_3,int param_4)\n\n{\n  char cVar1;\n  byte bVar2;\n  char cVar3;\n  int in_r0;\n  undefined1 uVar4;\n  uint uVar5;\n  \n  if ((*(uint *)(&UNK_ffff8e70 + param_4) >> 4 & 1) == 0) {\n    if ((*(uint *)(&UNK_ffff8e70 + param_4) >> 2 & 1) == 0) {\n      if ((*(uint *)(&UNK_ffff8e70 + param_4) >> 3 & 1) != 0) {\n        *(uint *)(&UNK_ffff8e5c + param_4) =\n             *(uint *)(&UNK_ffff8e5c + param_4) & 0xe3ffffff | 0x8000000;\n        APP_lock_command = 0x1f;\n        APP_lock_command_dirty = 0xff;\n        cVar1 = APP_power_mode;\n        if (cVar1 != '\\x01') {\n          bVar2 = APP_signal_error_latch_0;\n          APP_signal_error_latch_0 = bVar2 | 0x80;\n        }\n        bVar2 = APP_switch_bits_3AA7;\n        DAT_40003eb6 = 0xff;\n        APP_switch_bits_3AA7 = bVar2 | 2;\n        *(undefined1 *)(in_r0 + 0x8f) = 1;\n        *(undefined1 *)(param_2 + 0xe) = 6;\n        *(undefined1 *)(in_r0 + 0x91) = 1;\n        DAT_40003eb7 = 0xff;\n        DAT_40003eb8 = 0xff;\n        APP_power_mode = 1;\n        return;\n      }\n      if ((*(uint *)(&UNK_ffff8e70 + param_4) >> 10 & 1) == 0) {\n        cVar1 = *(char *)(in_r0 + 0x89);\n        *(uint *)(&UNK_ffff8e5c + param_4) =\n             *(uint *)(&UNK_ffff8e5c + param_4) & 0xe3ffffff | 0x4000000;\n        if (cVar1 == '\\0') {\n          *(uint *)(&UNK_ffff8e5c + param_4) =\n               *(uint *)(&UNK_ffff8e5c + param_4) & 0xffffe7ff | 0x1000;\n          return;\n        }\n        *(uint *)(&UNK_ffff8e68 + param_4) = *(uint *)(&UNK_ffff8e68 + param_4) | 0x20000;\n        *(undefined1 *)(in_r0 + 0x90) = 1;\n        *(undefined1 *)(in_r0 + 0x89) = 0;\n        bVar2 = APP_switch_bits_3AA7;\n        APP_switch_bits_3AA7 = bVar2 | 2;\n        cVar1 = APP_power_mode;\n        if ((cVar1 == '\\x03') || (cVar1 == '\\x01')) {\n          *(uint *)(&UNK_ffff8e6c + param_4) = *(uint *)(&UNK_ffff8e6c + param_4) & 0xdfffffff;\n        }\n        APP_lock_command_dirty = 0xff;\n        *(undefined1 *)(in_r0 + 0x8f) = 1;\n        *(undefined1 *)(in_r0 + 0x91) = 1;\n        bVar2 = APP_mode_flags;\n        APP_lock_command = 2;\n        *(undefined1 *)(param_2 + 0xe) = 2;\n        if ((bVar2 >> 1 & 1) != 0) {\n          bVar2 = APP_signal_error_latch_0;\n          APP_signal_error_latch_0 = bVar2 | 0x80;\n        }\n        bVar2 = APP_mode_flags;\n        APP_mode_flags = bVar2 & 0xfd;\n        DAT_40003eb4 = 0xff;\n        if ((*(uint *)(&UNK_ffff8e5c + param_4) >> 0xb & 3) == 3) {\n          return;\n        }\n        *(uint *)(&UNK_ffff8e5c + param_4) = *(uint *)(&UNK_ffff8e5c + param_4) | 0x1800;\n      }\n      else {\n        *(uint *)(&UNK_ffff8e68 + param_4) = *(uint *)(&UNK_ffff8e68 + param_4) & 0xe1ffffff;\n        cVar1 = *(char *)(in_r0 + 0x89);\n        *(uint *)(&UNK_ffff8e5c + param_4) =\n             *(uint *)(&UNK_ffff8e5c + param_4) & 0xe3ffffff | 0x14000000;\n        if (cVar1 == '\\0') {\n          *(uint *)(&UNK_ffff8e58 + param_4) = *(uint *)(&UNK_ffff8e58 + param_4) & 0xffffffe3 | 8;\n          return;\n        }\n        cVar3 = DAT_40002d74;\n        *(uint *)(&UNK_ffff8e68 + param_4) = *(uint *)(&UNK_ffff8e68 + param_4) | 0x20000;\n        *(undefined1 *)(in_r0 + 0x90) = 1;\n        *(undefined1 *)(in_r0 + 0x89) = 0;\n        (&UNK_ffff8e58)[param_4] = cVar3;\n        bVar2 = APP_switch_bits_3AA7;\n        (&UNK_ffff8e4d)[param_4] = cVar3 << 1;\n        cVar1 = APP_power_mode;\n        APP_switch_bits_3AA7 = bVar2 | 2;\n        if (cVar1 == '\\x03') {\n          *(uint *)(&UNK_ffff8e6c + param_4) = *(uint *)(&UNK_ffff8e6c + param_4) & 0xdfffffff;\n        }\n        APP_lock_command = cVar3 << 1 | 1;\n        APP_lock_command_dirty = 0xff;\n        *(undefined1 *)(in_r0 + 0x91) = 1;\n        *(undefined1 *)(in_r0 + 0x8f) = 1;\n        *(uint *)(&UNK_ffff8e68 + param_4) = *(uint *)(&UNK_ffff8e68 + param_4) & 0xe1ffffff;\n        uVar5 = *(uint *)(&UNK_ffff8e58 + param_4);\n        *(undefined1 *)(param_2 + 0xe) = 2;\n        if ((uVar5 >> 2 & 7) == 3) {\n          return;\n        }\n        *(uint *)(&UNK_ffff8e58 + param_4) = *(uint *)(&UNK_ffff8e58 + param_4) & 0xffffffe3 | 0xc;\n      }\n      *(undefined4 *)(&UNK_ffff8e04 + param_4) = 10;\n      bVar2 = DAT_400055ed;\n      *(ushort *)(&UNK_ffff8e2e + param_4) = (ushort)bVar2 * 10;\n      *(uint *)(&UNK_ffff8e70 + param_4) = *(uint *)(&UNK_ffff8e70 + param_4) | 0x200;\n    }\n    else {\n      cVar1 = *(char *)(in_r0 + 0x89);\n      *(uint *)(&UNK_ffff8e5c + param_4) =\n           *(uint *)(&UNK_ffff8e5c + param_4) & 0xe3ffffff | 0xc000000;\n      if (cVar1 == '\\0') {\n        uVar5 = *(uint *)(&UNK_ffff8e60 + param_4) & 0xffcfffff | 0x200000;\n        goto LAB_00087b2e;\n      }\n      *(uint *)(&UNK_ffff8e68 + param_4) = *(uint *)(&UNK_ffff8e68 + param_4) | 0x20000;\n      *(undefined1 *)(in_r0 + 0x90) = 1;\n      *(undefined1 *)(in_r0 + 0x89) = 0;\n      cVar1 = APP_power_mode;\n      bVar2 = APP_switch_bits_3AA7;\n      (&UNK_ffff8e55)[param_4] = cVar1;\n      APP_switch_bits_3AA7 = bVar2 | 2;\n      if (cVar1 == '\\x03') {\n        *(uint *)(&UNK_ffff8e6c + param_4) = *(uint *)(&UNK_ffff8e6c + param_4) & 0xdfffffff;\n      }\n      uVar5 = Ram4000247c;\n      uVar4 = 0x1f;\n      if ((uVar5 >> 0x19 & 1) != 0) {\n        uVar4 = 0x3f;\n      }\n      APP_lock_command = uVar4;\n      APP_lock_command_dirty = 0xff;\n      *(undefined1 *)(in_r0 + 0x91) = 1;\n      *(undefined1 *)(in_r0 + 0x8f) = 1;\n      uVar5 = *(uint *)(&UNK_ffff8e60 + param_4);\n      *(undefined1 *)(param_2 + 0xe) = 6;\n      if ((uVar5 >> 0x14 & 3) != 3) {\n        *(uint *)(&UNK_ffff8e60 + param_4) = *(uint *)(&UNK_ffff8e60 + param_4) | 0x300000;\n        *(undefined4 *)(&UNK_ffff8e04 + param_4) = 10;\n        bVar2 = DAT_400055ed;\n        *(ushort *)(&UNK_ffff8e2e + param_4) = (ushort)bVar2 * 10;\n        return;\n      }\n    }\n  }\n  else {\n    cVar1 = *(char *)(in_r0 + 0x89);\n    *(uint *)(&UNK_ffff8e5c + param_4) =\n         *(uint *)(&UNK_ffff8e5c + param_4) & 0xe3ffffff | 0x10000000;\n    if (cVar1 == '\\0') {\n      uVar5 = *(uint *)(&UNK_ffff8e60 + param_4) & 0xffffffcf | 0x20;\nLAB_00087b2e:\n      *(uint *)(&UNK_ffff8e60 + param_4) = uVar5;\n      return;\n    }\n    *(uint *)(&UNK_ffff8e68 + param_4) = *(uint *)(&UNK_ffff8e68 + param_4) | 0x20000;\n    *(undefined1 *)(in_r0 + 0x90) = 1;\n    *(undefined1 *)(in_r0 + 0x89) = 0;\n    DAT_40003bb4 = 2;\n    DAT_40003d77 = 0xff;\n    cVar1 = APP_power_mode;\n    bVar2 = APP_switch_bits_3AA7;\n    (&UNK_ffff8e55)[param_4] = cVar1;\n    APP_switch_bits_3AA7 = bVar2 | 2;\n    if (cVar1 == '\\x03') {\n      *(uint *)(&UNK_ffff8e6c + param_4) = *(uint *)(&UNK_ffff8e6c + param_4) & 0xdfffffff;\n    }\n    uVar5 = Ram4000247c;\n    uVar4 = 0x1f;\n    if ((uVar5 >> 0x19 & 1) != 0) {\n      uVar4 = 0x3f;\n    }\n    APP_lock_command = uVar4;\n    APP_lock_command_dirty = 0xff;\n    *(uint *)(&UNK_ffff8e68 + param_4) = *(uint *)(&UNK_ffff8e68 + param_4) | 0x400000;\n    *(undefined1 *)(in_r0 + 0x91) = 1;\n    *(undefined1 *)(in_r0 + 0x8f) = 1;\n    uVar5 = *(uint *)(&UNK_ffff8e60 + param_4);\n    *(undefined1 *)(param_2 + 0xe) = 6;\n    if ((uVar5 >> 4 & 3) != 3) {\n      *(uint *)(&UNK_ffff8e60 + param_4) = *(uint *)(&UNK_ffff8e60 + param_4) | 0x30;\n      *(undefined4 *)(&UNK_ffff8e04 + param_4) = 10;\n      bVar2 = DAT_400055ed;\n      *(undefined4 *)(&UNK_ffff8e14 + param_4) = 10;\n      *(undefined2 *)(&UNK_ffff8e32 + param_4) = 200;\n      *(ushort *)(&UNK_ffff8e2e + param_4) = (ushort)bVar2 * 10;\n      return;\n    }\n  }\n  return;\n}\n\n"}]},"timed":{"kind":"func","blocks":[{"addr":"0x8D4DA","name":"APP_body_cmd_timed_feature","code":"\n/* APP_body_cmd_timed_feature  --  layer 36\n   \n   THE SOLE READER of APP_body_cmd_bus 0x40008E58 value bits 11..13 (the 3-bit RKE\n   command enum written by APP_rke_to_body_cmd 0x8D522).\n   \n   Proven by TWO structurally independent instruments, both with passing positive\n   controls, in agreement (docs/rke_lock_join.md 3):\n     * reference manager            (248)  -> 0x8D500\n     * full-image linear sweep of 352,906 instructions for the extract idiom,\n       using no references/functions/symbols (249) -> 0x8D500\n   \n   *** OPEN ITEM 38 IS REFUTED BY THIS FUNCTION ***\n   Item 38 assumed this field reaches APP_lock_command 0x40002E70.  It does not.\n   250 resolved every cell this function writes through tx_signal_dict.json +\n   net_frame_maps.json (positive control: APP_lock_command must resolve to MS-CAN\n   0x3A d3 - it does).  Result:\n      0x40002E44 -> HS 0x380 d4 / MS 0x1A8 d0 / MS 0x1B0 d2 / MS 0x290 d0 / MS 0x370 d4\n      0x40003CE6, 0x40008DF0, 0x40008E46  -> internal state\n   NOTHING it writes reaches the lock command.  This is a TIMED body feature\n   (duration DAT_4000588F * 50), not the lock actuator.\n   \n   The earlier \"3 write, 0 read\" verdict on this field (235) was a DECODER BUG:\n   mb/me were decoded without the rotate amount (golden rule 21).\n   \n   SCOPE WARNING: this function's Ghidra body (0x8D4DA..0x8D5FF) does NOT contain\n   the decompiler-reachable blocks below the entry.  A getBody()-scoped scan drops\n   the 0x40003CE6 / 0x40002E44 writes entirely.  Scan 0x8D4C6..0x8D600.\n   \n   *** BENCH-TESTED, and one static claim REFUTED *** (bench session 1)\n   \n   On a bench BCM (stock JV6T-14C094-AD) driven with a synthesised RFA frame on\n   MS 0x100, RKE command nibble 3 - the one that reaches THIS function's case 3 -\n   was measured end to end.  docs/bench_session_1.md 5.5-5.6.\n   \n   CONFIRMED (a):\n     * the command reaches the wire as MS 0x3A d3 = 0x06, with 10 execute strobes\n       over 3 presses.  0x06 had never appeared in any vehicle capture; six static\n       writer sites write it, incl. APP_lock_req_producer_A/B (Path A).\n     * it actuates NO LOCK RELAY.  Acoustic measurement (laptop mic, the BCM drives\n       the lock motors directly with no DDM/PDM present): clean audio, ZERO clicks,\n       with a same-session positive control proving the mic still hears relays\n       (8 strobes -> 8 clicks, all within +-35 ms).\n       => APP_lock_command carries at least one NON-ACTUATING value.\n   \n   REFUTED (a):\n     * script 250 resolved this function's DAT_40002E44 |= 0x40 through the decoded\n       TX tables to five frame bytes:\n           HS 0x380 d4 | MS 0x1A8 d0 | MS 0x1B0 d2 | MS 0x290 d0 | MS 0x370 d4\n       A controlled stimulus/response diff over BOTH buses (4 s stable baseline,\n       311 testable byte-channels) showed **0 of those 5 changed**.\n     * what DID change transiently, coincident with the press:\n           MS 0x1E0 d0  0x42 -> 0x62   (bit 5) for ~0.30 s\n           MS 0x1E0 d1  0xA0 -> 0xC0   (bit 6) for ~0.10 s\n       plus a delayed MS 0x230/0x250 d6 0x26 -> 0x27 at t+8.2 s for ~2.6 s.\n   \n   => Do NOT trust the 0x40002E44 -> frame mapping.  To find this feature's output,\n      start from what writes MS 0x1E0 d0 bit5 / d1 bit6 and work back.\n      The timer (DAT_40008E46 = DAT_4000588F * 0x32) remains unmeasured, because no\n      predicted byte reverted and the 0x1E0 pulses are far shorter than the timer. */\n\nvoid APP_body_cmd_timed_feature(void)\n\n{\n  short sVar1;\n  char cVar2;\n  byte bVar3;\n  ushort uVar4;\n  uint uVar5;\n  byte bVar7;\n  undefined1 uVar8;\n  uint uVar6;\n  int iVar9;\n  \n  uVar6 = APP_req_word_78;\n  if ((uVar6 >> 9 & 1) == 0) {\n    return;\n  }\n  uVar6 = APP_body_cmd_bus;\n  uVar6 = uVar6 >> 0xb & 7;\n  if (uVar6 == 0) {\nLAB_0008d5d6:\n    uVar6 = APP_body_cmd_bus;\n    uVar6 = uVar6 & 0xffffc7ff;\n    goto LAB_0008d5de;\n  }\n  if (uVar6 != 1) {\n    if (uVar6 < 3) {\n      return;\n    }\n    if (uVar6 == 3) {\n      uVar6 = APP_body_cmd_bus;\n      bVar7 = APP_timed_feature_out_REFUTED;\n      APP_timed_feature_out_REFUTED = bVar7 | 0x40;\n      uVar5 = APP_req_word_74;\n      APP_body_cmd_bus = uVar6 & 0xffffc7ff | 0x2000;\n      APP_req_word_74 = uVar5 | 0x80000;\n      APP_body_cmd_timer_acc = 0;\n      bVar7 = DAT_4000588f;\n      APP_body_cmd_timer_limit = (ushort)bVar7 * 0x32;\n    }\n    else {\n      if (uVar6 != 4) goto LAB_0008d5d6;\n      uVar6 = APP_req_word_74;\n      if ((uVar6 >> 0x13 & 1) == 0) {\nLAB_0008d5e4:\n        uVar5 = APP_req_word_74;\n        uVar6 = APP_body_cmd_bus;\n        APP_req_word_74 = uVar5 & 0xffe03fff;\n        APP_body_cmd_bus = uVar6 & 0xffffc7ff | 0x800;\n        return;\n      }\n      uVar4 = APP_body_cmd_timer_limit;\n      uVar6 = APP_body_cmd_timer_acc;\n      if (uVar4 <= uVar6) {\n        DAT_40003ce6 = 0;\n        bVar7 = APP_timed_feature_out_REFUTED;\n        APP_timed_feature_out_REFUTED = bVar7 & 0xbf;\n        goto LAB_0008d5e4;\n      }\n      APP_body_cmd_timer_acc = uVar6 + 10;\n    }\n    cVar2 = DAT_40008d55;\n    if (cVar2 != '\\x01') {\n      return;\n    }\n    bVar7 = APP_timed_feature_out_REFUTED;\n    APP_timed_feature_out_REFUTED = bVar7 & 0xbf;\n    uVar6 = APP_req_word_74;\n    if ((uVar6 >> 0xf & 7) == 0) {\n      cVar2 = DAT_40003bc8;\n      if (cVar2 == '\\0') {\n        bVar7 = 1;\n      }\n      else if (cVar2 == '\\x01') {\n        bVar7 = 2;\n      }\n      else if (cVar2 == '\\x02') {\n        bVar7 = 4;\n      }\n      else if (cVar2 == '\\x03') {\n        bVar7 = 8;\n      }\n      else if (cVar2 == '\\x04') {\n        bVar7 = 0x10;\n      }\n      else if (cVar2 == '\\x05') {\n        bVar7 = 0x20;\n      }\n      else if (cVar2 == '\\x06') {\n        bVar7 = 0x40;\n      }\n      else {\n        if (cVar2 != '\\a') goto LAB_0008d4ce;\n        bVar7 = 0x80;\n      }\n      bVar3 = RXsig_REDACTED;\n      if ((bVar7 & bVar3) != 0) goto LAB_0008d4c4;\nLAB_0008d4c0:\n      uVar8 = 0;\n    }\n    else {\n      cVar2 = RXsig_REDACTED;\n      if (cVar2 == '\\0') goto LAB_0008d4c0;\nLAB_0008d4c4:\n      uVar8 = 1;\n    }\n    DAT_40003ce6 = uVar8;\nLAB_0008d4ce:\n    uVar6 = APP_req_word_74;\n    APP_req_word_74 = uVar6 & 0xfff7ffff;\n    return;\n  }\n  bVar7 = DAT_40003ce5;\n  if (((bVar7 >> 6 & 1) == 0) || (cVar2 = APP_rke_join_gate, cVar2 != '\\0')) {\n    uVar6 = APP_req_word_74;\n    if ((uVar6 & 0x68000) != 0) goto LAB_0008d546;\n  }\n  else {\n    uVar6 = APP_req_word_74;\n    APP_req_word_74 = uVar6 | 0x10000;\nLAB_0008d546:\n    DAT_40003ce6 = 2;\n  }\n  sVar1 = APP_rke_command_code;\n  if ((sVar1 == 0) && (uVar6 = APP_req_word_74, (uVar6 & 0x78000) != 0)) {\n    uVar6 = APP_body_cmd_bus;\n    iVar9 = 3;\n  }\n  else {\n    uVar6 = APP_body_cmd_bus;\n    iVar9 = 1;\n  }\n  uVar6 = iVar9 << 0xb | uVar6 & 0xffffc7ff;\nLAB_0008d5de:\n  APP_body_cmd_bus = uVar6;\n  return;\n}\n\n"}]},"ef4":{"kind":"site","blocks":[{"addr":"0x97974","name":"APP_lock_src_producer","code":"/* in function APP_lock_src_producer\n   listing around 0x97974 */\n  00097968  e_stb r6,0xb(r21)\n  0009796C  se_lbz r6,0x0(r30)\n  0009796E  e_stb r6,0xa(r23)\n  00097972  se_lbz r6,0x1(r30)\n->00097974  e_stb r6,0xc(r21)\n  00097978  se_lbz r6,0xe(r31)\n  0009797A  e_stb r6,0xb(r23)\n  0009797E  se_lbz r6,0xf(r31)\n  00097980  e_stb r6,0xd(r21)\n  00097984  se_lbz r6,0x3(r31)\n  00097986  e_stb r6,0xe(r21)\n  0009798A  se_lbz r6,0x2(r31)"}]},"in":{"kind":"site","blocks":[{"addr":"0x9749A","name":null,"code":"/* NO FUNCTION HERE -- unswept block, invisible to every\n   reference-based method (AGENTS.md rule 14/44)\n   listing around 0x9749A */\n  0009748C  se_stb r0,0xb(r29)\n  0009748E  e_lbz r0,0xc(r23)\n  00097492  e_stb r0,0xb(r20)\n  00097496  e_lbz r0,0xf(r21)\n->0009749A  se_stb r0,0xc(r29)\n  0009749C  se_lbz r0,0x0(r28)\n  0009749E  se_stb r0,0xd(r29)\n  000974A0  se_lbz r0,0x1(r28)\n  000974A2  se_stb r0,0xe(r29)\n  000974A4  se_lbz r0,0x2(r28)\n  000974A6  se_stb r0,0xf(r29)\n  000974A8  e_bl 0x000869ce"}]}};</script>
+<!-- INLINED-CODE-END -->
+<script>
+/* ---------------------------------------------------------------------------
+   fitPalette() -- choose text colours from the MEASURED background.
+
+   Why this exists: this file is viewed in three different containers (the chat
+   frame, the desktop preview pane, a plain browser) and only the first injects
+   --foreground/--card. Guessing which one we are in is what produced two
+   successive contrast bugs:
+     1. no fallbacks at all      -> var() resolved to nothing -> black on black;
+     2. @media prefers-color-scheme -> keyed on the OS theme, which is NOT the
+        background we are painted on -> light grey on a white pane.
+
+   So: walk up the ancestor chain for the first non-transparent background,
+   default to white if the whole chain is transparent, and then VERIFY every
+   inherited colour against it with a real WCAG contrast ratio. A frame-supplied
+   value is used only if it actually contrasts; otherwise it is overridden.
+   Same discipline as the rest of this project: measure, then check the
+   measurement against a threshold, don't assume.
+--------------------------------------------------------------------------- */
+function fitPalette() {
+  const parse = c => {
+    const m = String(c).match(
+      /rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)(?:[,\s/]+([\d.]+))?/);
+    return m ? {r:+m[1], g:+m[2], b:+m[3], a: m[4] === undefined ? 1 : +m[4]} : null;
+  };
+  const lum = c => {
+    const f = v => { v /= 255;
+      return v <= 0.03928 ? v/12.92 : Math.pow((v + 0.055)/1.055, 2.4); };
+    return 0.2126*f(c.r) + 0.7152*f(c.g) + 0.0722*f(c.b);
+  };
+  const ratio = (x, y) => {
+    const a = lum(x), b = lum(y), hi = Math.max(a,b), lo = Math.min(a,b);
+    return (hi + 0.05) / (lo + 0.05);
+  };
+  // first ancestor with a real (non-transparent) background
+  let bg = null;
+  for (let e = document.body; e; e = e.parentElement) {
+    const c = parse(getComputedStyle(e).backgroundColor);
+    if (c && c.a > 0.05) { bg = c; break; }
+  }
+  if (!bg) bg = {r:255, g:255, b:255, a:1};      // transparent host => white
+  const dark = lum(bg) < 0.4;
+
+  // what does an inherited custom property actually resolve to here?
+  const probe = document.createElement("div");
+  probe.style.cssText = "position:absolute;visibility:hidden";
+  document.body.appendChild(probe);
+  const resolve = (v, prop) => {
+    probe.style.color = ""; probe.style.backgroundColor = "";
+    probe.style[prop] = `var(${v}, rgba(0,0,0,0))`;
+    return parse(getComputedStyle(probe)[prop]);
+  };
+  const inherited = {
+    fg:  resolve("--foreground", "color"),
+    mut: resolve("--muted-foreground", "color"),
+    cd:  resolve("--card", "backgroundColor"),
+    bd:  resolve("--border", "color")
+  };
+  probe.remove();
+
+  const FALL = dark
+    ? {fg:"#e6e9ee", mut:"#9aa4b2", bd:"#333a44", cd:"#1e2228"}
+    : {fg:"#1a1d21", mut:"#49525e", bd:"#d6dae0", cd:"#ffffff"};
+
+  const root = document.documentElement.style;
+  const report = {};
+  // text colours need contrast against the measured background
+  for (const [k, min] of [["fg", 4.5], ["mut", 3.0]]) {
+    const c = inherited[k];
+    const ok = c && c.a > 0.05 && ratio(c, bg) >= min;
+    if (!ok) root.setProperty("--" + k, FALL[k]);
+    report[k] = ok ? "frame(" + ratio(c, bg).toFixed(1) + ":1)" : "measured";
+  }
+  // card is a BACKGROUND: it must differ from the page, not from the text
+  const cd = inherited.cd;
+  const cdOK = cd && cd.a > 0.05 && ratio(cd, bg) < 2.0;
+  if (!cdOK) root.setProperty("--cd", FALL.cd);
+  report.cd = cdOK ? "frame" : "measured";
+  if (!(inherited.bd && inherited.bd.a > 0.05)) root.setProperty("--bd", FALL.bd);
+
+  console.log("[fitPalette] bg=rgb(%d,%d,%d) dark=%s %o",
+              bg.r, bg.g, bg.b, dark, report);
+}
+fitPalette();
+// the host can restyle after load (theme switch); re-measure then
+window.addEventListener("load", fitPalette);
+</script>
+<script>
+const C = { proven:"#4ea3ff", bench:"#2fbf71", open:"#e0b341", refuted:"#d9534f", pcode:"#8b5cf6" };
+
+const N = [
+ {id:"rfa",   x: 12, y: 42, w:200,h:34, k:"proven", t:"RFA radio receiver",     a:"MS-CAN 0x100 d6:d7",
+  d:"The key-fob receiver. Puts a 13-bit command code on MS-CAN 0x100, decoded by VOL_sig_get16 from descriptor 0x142FD4 (anchored on d6, mask 0x1F).",
+  n:"Rule 12: the 16-bit primitive reads d6 AND d7, so d7 never appears in any descriptor — a scan for it returned zero with a passing control.",
+  p:["// hardware + Volcano codec, not a function in this image",
+     "sig = VOL_sig_get16(desc 0x142FD4);   // reads d6 AND d7",
+     "APP_rke_command_code = sig & 0x1FFF;  // 13-bit command code"]},
+
+ {id:"code",  x: 12, y:106, w:200,h:34, k:"proven", t:"APP_rke_command_code",   a:"0x40002DA2",
+  d:"13-bit command code + valid flag at 0x40003F53. Bench-observed going 0000 → 1801 on a lock press (session 2, t=2.479 s).",
+  n:"Rule 13: decoded from captures as BIT FLAGS but consumed in code as a COMMAND ENUM ((code & 0xF) == 1).",
+  p:["// RAM cell, not a function","u16 APP_rke_command_code;   // 0x40002DA2",
+     "u8  valid_flag;             // 0x40003F53","",
+     "// bench: 0x0000 -> 0x1801 on a lock press"]},
+
+ {id:"demux", x: 12, y:170, w:200,h:34, k:"proven", t:"APP_rke_command_demux",  a:"0x992B2",
+  d:"(code & 0xF) → one-hot bits in APP_rke_cmd_bits_34 / _38 (0x40009034 / 0x40009038). Called once per periodic tick from FUN_0009B41C, the RKE feature dispatcher.",
+  n:"",
+  p:["switch (APP_rke_command_code & 0xF) {",
+     "  case 1: APP_rke_cmd_bits_34 |= LOCK_BIT;   break;",
+     "  case 2: APP_rke_cmd_bits_34 |= UNLOCK_BIT; break;",
+     "  ...","}"]},
+
+ {id:"tobody",x: 12, y:234, w:200,h:34, k:"proven", t:"APP_rke_to_body_cmd",    a:"0x8D522",
+  d:"Writes the 3-bit command enum into APP_body_cmd_bus bits 11..13 via e_rlwimi r0,r7,0xb,0x12,0x14. Sibling at 0x88504.",
+  n:"Scheduling of this function is OPEN — the flow-edge climb stalled at 0x93890 / 0x8F8F2.",
+  p:["u16 code = APP_rke_command_code;        // e_lhz r0,0x82(r5)",
+     "u8  cmd  = (code & 0xF) == 1 ? 1 : 3;  // se_li r7,0x1 / r7,0x3",
+     "",
+     "// e_rlwimi r0,r7,0xb,0x12,0x14",
+     "APP_body_cmd_bus = (APP_body_cmd_bus & ~0x3800)",
+     "                 | (cmd << 11);        // bits 11..13"]},
+
+ {id:"bus",   x: 12, y:298, w:200,h:34, k:"refuted", t:"APP_body_cmd_bus 11..13", a:"0x40008E58",
+  d:"REFUTED as the lock hop (layer 36). Its sole reader 0x8D500 → APP_body_cmd_timed_feature is a TIMED body feature (duration DAT_4000588F × 50) that writes nothing reaching APP_lock_command.",
+  n:"226 references — but rule 30: they are field accesses on ONE shared struct at base 0x40008DE8, which is why every reference-based join looked saturated.",
+  codeRef:"timed",
+  p:["// the field, and its ONE reader (0x8D500):",
+     "uVar6 = (APP_body_cmd_bus >> 11) & 7;",
+     "switch (uVar6) {",
+     "  case 3:  DAT_40002E44 |= 0x40;        // -> 5 CAN frames",
+     "           APP_req_word_74 |= 0x80000;",
+     "           DAT_40008E46 = DAT_4000588F * 0x32;  // a TIMER",
+     "}",
+     "// nothing here reaches APP_lock_command  <-- the refutation"]},
+
+ {id:"r74",   x: 12, y:362, w:200,h:34, k:"open", t:"APP_req_word_74 (RKE bits)", a:"LSB 14..18",
+  d:"Layer 36's relocated handoff: the RKE writer sites decode (wrap-aware sh/mb/me) to LSB masks 0x00078000 and 0x0001C000.",
+  n:"Rule 42: this repo numbers bits BOTH ways. These are LSB 14..18 = MSB 'bits 15..20'. They do NOT intersect the 0x600 the bench saw.",
+  p:["// 0x8D556  e_rlwinm r0,r0,0x0,0xd,0x10  -> LSB mask 0x00078000",
+     "// 0x8B3EE  e_rlwimi r7,r0,0xe,0xf,0x11  -> LSB mask 0x0001C000",
+     "",
+     "APP_req_word_74 bits 14..18 = <RKE handoff>;",
+     "",
+     "// NB: the bench's 0x600 is bits 9|10 -- Path A's edge",
+     "//     detector -- and does NOT overlap this field."]},
+
+ {id:"cons",  x: 12, y:426, w:200,h:34, k:"open", t:"??? 1 of 9 consumers",     a:"OPEN — item 41",
+  d:"Nine consumer sites read these bits; none is shown to actuate the lock. Control-flow reachability is SATURATED here.",
+  n:"Rule 23: a 7-instruction path into APP_lock_command=3 was found — then FUN_00087486 and FUN_0008B382, unrelated to RKE, reached the SAME site. Withdrawn.",
+  p:["// 9 consumer sites read bits 14..18:",
+     "//   0x8D542  0x884FC  0x88598  0x88670  0x8C4DE",
+     "//   0x8D464  0x8B3D6  0x8D5B0  0x8FEE8",
+     "",
+     "??? which one actuates the lock -- UNRESOLVED",
+     "",
+     "// every static instrument here is saturated or empty"]},
+
+ // ---- Path A
+ {id:"per",   x:390, y: 42, w:220,h:34, k:"proven", t:"APP_feature_periodic",   a:"0x62848",
+  d:"The periodic spine. Reaches the lock chain through 15 zero-caller blocks the linear sweep split apart.",
+  n:"Rule 19: a CALL-only climb stalls instantly; a JUMP+CALL+fallthrough climb reaches it in 14 hops.",
+  p:["// scheduling spine, once per tick","APP_feature_periodic()",
+     "  -> APP_lock_chain_01 0x96B9C",
+     "  -> ... 15 zero-caller blocks ...",
+     "  -> APP_lock_periodic_chain 0x97382",
+     "  -> APP_lock_src_sm_entry   0x95716"]},
+
+ {id:"sm",    x:390, y:106, w:220,h:34, k:"proven", t:"APP_lock_src_state_machine", a:"0x95770",
+  d:"658-byte state machine that selects the lock source value and drives the producer.",
+  n:"",
+  p:["// 658-byte state machine; selects a lock-source value",
+     "// base struct APP_lock_sm_input_struct 0x40008CEC",
+     "//   (derived BY CONTROL, not extrapolated)"]},
+
+ {id:"prod",  x:390, y:170, w:220,h:34, k:"proven", t:"APP_lock_src_producer",  a:"0x978D2",
+  d:"Copies the SM outputs. e_stb r6,0xf(r21) → _src_level 0x40008EF7; e_stb r6,0xc(r21) → the new cell 0x40008EF4.",
+  n:"Base pinned BY CONTROL: the documented 0x97994 → 0x40008EF7 mapping forces r21 = 0x40008EE8.",
+  p:["// r21 = 0x40008EE8  (pinned by control)",
+     "*(u8*)(r21 + 0xC) = v;   // 0x97974 -> 0x40008EF4  [the new cell]",
+     "*(u8*)(r21 + 0xF) = v;   // 0x97994 -> 0x40008EF7  APP_lock_src_level"]},
+
+ {id:"ef4",   x:390, y:234, w:220,h:34, k:"pcode", t:"APP_lock_src_unk_EF4",    a:"0x40008EF4",
+  d:"NEW. Sibling byte of _src_level, same producer, same base (+0xC vs +0xF). Bench: responds to an RKE press in 8/12 passes. Encoding 34 D5 00 0C = e_stb.",
+  n:"Rule 44: reference manager = 0 sites, struct-field scan = 0 sites, BOTH with passing controls. Only p-code found it. Its MEANING is open.",
+  p:["u8 APP_lock_src_unk_EF4;   // 0x40008EF4",
+     "",
+     "// written : 0x97974  e_stb r6,0xc(r21)   34 D5 00 0C",
+     "// read    : 0x97474  e_lbz r0,0xc(r21)",
+     "// bench   : 0x01000100 -> 0x01000101, 8/12 passes",
+     "// meaning : OPEN"]},
+
+ {id:"in",    x:390, y:298, w:220,h:34, k:"bench", t:"APP_lock_request_input",  a:"0x40008D2C",
+  d:"Edge-detector input. Writer se_stb r0,0xc(r29) at 0x9749A sits in an UNSWEPT BLOCK. Bench: 11 rises under RKE presses, 0 in 24 s of bus-matched idle.",
+  n:"Rule 14: once declared 'no writer, path inert' on four controlled negatives — all correct measurements, wrong inference.",
+  p:["u8 APP_lock_request_input;   // 0x40008D2C, boolean level",
+     "",
+     "// writer 0x9749A  se_stb r0,0xc(r29)   [UNSWEPT BLOCK]",
+     "// -> invisible to xrefs, p-code found it",
+     "",
+     "// bench: 11 rises under presses, 0 in matched idle"]},
+
+ {id:"edge",  x:390, y:362, w:220,h:34, k:"proven", t:"APP_lock_req_edge_detect_A/B", a:"0x86F90 / 0x8A812",
+  d:"Rising-edge detector. Literal constants | 0x400, & 0xFFFFFBFF, & 0xFFFFFDFF ⇒ LSB bit 9 = level memory, bit 10 = edge event.",
+  n:"These literals are what settle the bit-numbering dispute — a mask needs no convention.",
+  p:["b = APP_lock_request_input;",
+     "if (b == 1 && !(req74 & 0x200))  req74 |=  0x400;   // rising",
+     "if (b == 0 &&  (req74 & 0x200))  req74 &= ~0x400;   // falling",
+     "req74 = (b & 1) << 9 | (req74 & ~0x200);            // level memory",
+     "",
+     "// bit 9  = 0x200 = level memory",
+     "// bit 10 = 0x400 = edge event"]},
+
+ {id:"gate",  x:390, y:426, w:220,h:34, k:"proven", t:"APP_lock_req_gate → producer", a:"0x894D2 / 0x894FE",
+  d:"Falls through to the producer: req70 |= bit3; APP_lock_command = 6; dirty = 0xFF.",
+  n:"",
+  p:["if (req74 & 0x400) {          // the edge event",
+     "    APP_req_word_70 |= 0x8;   // bit 3 = lock request",
+     "    APP_lock_command = 6;",
+     "    dirty = 0xFF;",
+     "}"]},
+
+ {id:"disp",  x:390, y:490, w:220,h:34, k:"proven", t:"APP_lock_request_dispatch", a:"0x87A0E",
+  d:"The only function that both tests APP_power_mode and writes APP_lock_command — the ignition-gate candidate.",
+  n:"Item 30: no branch suppressing a command has been observed. Still open.",
+  p:["// the ONLY function that both reads APP_power_mode",
+     "// and writes APP_lock_command",
+     "",
+     "if (APP_power_mode == ...) { ... }",
+     "APP_lock_command = cmd;",
+     "",
+     "// no suppressing branch observed -- item 30 OPEN"]},
+
+ {id:"cmd",   x:180, y:566, w:250,h:38, k:"bench", t:"APP_lock_command",        a:"0x40002E70",
+  d:"0x01 LOCK / 0x02 UNLOCK. Peek and wire AGREE (276's acceptance test). One press emits a fixed triplet: LOCK, LOCK (+0.51 s), UNLOCK (+0.52 s).",
+  n:"Rule 41: that triplet's internal spacing is invariant to press cadence — which is how a wrong-partner pairing survived the gap-sweep falsifier.",
+  p:["u8 APP_lock_command;   // 0x40002E70","",
+     "//  0x01 = LOCK","//  0x02 = UNLOCK","//  0x06 = written by the producers","",
+     "// -> TX pack -> MS-CAN 0x3A d3"]},
+
+ {id:"wire",  x:180, y:634, w:250,h:34, k:"bench", t:"MS-CAN 0x3A d3 → DDM/PDM", a:"the observable",
+  d:"The lock command on the wire. Acoustically confirmed: 6/6 CAN class = relay class, mean latency +18 ms.",
+  n:"On the bench there is no DDM/PDM, so the BCM drives the lock motors directly — an independent physical ground truth.",
+  p:["// the wire form","0x3A  d3      = APP_lock_command   (01 lock / 02 unlock)",
+     "0x3A  d1 bit6 = execute strobe  (ONE-SHOT, not a level)","",
+     "// bench: 6/6 CAN class == acoustic relay class, +18 ms"]}
+];
+
+const E = [
+ ["rfa","code","proven"],["code","demux","proven"],["demux","tobody","proven"],
+ ["tobody","bus","refuted"],["tobody","r74","proven"],["r74","cons","open"],
+ ["cons","cmd","open"],
+ ["per","sm","proven"],["sm","prod","proven"],["prod","ef4","proven"],
+ ["prod","in","proven"],["in","edge","bench"],["edge","gate","proven"],
+ ["gate","disp","proven"],["disp","cmd","proven"],["cmd","wire","bench"]
+];
+
+const map = {}; N.forEach(n => map[n.id] = n);
+const svg = document.getElementById("svg");
+const NS = "http://www.w3.org/2000/svg";
+function el(t, at) { const e = document.createElementNS(NS, t);
+  for (const k in at) e.setAttribute(k, at[k]); return e; }
+
+[["PATH B — the RKE path", 12, 28],["PATH A — the lock chain", 390, 28]]
+  .forEach(([t,x,y]) => { const h = el("text",{x,y,class:"hdr",fill:C.proven});
+    h.textContent = t; svg.appendChild(h); });
+
+const defs = el("defs", {});
+for (const [id, col] of [["ap",C.proven],["ab",C.bench],["ao",C.open],["ar",C.refuted]]) {
+  const m = el("marker", {id, viewBox:"0 0 10 10", refX:9, refY:5,
+    markerWidth:6, markerHeight:6, orient:"auto-start-reverse"});
+  m.appendChild(el("path", {d:"M 0 0 L 10 5 L 0 10 z", fill:col}));
+  defs.appendChild(m);
+}
+svg.appendChild(defs);
+
+svg.appendChild(el("path", { class:"edge e-bench",
+  d:"M 212 315 C 300 315, 320 315, 390 315", "marker-end":"url(#ab)" }));
+const lt = el("text", {x:224, y:308, class:"note", fill:C.bench});
+lt.textContent = "RKE drives Path A (bench)"; svg.appendChild(lt);
+
+function edgePath(a, b) {
+  const ax = a.x + a.w/2, ay = a.y + a.h, bx = b.x + b.w/2, by = b.y;
+  if (Math.abs(ax - bx) < 4) return `M ${ax} ${ay} L ${bx} ${by}`;
+  return `M ${ax} ${ay} C ${ax} ${ay+22}, ${bx} ${by-22}, ${bx} ${by}`;
+}
+E.forEach(([f,t,k]) => {
+  const mk = {proven:"ap",bench:"ab",open:"ao",refuted:"ar"}[k];
+  svg.appendChild(el("path", { class:`edge e-${k}`, d: edgePath(map[f], map[t]),
+    "marker-end":`url(#${mk})` }));
+});
+
+const gmap = {};
+N.forEach(n => {
+  const g = el("g", {class:"node"});
+  const col = C[n.k] || C.proven;
+  g.appendChild(el("rect", {class:"bx", x:n.x, y:n.y, width:n.w, height:n.h,
+    fill:"var(--cd)", stroke:col, "stroke-width": n.k==="pcode"?2:1.4}));
+  g.appendChild(el("rect", {x:n.x, y:n.y, width:4, height:n.h, fill:col, rx:2}));
+  const t1 = el("text", {x:n.x+12, y:n.y+15, class:"lbl"}); t1.textContent = n.t;
+  const t2 = el("text", {x:n.x+12, y:n.y+27, class:"addr"}); t2.textContent = n.a;
+  g.appendChild(t1); g.appendChild(t2);
+  g.onclick = () => select(n);
+  gmap[n.id] = g;
+  svg.appendChild(g);
+});
+
+// ---------------------------------------------------------------- code panel
+let CODE = null, cur = null, view = "ghidra";
+
+// The decompiled C is loaded from a JSON dumped straight out of Ghidra by
+// work/owner/284_dump_chain_code.py -- never hand-transcribed, so it cannot
+// drift from the image. fetch() fails on file:// in some browsers, so the
+// dump is also inlined below at build time when present.
+fetch("rke_chain_code.json").then(r => r.json()).then(j => {
+  CODE = j; if (cur) render();
+}).catch(() => { CODE = window.__CHAIN_CODE__ || null; if (cur) render(); });
+
+function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function hl(s) {
+  s = esc(s);
+  s = s.replace(/(\/\*[\s\S]*?\*\/|\/\/[^\n]*)/g, '<span class="cm">$1</span>');
+  s = s.replace(/\b(if|else|switch|case|break|return|goto|while|for|do|default)\b/g,
+                '<span class="k">$1</span>');
+  s = s.replace(/\b(void|int|uint|char|byte|short|ushort|long|ulonglong|undefined\d*|bool|u8|u16|u32)\b/g,
+                '<span class="ty">$1</span>');
+  s = s.replace(/\b(0x[0-9a-fA-F]+|\d+)\b/g, '<span class="nu">$1</span>');
+  s = s.replace(/\b(APP_[A-Za-z0-9_]+|VOL_[A-Za-z0-9_]+|FUN_[0-9a-fA-F]+|DAT_[0-9a-fA-F]+)\b/g,
+                '<span class="fn">$1</span>');
+  return s;
+}
+
+function tabState(has) {
+  document.querySelectorAll(".tab").forEach(t => {
+    const v = t.dataset.v;
+    t.classList.toggle("on", v === view);
+    t.classList.toggle("dis", !has[v]);
+  });
+}
+
+function render() {
+  const body = document.getElementById("pbody");
+  if (!cur) { body.innerHTML = '<div class="empty">No node selected.</div>'; return; }
+  const key = cur.codeRef || cur.id;
+  const entry = CODE ? CODE[key] : null;
+  const has = { ghidra: !!entry && entry.kind === "func",
+                asm:    !!entry && entry.kind === "site",
+                pseudo: !!cur.p };
+  // fall back to whatever this node actually has
+  let v = view;
+  if (!has[v]) v = has.ghidra ? "ghidra" : (has.asm ? "asm" : "pseudo");
+  tabState(has);
+
+  if (v === "pseudo") {
+    body.innerHTML = '<div class="blkhdr">HAND-WRITTEN SUMMARY — not decompiler output</div>'
+      + "<pre>" + hl((cur.p || ["// none"]).join("\n")) + "</pre>";
+    return;
+  }
+  if (!entry) {
+    body.innerHTML = '<div class="empty">No decompiler output for this node.<br>'
+      + 'It is a RAM cell or a hardware stage, not a function — use the '
+      + 'Pseudocode tab.</div>';
+    return;
+  }
+  body.innerHTML = entry.blocks.map(b =>
+    `<div class="blkhdr">${b.name ? esc(b.name) : "UNSWEPT BLOCK"} @ ${b.addr}` +
+    `${entry.kind === "site" ? " — raw listing" : " — Ghidra decompiler"}</div>` +
+    `<pre>${hl(b.code)}</pre>`).join("");
+}
+
+const TAG = { proven:["PROVEN (a)",C.proven], bench:["BENCH-CONFIRMED",C.bench],
+              open:["OPEN",C.open], refuted:["REFUTED",C.refuted],
+              pcode:["P-CODE ONLY",C.pcode] };
+function select(n) {
+  cur = n;
+  Object.values(gmap).forEach(g => g.classList.remove("sel"));
+  gmap[n.id].classList.add("sel");
+  const [txt, col] = TAG[n.k];
+  document.getElementById("ptitle").textContent = n.t;
+  document.getElementById("ptag").innerHTML =
+    `<span class="tag" style="background:${col}22;color:${col}">${txt}</span>`;
+  document.getElementById("paddr").textContent = n.a;
+  document.getElementById("pdesc").textContent = n.d;
+  document.getElementById("pnote").innerHTML = n.n ? "⚠ " + esc(n.n) : "";
+  render();
+  document.getElementById("pbody").scrollTop = 0;
+}
+
+document.querySelectorAll(".tab").forEach(t => {
+  t.onclick = () => { if (t.classList.contains("dis")) return;
+                      view = t.dataset.v; render(); };
+});
+select(map["edge"]);
+</script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+WARNING: Final field name in class ghidra.util.charset.CharsetInfo has been mutated reflectively by class com.google.gson.internal.bind.ReflectiveTypeAdapterFactory$2 in unnamed module @28b46423 (file:/opt/ghidra/Ghidra/Framework/Generic/lib/gson-2.13.2.jar)
+WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
+WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
+=== CONTROLS (assembler must reproduce OEM bytes exactly) ===
+  se_bmaski r0,0x8             want 2c80       got 2c80       PASS
+  e_stb r0,0x51(r30)           want 341e0051   got 341e0051   PASS
+  e_add16i r3,r3,0x2fd4        want 1c632fd4   got 1c632fd4   PASS
+
+=== VARIANT A  OEM-mirror (base+0x51) ===
+   e_lis r30,0x4000            73c8e000   (4 bytes)
+   e_add16i r30,r30,0x3f02     1fde3f02   (4 bytes)
+   se_bmaski r0,0x8            2c80   (2 bytes)
+   e_stb r0,0x51(r30)          341e0051   (4 bytes)
+   total 14 bytes
+
+=== VARIANT B  direct pointer ===
+   e_lis r3,0x4000             7068e000   (4 bytes)
+   e_add16i r3,r3,0x3f53       1c633f53   (4 bytes)
+   se_bmaski r0,0x8            2c80   (2 bytes)
+   se_stb r0,0x0(r3)           9003   (2 bytes)
+   total 12 bytes
+
+=== VARIANT C  OR-in only bit n=2 (mask 0x20) ===
+   e_lis r3,0x4000             7068e000   (4 bytes)
+   e_add16i r3,r3,0x3f53       1c633f53   (4 bytes)
+   se_lbz r0,0x0(r3)           8003   (2 bytes)
+   e_ori r0,r0,0x20            1800d020   (4 bytes)
+   se_stb r0,0x0(r3)           9003   (2 bytes)
+   total 16 bytes
+

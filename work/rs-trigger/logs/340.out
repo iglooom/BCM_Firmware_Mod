@@ -1,0 +1,396 @@
+WARNING: Final field name in class ghidra.util.charset.CharsetInfo has been mutated reflectively by class com.google.gson.internal.bind.ReflectiveTypeAdapterFactory$2 in unnamed module @28b46423 (file:/opt/ghidra/Ghidra/Framework/Generic/lib/gson-2.13.2.jar)
+WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
+WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
+
+===== subject  demux-region site : 0x0992D0..0x099340 =====
+  000992d2  e_add16i r7,r7,-0x6fb4                   
+  000992d6  se_lbz r0,0x5(r7)                        ->40009051(READ)
+  000992d8  se_cmpi r0,0x0                           
+  000992da  e_bne cr0,0x00099568                     ->00099568(CONDITIONAL_JUMP)
+  000992de  se_lbz r0,0x4(r7)                        ->40009050(READ)
+  000992e0  se_cmpi r0,0x0                           
+  000992e2  e_bne cr0,0x00099568                     ->00099568(CONDITIONAL_JUMP)
+  000992e6  se_lbz r29,0x3(r7)                       ->4000904f(READ)
+  000992e8  se_cmpi r29,0x0                          
+  000992ea  e_bne cr0,0x00099568                     ->00099568(CONDITIONAL_JUMP)
+  000992ee  e_lis r7,0x1                             
+  000992f2  e_lbz r7,-0x7eea(r7)                     ->00008116(READ)
+  000992f6  se_subi r7,0x2                           
+  000992f8  se_cmpli r7,0x1                          
+  000992fa  e_bgt cr0,0x00099414                     ->00099414(CONDITIONAL_JUMP)
+  000992fe  e_lis r3,0x4000                          
+  00099302  e_add16i r3,r3,0x3f53                    ->40003f53(PARAM)
+  00099306  se_li r4,0x1                             
+  00099308  e_bl 0x00031360                          ->00031360(UNCONDITIONAL_CALL)
+  0009930c  e_lis r7,0x4000                          
+  00099310  e_add16i r7,r7,0x2d20                    
+  00099314  se_lbz r6,0x5(r7)                        ->40002d25(READ)
+  00099316  e_lwz r0,0x5c(r31)                       ->40009038(READ)
+  0009931a  e_rlwinm r5,r6,0x1c,0x1f,0x1f            
+  0009931e  e_lwz r6,0x58(r31)                       ->40009034(READ)
+  00099322  e_rlwimi r0,r3,0x1c,0x3,0x3              
+  00099326  e_stw r0,0x5c(r31)                       ->40009038(WRITE)
+  0009932a  e_rlwimi r6,r5,0x5,0x1a,0x1a             
+  0009932e  e_stw r6,0x58(r31)                       ->40009034(WRITE)
+  00099332  se_btsti r0,0x3                          
+  00099334  e_beq cr0,0x00099586                     ->00099586(CONDITIONAL_JUMP)
+  00099338  e_addi r6,r7,0x80                        
+  0009933c  se_lhz r0,0x2(r6)                        ->40002da2(READ)
+  0009933e  e_lwz r7,0x5c(r31)                       ->40009038(READ)
+
+===== control2 0x40003FF1 bit2 : 0x0AE900..0x0AE960 =====
+  000ae900  e_b 0x000aeec2                           ->000aeec2(UNCONDITIONAL_JUMP)
+  000ae904  e_bl 0x000ac3c0                          ->000ac3c0(UNCONDITIONAL_CALL)
+  000ae908  e_bl 0x000ac488                          ->000ac488(UNCONDITIONAL_CALL)
+  000ae90c  e_bl 0x000ac8c4                          ->000ac8c4(UNCONDITIONAL_CALL)
+  000ae910  e_lwz r0,0x8c(r30)                       ->40009678(READ)
+  000ae914  e_rlwinm r0,r0,0x17,0x1e,0x1f            
+  000ae918  se_cmpli r0,0x1                          
+  000ae91a  se_beq cr0,0x000ae922                    ->000ae922(CONDITIONAL_JUMP)
+  000ae91c  se_cmpli r0,0x2                          
+  000ae91e  se_beq cr0,0x000ae94e                    ->000ae94e(CONDITIONAL_JUMP)
+  000ae920  se_b 0x000ae976                          ->000ae976(UNCONDITIONAL_JUMP)
+  000ae922  e_lis r3,0x4000                          
+  000ae926  e_add16i r3,r3,0x3ff1                    ->40003ff1(PARAM)
+  000ae92a  se_li r4,0x2                             
+  000ae92c  e_bl 0x00031360                          ->00031360(UNCONDITIONAL_CALL)
+  000ae930  se_cmpi r3,0x1                           
+  000ae932  se_bne cr0,0x000ae994                    ->000ae994(CONDITIONAL_JUMP)
+  000ae934  e_lwz r7,0x8c(r30)                       ->40009678(READ)
+  000ae938  se_li r0,0x2                             
+  000ae93a  e_rlwimi r7,r0,0x9,0x15,0x16             
+  000ae93e  e_lwz r0,0x94(r30)                       ->40009680(READ)
+  000ae942  e_stw r7,0x8c(r30)                       ->40009678(WRITE)
+  000ae946  se_bseti r0,0x8                          
+  000ae948  e_stw r0,0x94(r30)                       ->40009680(WRITE)
+  000ae94c  se_b 0x000ae958                          ->000ae958(UNCONDITIONAL_JUMP)
+  000ae94e  e_lbz r0,0x89(r30)                       ->40009675(READ)
+  000ae952  e_cmpli cr0,r0,0x32                      
+  000ae956  se_bge cr0,0x000ae976                    ->000ae976(CONDITIONAL_JUMP)
+  000ae958  e_lis r3,0x4000                          
+  000ae95c  e_add16i r3,r3,0x3ff1                    ->40003ff1(PARAM)
+  000ae960  se_li r4,0x2                             
+
+===== control1? tx_compose lock : 0x04C610..0x04C6B0 =====
+  0004c612  e_add16i r3,r3,0x28cc                    ->001428cc(PARAM)
+  0004c616  e_bl 0x000fbdd4                          ->000fbdd4(UNCONDITIONAL_CALL)
+  0004c61a  e_lbz r4,0xf(r23)                        ->40002e7b(READ)
+  0004c61e  e_lis r3,0x14                            
+  0004c622  e_add16i r3,r3,0x2930                    ->00142930(PARAM)
+  0004c626  e_bl 0x000fbdd4                          ->000fbdd4(UNCONDITIONAL_CALL)
+  0004c62a  se_li r4,0x4                             
+  0004c62c  e_addi r3,r28,0xbe                       ->40003fc0(PARAM)
+  0004c630  e_bl 0x00031360                          ->00031360(UNCONDITIONAL_CALL)
+  0004c634  se_cmpi r3,0x0                           
+  0004c636  se_beq cr0,0x0004c648                    ->0004c648(CONDITIONAL_JUMP)
+  0004c638  e_lbz r4,0x4(r23)                        ->40002e70(READ)
+  0004c63c  e_lis r3,0x14                            
+  0004c640  e_add16i r3,r3,0x39d4                    ->001439d4(PARAM)
+  0004c644  e_bl 0x000fbdd4                          ->000fbdd4(UNCONDITIONAL_CALL)
+  0004c648  e_addi r3,r28,0xab                       ->40003fad(PARAM)
+  0004c64c  se_li r4,0x3                             
+  0004c64e  e_bl 0x00031360                          ->00031360(UNCONDITIONAL_CALL)
+  0004c652  se_cmpi r3,0x0                           
+  0004c654  se_beq cr0,0x0004c66a                    ->0004c66a(CONDITIONAL_JUMP)
+  0004c656  e_lbz r0,0x10(r30)                       ->40002e4c(READ)
+  0004c65a  e_lis r3,0x14                            
+  0004c65e  e_add16i r3,r3,0x39c0                    ->001439c0(PARAM)
+  0004c662  e_rlwinm r4,r0,0x1d,0x1f,0x1f            
+  0004c666  e_bl 0x000fbdd4                          ->000fbdd4(UNCONDITIONAL_CALL)
+  0004c66a  se_lbz r0,0x9(r30)                       ->40002e45(READ)
+  0004c66c  e_lis r3,0x14                            
+  0004c670  e_add16i r3,r3,0x4898                    ->00144898(PARAM)
+  0004c674  e_rlwinm r4,r0,0x1d,0x1f,0x1f            
+  0004c678  e_bl 0x000fbdd4                          ->000fbdd4(UNCONDITIONAL_CALL)
+  0004c67c  e_bl 0x0004de04                          ->0004de04(UNCONDITIONAL_CALL)
+  0004c680  e_lhz r4,0x4(r16)                        ->40002ed0(READ)
+  0004c684  e_lis r3,0x14                            
+  0004c688  e_add16i r3,r3,0x3f60                    ->00143f60(PARAM)
+  0004c68c  e_bl 0x000fbd80                          ->000fbd80(UNCONDITIONAL_CALL)
+  0004c690  e_bl 0x0004da5e                          ->0004da5e(UNCONDITIONAL_CALL)
+  0004c694  e_addi r3,r28,0x98                       ->40003f9a(PARAM)
+  0004c698  se_li r4,0x2                             
+  0004c69a  e_bl 0x00031360                          ->00031360(UNCONDITIONAL_CALL)
+  0004c69e  se_cmpi r3,0x0                           
+  0004c6a0  se_beq cr0,0x0004c6b4                    ->0004c6b4(CONDITIONAL_JUMP)
+  0004c6a2  se_lbz r0,0xa(r30)                       ->40002e46(READ)
+  0004c6a4  e_lis r3,0x14                            
+  0004c6a8  e_add16i r3,r3,0x4514                    ->00144514(PARAM)
+  0004c6ac  e_rlwinm r4,r0,0x1a,0x1f,0x1f            
+  0004c6b0  e_bl 0x000fbdd4                          ->000fbdd4(UNCONDITIONAL_CALL)
+
+===== commit sets valid byte : 0x058538..0x0585A0 =====
+  00058538  se_mflr r0                               
+  0005853a  e_bl 0x0010df6a                          ->0010df6a(UNCONDITIONAL_CALL)
+  0005853e  e_lis r31,0x4000                         
+  00058542  e_lis r30,0x4000                         
+  00058546  e_add16i r31,r31,0x2d20                  
+  0005854a  e_add16i r30,r30,0x3f02                  
+  0005854e  se_cmpli r3,0x1                          
+  00058550  se_blt cr0,0x0005855c                    ->0005855c(CONDITIONAL_JUMP)
+  00058552  se_beq cr0,0x00058574                    ->00058574(CONDITIONAL_JUMP)
+  00058554  se_cmpli r3,0x3                          
+  00058556  se_blt cr0,0x0005858c                    ->0005858c(CONDITIONAL_JUMP)
+  00058558  se_beq cr0,0x000585a4                    ->000585a4(CONDITIONAL_JUMP)
+  0005855a  se_b 0x000585b4                          ->000585b4(UNCONDITIONAL_JUMP)
+  0005855c  e_lis r3,0x14                            
+  00058560  e_add16i r3,r3,0x2fd4                    ->00142fd4(PARAM)
+  00058564  e_bl 0x000fbb38                          ->000fbb38(UNCONDITIONAL_CALL)
+  00058568  se_bmaski r0,0x8                         
+  0005856a  e_stb r0,0x51(r30)                       ->40003f53(WRITE)
+  0005856e  e_sth r3,0x82(r31)                       ->40002da2(WRITE)
+  00058572  se_b 0x000585b4                          ->000585b4(UNCONDITIONAL_JUMP)
+  00058574  e_lis r3,0x14                            
+  00058578  e_add16i r3,r3,0x322c                    ->0014322c(PARAM)
+  0005857c  e_bl 0x000fbb62                          ->000fbb62(UNCONDITIONAL_CALL)
+  00058580  se_bmaski r0,0x8                         
+  00058582  e_stb r0,0x48(r30)                       ->40003f4a(WRITE)
+  00058586  e_stb r3,0x54(r31)                       ->40002d74(WRITE)
+  0005858a  se_b 0x000585b4                          ->000585b4(UNCONDITIONAL_JUMP)
+  0005858c  e_lis r3,0x14                            
+  00058590  e_add16i r3,r3,0x2d54                    ->00142d54(PARAM)
+  00058594  e_bl 0x000fbb62                          ->000fbb62(UNCONDITIONAL_CALL)
+  00058598  se_bmaski r0,0x8                         
+  0005859a  e_stb r0,0x127(r30)                      ->40004029(WRITE)
+  0005859e  e_stb r3,0x32e(r31)                      ->4000304e(WRITE)
+
+===== bytes of the SET at commit (0x40003F53 = 0xFF) =====
+  00099302 PARAM            e_add16i r3,r3,0x3f53                    in FUN_000992fe
+  0005856a WRITE            e_stb r0,0x51(r30)                       in APP_rke_code_commit
+  000aeed4 PARAM            e_addi r3,r29,0x51                       in FUN_000aeec6
+
+===== decompile FUN_000992fe (subject consumer) =====
+---- FUN_000992fe @ 000992fe ----
+
+void FUN_000992fe(void)
+
+{
+  byte bVar1;
+  ushort uVar2;
+  uint uVar3;
+  undefined1 uVar4;
+  char cVar5;
+  int unaff_r29;
+  int unaff_r31;
+  
+  uVar3 = VOL_test_and_clear_dirty(&APP_rke_code_valid,1);
+  bVar1 = DAT_40002d25;
+  *(uint *)(unaff_r31 + 0x5c) = (uVar3 & 1) << 0x1c | *(uint *)(unaff_r31 + 0x5c) & 0xefffffff;
+  *(uint *)(unaff_r31 + 0x58) = (bVar1 >> 4 & 1) << 5 | *(uint *)(unaff_r31 + 0x58) & 0xffffffdf;
+  if ((uVar3 & 1) == 0) {
+    return;
+  }
+  uVar2 = APP_rke_command_code;
+  *(uint *)(unaff_r31 + 0x5c) = (uVar2 >> 4 & 1) << 0x15 | *(uint *)(unaff_r31 + 0x5c) & 0xffdfffff;
+  if ((uVar2 >> 4 & 1) == 0) {
+    cVar5 = RXsig_PrplWhlTqRqMn_No_Cs;
+    if (cVar5 == '\x01') {
+      uVar4 = 0;
+    }
+    else if (cVar5 == '\x02') {
+      uVar4 = 1;
+    }
+    else if (cVar5 == '\x04') {
+      uVar4 = 2;
+    }
+    else if (cVar5 == '\b') {
+      uVar4 = 3;
+    }
+    else if (cVar5 == '\x10') {
+      uVar4 = 4;
+    }
+    else if (cVar5 == ' ') {
+      uVar4 = 5;
+    }
+    else if (cVar5 == '@') {
+      uVar4 = 6;
+    }
+    else {
+      if (cVar5 != -0x80) goto LAB_0009939a;
+      uVar4 = 7;
+    }
+    *(undefined1 *)(unaff_r31 + 0x52) = uVar4;
+  }
+LAB_0009939a:
+  uVar3 = uVar2 & 0xf;
+  *(uint *)(unaff_r31 + 0x5c) =
+       ((uint)LZCOUNT(uVar3 ^ 3) >> 4 & 2 | (uint)LZCOUNT(uVar3 ^ 2) >> 5 |
+       ((uint)LZCOUNT(uVar3 ^ 5) >> 4 & 2 | (uint)LZCOUNT(uVar3 ^ 6) >> 5 |
+       ((uint)LZCOUNT(uVar3 ^ 4) >> 4 & 0xffffffe | (uint)LZCOUNT(uVar3 ^ 1) >> 5) << 2) << 2) <<
+       0x16 | *(uint *)(unaff_r31 + 0x5c) & 0xf03fffff;
+  *(uint *)(unaff_r31 + 0x58) =
+       ((uint)LZCOUNT(uVar3 ^ 7) >> 5) << 4 | *(uint *)(unaff_r31 + 0x58) & 0xffffffef;
+  if (unaff_r29 == 1) {
+    bVar1 = DAT_40003c41;
+    *(uint *)(unaff_r31 + 0x5c) =
+         (bVar1 >> 1 & 1) << 0x17 |
+         (bVar1 >> 2 & 1) << 0x16 |
+         (bVar1 >> 3 & 1) << 0x1a |
+         (bVar1 >> 4 & 1) << 0x19 |
+         (bVar1 >> 5 & 1) << 0x1b | *(uint *)(unaff_r31 + 0x5c) & 0xf03fffff;
+    cVar5 = DAT_40003c68;
+    *(uint *)(unaff_r31 + 0x58) =
+         (uint)(bVar1 >> 7) << 5 | (bVar1 >> 6 & 1) << 4 | *(uint *)(unaff_r31 + 0x58) & 0xffffffcf;
+    if (cVar5 == '\0') {
+      cVar5 = '\0';
+    }
+    else {
+      cVar5 = cVar5 + -1;
+    }
+    *(char *)(unaff_r31 + 0x52) = cVar5;
+  }
+  return;
+}
+
+
+---- APP_rke_command_demux @ 000992b2 ----
+
+/* RKE COMMAND DEMUX (layer 31) -- turns the command
+   code into one-hot per-command bits.
+   
+     if (VOL_test_and_clear_dirty(&APP_rke_code_valid /*0x40003F53*/, 1)) {
+         code = APP_rke_command_code;          // 0x40002DA2
+         n    = code & 0xF;                    // the command ENUM (values 0..8 seen)
+         // branchless n==k tests, emitted as LZCOUNT(n ^ k) >> 5:
+         APP_rke_cmd_bits_38 = <one bit per matched k>;   // 0x40009038
+         APP_rke_cmd_bits_34 = ...;                       // 0x40009034
+     }
+   
+   Reached from the spine: APP_feature_periodic 0x62848 <- 0x9BA92 <- 0x9B41C <-
+   0x99A60 <- here (true entry recovered by the backwards walk, script 196).
+   
+   *** The low nibble is a command ENUM, not a bitfield. ***
+   docs/rke_0x100_lock.md gives d7 bit0 = LOCK / bit1 = UNLOCK on the WIRE; in the
+   firmware the value is consumed as `(code & 0xF) == k`. Script 194 looked for a
+   0x01/0x02 bitmask and wrongly reported "no button decode found" -- a
+   wrong-expectation bug, not a missing decode. */
+
+void APP_rke_command_demux(void)
+
+{
+  byte bVar1;
+  ushort uVar2;
+  uint uVar3;
+  uint uVar4;
+  uint uVar5;
+  int iVar6;
+  undefined1 uVar7;
+  char cVar8;
+  
+  FUN_0010df50();
+  bVar1 = DAT_40003c1d;
+  if (((((bVar1 & 1) == 0) && (cVar8 = DAT_40009051, cVar8 == '\0')) &&
+      (cVar8 = DAT_40009050, cVar8 == '\0')) && (cVar8 = DAT_4000904f, cVar8 == '\0')) {
+    if (DAT_00008116 - 2 < 2) {
+      uVar4 = VOL_test_and_clear_dirty(&APP_rke_code_valid,1);
+      bVar1 = DAT_40002d25;
+      uVar5 = APP_rke_cmd_bits_38;
+      uVar3 = APP_rke_cmd_bits_34;
+      APP_rke_cmd_bits_38 = (uVar4 & 1) << 0x1c | uVar5 & 0xefffffff;
+      APP_rke_cmd_bits_34 = (bVar1 >> 4 & 1) << 5 | uVar3 & 0xffffffdf;
+      if ((uVar4 & 1) == 0) {
+        return;
+      }
+      uVar2 = APP_rke_command_code;
+      uVar3 = APP_rke_cmd_bits_38;
+      APP_rke_cmd_bits_38 = (uVar2 >> 4 & 1) << 0x15 | uVar3 & 0xffdfffff;
+      if ((uVar2 >> 4 & 1) == 0) {
+        cVar8 = RXsig_PrplWhlTqRqMn_No_Cs;
+        if (cVar8 == '\x01') {
+          uVar7 = 0;
+        }
+        else if (cVar8 == '\x02') {
+          uVar7 = 1;
+        }
+        else if (cVar8 == '\x04') {
+          uVar7 = 2;
+        }
+        else if (cVar8 == '\b') {
+          uVar7 = 3;
+        }
+        else if (cVar8 == '\x10') {
+          uVar7 = 4;
+        }
+        else if (cVar8 == ' ') {
+          uVar7 = 5;
+        }
+        else if (cVar8 == '@') {
+          uVar7 = 6;
+        }
+        else {
+          if (cVar8 != -0x80) goto LAB_0009939a;
+          uVar7 = 7;
+        }
+        DAT_4000902e = uVar7;
+      }
+LAB_0009939a:
+      uVar5 = uVar2 & 0xf;
+      uVar3 = APP_rke_cmd_bits_38;
+      APP_rke_cmd_bits_38 =
+           ((uint)LZCOUNT(uVar5 ^ 3) >> 4 & 2 | (uint)LZCOUNT(uVar5 ^ 2) >> 5 |
+           ((uint)LZCOUNT(uVar5 ^ 5) >> 4 & 2 | (uint)LZCOUNT(uVar5 ^ 6) >> 5 |
+           ((uint)LZCOUNT(uVar5 ^ 4) >> 4 & 0xffffffe | (uint)LZCOUNT(uVar5 ^ 1) >> 5) << 2) << 2)
+           << 0x16 | uVar3 & 0xf03fffff;
+      uVar3 = APP_rke_cmd_bits_34;
+      APP_rke_cmd_bits_34 = ((uint)LZCOUNT(uVar5 ^ 7) >> 5) << 4 | uVar3 & 0xffffffef;
+      return;
+    }
+    bVar1 = DAT_40001f80._0_1_;
+    if ((bVar1 >> 5 & 1) != 0) {
+      uVar5 = VOL_test_and_clear_dirty(&DAT_40003dd0,0);
+      uVar3 = APP_rke_cmd_bits_34;
+      APP_rke_cmd_bits_34 = (uVar5 & 1) << 1 | uVar3 & 0xfffffffd;
+      iVar6 = VOL_test_and_clear_dirty(&DAT_40003dd1,0);
+      uVar3 = APP_rke_cmd_bits_38;
+      APP_rke_cmd_bits_38 = iVar6 << 0x1f | uVar3 & 0x7fffffff;
+      uVar5 = VOL_test_and_clear_dirty(&DAT_40003dd2,0);
+      uVar3 = APP_rke_cmd_bits_34;
+      APP_rke_cmd_bits_34 = uVar5 & 1 | uVar3 & 0xfffffffe;
+      uVar5 = VOL_test_and_clear_dirty(&DAT_40003dd3,0);
+      uVar3 = APP_rke_cmd_bits_38;
+      APP_rke_cmd_bits_38 = (uVar5 & 1) << 0x1d | uVar3 & 0xdfffffff;
+      uVar5 = VOL_test_and_clear_dirty(&DAT_40003dd4,0);
+      uVar3 = APP_rke_cmd_bits_38;
+      APP_rke_cmd_bits_38 = (uVar5 & 1) << 0x1e | uVar3 & 0xbfffffff;
+      uVar5 = VOL_test_and_clear_dirty(&DAT_40003dcf,0);
+      uVar3 = APP_rke_cmd_bits_34;
+      APP_rke_cmd_bits_34 = (uVar5 & 1) << 3 | uVar3 & 0xfffffff7;
+      uVar5 = VOL_test_and_clear_dirty(&DAT_40003e22,0);
+      uVar3 = APP_rke_cmd_bits_34;
+      APP_rke_cmd_bits_34 = (uVar5 & 1) << 2 | uVar3 & 0xfffffffb;
+      if ((((uVar5 & 1) == 0 && (uVar3 & 0xb) == 0) &&
+          (uVar3 = APP_rke_cmd_bits_38, (uVar3 & 0xe0000000) == 0)) &&
+         ((iVar6 = VOL_test_and_clear_dirty(&DAT_40003dce,0), iVar6 != 1 &&
+          (bVar1 = DAT_40001f80._0_1_, (bVar1 >> 5 & 1) != 0)))) {
+        return;
+      }
+    }
+    bVar1 = DAT_40003c41;
+    uVar5 = APP_rke_cmd_bits_38;
+    uVar3 = APP_rke_cmd_bits_34;
+    APP_rke_cmd_bits_38 =
+         (bVar1 >> 1 & 1) << 0x17 |
+         (bVar1 >> 2 & 1) << 0x16 |
+         (bVar1 >> 3 & 1) << 0x1a |
+         (bVar1 >> 4 & 1) << 0x19 | (bVar1 >> 5 & 1) << 0x1b | uVar5 & 0xf03fffff;
+    cVar8 = DAT_40003c68;
+    APP_rke_cmd_bits_34 = (uint)(bVar1 >> 7) << 5 | (bVar1 >> 6 & 1) << 4 | uVar3 & 0xffffffcf;
+    if (cVar8 == '\0') {
+      cVar8 = '\0';
+    }
+    else {
+      cVar8 = cVar8 + -1;
+    }
+  }
+  else {
+    uVar3 = APP_rke_cmd_bits_38;
+    APP_rke_cmd_bits_38 = uVar3 & 0xe01fffff;
+    uVar3 = APP_rke_cmd_bits_34;
+    cVar8 = '\0';
+    APP_rke_cmd_bits_34 = uVar3 & 0xffffffcf;
+  }
+  DAT_4000902e = cVar8;
+  return;
+}
+
+

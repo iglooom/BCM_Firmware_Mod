@@ -1,0 +1,108 @@
+=== per-site effect on +0x94 (value = (word & KEEP) | SET) ===
+
+0x0AC500 FUN_000ac488     KEEP=0xFBFFFFFF SET=0x00000000  touches=0x04000000
+            0AC4FC rlwimi INSERT into 0x04000000 (src=r0, value data-dependent)
+0x0AC51C FUN_000ac508     KEEP=0xFFFFFFFD SET=0x00000002  touches=0x00000002
+            0AC51A bseti -> SET 0x00000002
+0x0AC52A FUN_000ac508     KEEP=0xFFFFFEFF SET=0x00000100  touches=0x00000100
+            0AC528 bseti -> SET 0x00000100
+0x0AC87E FUN_000ac85e     KEEP=0xFE7FBDFB SET=0x00004204  touches=0x01804204
+            0AC846 rlwimi into r7 (not the word); 0AC84A rlwimi into r7 (not the word); 0AC85C bclri -> CLR 0x00800000; 0AC85E ori -> SET 0x00004204; 0AC876 rlwimi INSERT into 0x01000000 (src=r0, value data-dependent)
+0x0AC8BC FUN_000ac8a8     KEEP=0xFDFFFFFF SET=0x00000000  touches=0x02000000
+            0AC8B8 rlwimi INSERT into 0x02000000 (src=r7, value data-dependent)
+0x0ACBEC FUN_000acb92     KEEP=0xFFFFFB66 SET=0x00000000  touches=0x00000499
+            0ACBB6 bclri -> CLR 0x00000400; 0ACBBC andi -> keep 0xFFFFFF66 (clears 0x00000099)
+0x0ACBFE FUN_000acb92     KEEP=0xEFFFFFFF SET=0x00000000  touches=0x10000000
+            0ACBFC bclri -> CLR 0x10000000
+0x0ACC16 FUN_000acb92     KEEP=0xFFFFFF9F SET=0x00000000  touches=0x00000060
+            0ACC12 andi -> keep 0xFFFFFF9F (clears 0x00000060)
+0x0ACC2C FUN_000acb92     KEEP=0xDFFFFFFF SET=0x00000000  touches=0x20000000
+            0ACC2A bclri -> CLR 0x20000000
+0x0ACC44 FUN_000acb92     KEEP=0xFFFFC7FF SET=0x00000000  touches=0x00003800
+            0ACC40 andi -> keep 0xFFFFC7FF (clears 0x00003800)
+0x0ACDA4 FUN_000accd4     KEEP=0xFFFEFFFF SET=0x00010000  touches=0x00010000
+            0ACDA2 bseti -> SET 0x00010000
+0x0AD57C FUN_000ad4ec     KEEP=0xFFF3FFFF SET=0x00000000  touches=0x000C0000
+            0AD578 andi -> keep 0xFFF3FFFF (clears 0x000C0000)
+0x0AD8F0 FUN_000ad888     KEEP=0xFFFDFFFF SET=0x00020000  touches=0x00020000
+            0AD8EE bseti -> SET 0x00020000
+0x0AD954 FUN_000ad924     KEEP=0xFFBDFFFF SET=0x00000000  touches=0x00420000
+            0AD950 andi -> keep 0xFFBDFFFF (clears 0x00420000)
+0x0AD9A2 FUN_000ad97c     KEEP=0xFFBDFFFF SET=0x00000000  touches=0x00420000
+            0AD99E andi -> keep 0xFFBDFFFF (clears 0x00420000)
+0x0AD9D2 FUN_000ad97c     KEEP=0xFFBFFFFF SET=0x00400000  touches=0x00400000
+            0AD9D0 bseti -> SET 0x00400000
+0x0ADA3E FUN_000ad97c     KEEP=0xF7FFFFFF SET=0x08000000  touches=0x08000000
+            0ADA3C bseti -> SET 0x08000000
+0x0ADA78 FUN_000ad97c     KEEP=0xF7FFFFFF SET=0x00000000  touches=0x08000000
+            0ADA76 bclri -> CLR 0x08000000
+0x0ADB68 UNSWEPT          KEEP=0xFFDFFFFF SET=0x00200000  touches=0x00200000
+            0ADB66 bseti -> SET 0x00200000
+0x0ADBB8 FUN_000adb98     KEEP=0xFFDFFFFF SET=0x00000000  touches=0x00200000
+            0ADBB6 bclri -> CLR 0x00200000
+0x0ADC3C FUN_000adb98     KEEP=0xBFFFFFFF SET=0x40000000  touches=0x40000000
+            0ADC3A bseti -> SET 0x40000000
+0x0ADC5E FUN_000adb98     KEEP=0xBFFFFFFF SET=0x00000000  touches=0x40000000
+            0ADC5C bclri -> CLR 0x40000000
+0x0ADC98 FUN_000adb98     KEEP=0xBFFFFFFF SET=0x00000000  touches=0x40000000
+            0ADC96 bclri -> CLR 0x40000000
+0x0ADF18 FUN_000ade12     KEEP=0xFFFEFFFF SET=0x00000000  touches=0x00010000
+            0ADF16 bclri -> CLR 0x00010000
+0x0AE1D4 UNSWEPT          KEEP=0xFFFEFFFF SET=0x00000000  touches=0x00010000
+            0AE1D2 bclri -> CLR 0x00010000
+0x0AE57E UNSWEPT          KEEP=0xDFFFFFFF SET=0x00000000  touches=0x20000000
+            0AE57C bclri -> CLR 0x20000000
+0x0AE5E8 FUN_000ae5e0     KEEP=0xDFFEFFFF SET=0x20000000  touches=0x20010000
+            0AE5C6 rlwimi into r6 (not the word); 0AE5D4 bclri -> CLR 0x00010000; 0AE5D6 bseti -> SET 0x20000000
+0x0AE63C FUN_000ae61e     KEEP=0xDFFFFFFF SET=0x20000000  touches=0x20000000
+            0AE63A bseti -> SET 0x20000000
+0x0AE68C FUN_000ae676     KEEP=0x7FFFFFFF SET=0x80000000  touches=0x80000000
+            0AE68A bseti -> SET 0x80000000
+0x0AE6B4 UNSWEPT          KEEP=0x7FFFFFFF SET=0x00000000  touches=0x80000000
+            0AE6B2 bclri -> CLR 0x80000000
+0x0AE70E FUN_000ae6f8     KEEP=0x7FFFFFFF SET=0x00000000  touches=0x80000000
+            0AE70C bclri -> CLR 0x80000000
+0x0AE7CE FUN_000ae7c0     KEEP=0xEFFFFFFF SET=0x10000000  touches=0x10000000
+            0AE7CC bseti -> SET 0x10000000
+0x0AE7EA FUN_000ae7e4     KEEP=0xEFFFFFFF SET=0x00000000  touches=0x10000000
+            0AE7E8 bclri -> CLR 0x10000000
+0x0AE82E FUN_000ae820      WHOLE-WORD WRITE (no feeding load found)
+0x0AE948 FUN_000ae922     KEEP=0xFF7FFFFF SET=0x00800000  touches=0x00800000
+            0AE946 bseti -> SET 0x00800000
+0x0AE98A UNSWEPT          KEEP=0xFF7FFFFF SET=0x00000000  touches=0x00800000
+            0AE988 bclri -> CLR 0x00800000
+0x0AEA58 FUN_000aea22     KEEP=0xFFEFFFFF SET=0x00000000  touches=0x00100000
+            0AEA56 bclri -> CLR 0x00100000
+0x0AEAFC FUN_000aeaee     KEEP=0xFFFF7FFF SET=0x00008000  touches=0x00008000
+            0AEAFA bseti -> SET 0x00008000
+0x0AEB72 UNSWEPT          KEEP=0xDFFFC79F SET=0x20003860  touches=0x20003860
+            0AEB5A ori -> SET 0x00003800; 0AEB5E bseti -> SET 0x20000000; 0AEB60 rlwimi into r7 (not the word); 0AEB64 ori -> SET 0x00000060; 0AEB6A rlwimi into r7 (not the word); 0AEB6E rlwimi into r7 (not the word)
+0x0AEBF0 FUN_000aebcc     KEEP=0xFFFFFFFE SET=0x00000001  touches=0x00000001
+            0AEBEE bseti -> SET 0x00000001
+0x0AECB0 FUN_000aebcc     KEEP=0xF7F3FB67 SET=0x00000498  touches=0x080C0498
+            0AEC6C rlwimi into r31 (not the word); 0AEC70 rlwimi into r31 (not the word); 0AEC74 andi -> keep 0xFFF3FFFF (clears 0x000C0000); 0AEC78 ori -> SET 0x00000098; 0AEC7C bclri -> CLR 0x08000000; 0AEC7E bseti -> SET 0x00000400; 0AEC84 rlwimi into r3 (not the word); 0AEC8C rlwimi into r3 (not the word); 0AEC9C rlwimi into r3 (not the word); 0AECA4 rlwimi into r3 (not the word)
+0x0AEE58 FUN_000aee4a     KEEP=0xFFFF7FFF SET=0x00000000  touches=0x00008000
+            0AEE56 bclri -> CLR 0x00008000
+0x0AEE70 FUN_000aee5c     KEEP=0xFEFFFFFF SET=0x00000000  touches=0x01000000
+            0AEE6C rlwimi INSERT into 0x01000000 (src=r7, value data-dependent)
+0x0AEEBE FUN_000aeeaa     KEEP=0xFDFFFFFF SET=0x00000000  touches=0x02000000
+            0AEEBA rlwimi INSERT into 0x02000000 (src=r7, value data-dependent)
+
+
+=== PER-BIT SUMMARY ===
+
+---- 0x00800000 (LSB bit23) ----
+  0x0AC87E FUN_000ac85e      CLEAR  (touched mask 0x01804204)
+  0x0AE82E FUN_000ae820      BULK: whole-word write (=0), clears every bit
+  0x0AE948 FUN_000ae922      SET
+  0x0AE98A UNSWEPT           CLEAR  (touched mask 0x00800000)
+
+---- 0x04000000 (LSB bit26) ----
+  0x0AC500 FUN_000ac488      CLEAR  (touched mask 0x04000000)
+  0x0AE82E FUN_000ae820      BULK: whole-word write (=0), clears every bit
+
+---- 0x08000000 (LSB bit27) ----
+  0x0ADA3E FUN_000ad97c      SET
+  0x0ADA78 FUN_000ad97c      CLEAR  (touched mask 0x08000000)
+  0x0AE82E FUN_000ae820      BULK: whole-word write (=0), clears every bit
+  0x0AECB0 FUN_000aebcc      CLEAR  (touched mask 0x080C0498)

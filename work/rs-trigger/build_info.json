@@ -1,0 +1,34 @@
+{
+ "vbf": "/home/gl/Projects/ford/BCM/Research/work/rs-trigger/JV6T-14C094-AD_peek-rstrigger.VBF",
+ "sha256": "0867e7008ee74830904e76ae7a0b6d3e0e0ebc54bf655414971c9e2bea34f8ab",
+ "peek_cave": 1146880,
+ "peek_len": 438,
+ "rs_cave": 1150976,
+ "rs_len": 482,
+ "chain_at": 1147314,
+ "hook_addr": 1095524,
+ "depths": {
+  "DEPTH1": 56851,
+  "DEPTH2": 56854,
+  "DEPTH3": 56876,
+  "DEPTH4": 56888,
+  "DEPTH5": 56906
+ },
+ "targets": {
+  "lock_req": 1073777964,
+  "arm": 1073778037,
+  "rke_code": 1073753506,
+  "rke_valid": 1073758035,
+  "power_mode": 1073749381,
+  "substate": 1073780348,
+  "flag": 1073780193,
+  "scratch": 1073811488,
+  "dirty": [
+   1073757878,
+   1073757879,
+   1073757880
+  ]
+ },
+ "sum8": 9220,
+ "crc32": 3047752188
+}

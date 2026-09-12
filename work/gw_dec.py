@@ -1,4 +1,11 @@
 import os, pyghidra, sys
+# ⚠ THIS SCRIPT OPENS ghidra_proj / flash_merged.bin (the acc-fix/rke-lock
+# BUILD-AND-VERIFY project).  It contains NOTHING below 0xC000 and its
+# addresses are NOT interchangeable with ghidra_proj_fullflash (AGENTS.md
+# rule 5).  For owner-flash / RKE / lock-chain addresses use
+# work/owner/gw_dec_owner.py instead -- pointing this script at one of those
+# prints a bare "no func at 0x..." that reads like a finding but is a
+# wrong-project artifact.
 os.environ["GHIDRA_INSTALL_DIR"] = "/opt/ghidra"
 pyghidra.start()
 from ghidra.base.project import GhidraProject

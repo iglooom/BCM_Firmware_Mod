@@ -1,0 +1,82 @@
+WARNING: Final field name in class ghidra.util.charset.CharsetInfo has been mutated reflectively by class com.google.gson.internal.bind.ReflectiveTypeAdapterFactory$2 in unnamed module @28b46423 (file:/opt/ghidra/Ghidra/Framework/Generic/lib/gson-2.13.2.jar)
+WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
+WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
+
+========== FUN_00113ea8 @ 00113ea8  [BCM_OwnerFlash] ==========
+
+undefined8 FUN_00113ea8(uint param_1,undefined1 *param_2,byte *param_3)
+
+{
+  byte bVar1;
+  char cVar2;
+  undefined8 uVar3;
+  uint uVar4;
+  
+  cVar2 = DAT_400053e8;
+  if (cVar2 == '\0') {
+    FUN_00113840(0x1e,param_1,0xb,1);
+    uVar3 = 1;
+  }
+  else if ((param_2 == (undefined1 *)0x0) || (param_3 == (byte *)0x0)) {
+    FUN_00113840(0x1e,param_1,0xb,0x13);
+    uVar3 = 1;
+  }
+  else {
+    if ((param_1 < DAT_0011323c) || (DAT_0011323d < param_1)) {
+      uVar4 = 0xff;
+    }
+    else {
+      uVar4 = (uint)*(byte *)((int)&PTR_DAT_0011322e + (param_1 - DAT_0011323c));
+    }
+    if (uVar4 == 0xff) {
+      FUN_00113840(0x1e,param_1,0xb,2);
+      uVar3 = 1;
+    }
+    else {
+      bVar1 = (&DAT_4000b0bb)[uVar4 * 0xe];
+      *param_2 = (char)((bVar1 & 0x1c) >> 2);
+      *param_3 = bVar1 & 3;
+      uVar3 = 0;
+    }
+  }
+  return uVar3;
+}
+
+
+
+========== FUN_00113504 @ 00113504  [BCM_OwnerFlash] ==========
+
+byte FUN_00113504(void)
+
+{
+  byte bVar1;
+  
+  bVar1 = DAT_40003ca6;
+  return bVar1 >> 3 & 1;
+}
+
+
+
+========== FUN_001148f8 @ 001148f8  [BCM_OwnerFlash] ==========
+
+undefined8 FUN_001148f8(int param_1)
+
+{
+  undefined8 uVar1;
+  
+  if (param_1 == 0) {
+    uVar1 = FUN_000feed4(0);
+    return uVar1;
+  }
+  if (param_1 == 1) {
+    uVar1 = FUN_001150ca(0);
+    return uVar1;
+  }
+  if (param_1 == 2) {
+    uVar1 = FUN_000feed4(1);
+    return uVar1;
+  }
+  return 2;
+}
+
+

@@ -1,0 +1,168 @@
+WARNING: Final field name in class ghidra.util.charset.CharsetInfo has been mutated reflectively by class com.google.gson.internal.bind.ReflectiveTypeAdapterFactory$2 in unnamed module @28b46423 (file:/opt/ghidra/Ghidra/Framework/Generic/lib/gson-2.13.2.jar)
+WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
+WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
+
+========== FUN_00113580 @ 00113580  [BCM_OwnerFlash] ==========
+
+void FUN_00113580(void)
+
+{
+  byte bVar2;
+  ushort uVar1;
+  int iVar3;
+  
+  FUN_0010df50();
+  iVar3 = FUN_001148f8(1);
+  if (iVar3 == 0) {
+    uVar1 = DAT_40007c8c;
+    if (uVar1 < 0x1f5) {
+      uVar1 = uVar1 + 1;
+      DAT_40007c8c = uVar1;
+    }
+    if (499 < uVar1) {
+      bVar2 = DAT_40002f4c._3_1_;
+      DAT_40003fe0 = 0xff;
+      bVar2 = bVar2 & 0x7f;
+      goto LAB_001135e4;
+    }
+  }
+  else {
+    DAT_40002f3c = 4;
+    bVar2 = DAT_40002f4c._3_1_;
+    DAT_40003fe0 = 0xff;
+    DAT_40007c8c = 0;
+    bVar2 = bVar2 | 0x80;
+LAB_001135e4:
+    DAT_40002f4c._3_1_ = bVar2;
+  }
+  iVar3 = FUN_001148f8(0);
+  if (iVar3 == 0) {
+    uVar1 = DAT_40007c8a;
+    if (uVar1 < 0x1f5) {
+      uVar1 = uVar1 + 1;
+      DAT_40007c8a = uVar1;
+    }
+    if (uVar1 < 500) goto LAB_0011362e;
+    bVar2 = DAT_40002f4c._3_1_;
+    DAT_40003fe1 = 0xff;
+    bVar2 = bVar2 & 0xbf;
+  }
+  else {
+    DAT_40002f32 = 4;
+    bVar2 = DAT_40002f4c._3_1_;
+    DAT_40003fe1 = 0xff;
+    DAT_40007c8a = 0;
+    bVar2 = bVar2 | 0x40;
+  }
+  DAT_40002f4c._3_1_ = bVar2;
+LAB_0011362e:
+  iVar3 = FUN_001148f8(2);
+  if (iVar3 == 0) {
+    uVar1 = DAT_40007c8e;
+    if (uVar1 < 0x1f5) {
+      uVar1 = uVar1 + 1;
+      DAT_40007c8e = uVar1;
+    }
+    if (uVar1 < 500) {
+      return;
+    }
+    bVar2 = DAT_40002f4c._3_1_;
+    DAT_40003fe2 = 0xff;
+    bVar2 = bVar2 & 0xdf;
+  }
+  else {
+    DAT_40002f37 = 4;
+    bVar2 = DAT_40002f4c._3_1_;
+    DAT_40003fe2 = 0xff;
+    DAT_40007c8e = 0;
+    bVar2 = bVar2 | 0x20;
+  }
+  DAT_40002f4c._3_1_ = bVar2;
+  return;
+}
+
+
+
+========== FUN_0011367e @ 0011367e  [BCM_OwnerFlash] ==========
+
+/* WARNING: Removing unreachable block (ram,0x0011370c) */
+/* WARNING: Removing unreachable block (ram,0x00113754) */
+
+void FUN_0011367e(void)
+
+{
+  char cVar1;
+  undefined1 uVar2;
+  char cVar3;
+  undefined1 uVar5;
+  int iVar4;
+  
+  FUN_0010dfe0();
+  FUN_0010db0c(&stack0x0000000c,&DAT_0001c6f4,6);
+  FUN_0010db0c(&stack0x00000012,&DAT_0001c6fa,6);
+  FUN_0010db0c(&stack0x00000018,&PTR_0001c700,6);
+  FUN_00115284(1);
+  FUN_00113ea8(1,&stack0x00000008,&DAT_40002f3c);
+  uVar5 = FUN_00114918(1);
+  DAT_40002f50 = uVar5;
+  FUN_00115284(0);
+  FUN_00113ea8(0,&stack0x00000008,&DAT_40002f32);
+  FUN_001149d0(0,&stack0x0000000a);
+  FUN_00115284(2);
+  FUN_00113ea8(2,&stack0x00000008,&DAT_40002f37);
+  FUN_001149d0(2,&stack0x0000000a);
+  iVar4 = FUN_00113504();
+  if (iVar4 == 1) {
+    DAT_40002f37 = 5;
+    DAT_40002f32 = 5;
+    DAT_40002f3c = 5;
+  }
+  FUN_00113580();
+  FUN_00113900(0,&DAT_40002f41);
+  FUN_00113900(2,&DAT_40002f46);
+  cVar1 = DAT_40002f3c;
+  cVar3 = DAT_400045a8;
+  if (cVar3 != cVar1) {
+    uVar5 = DAT_40002f3f;
+    DAT_40002f40 = uVar5;
+    uVar5 = DAT_40002f3e;
+    DAT_40002f3f = uVar5;
+    uVar2 = DAT_40002f3d;
+    DAT_40002f3d = cVar3;
+    uVar5 = DAT_40002f3c;
+    DAT_40002f3e = uVar2;
+    DAT_400045a8 = uVar5;
+  }
+  cVar1 = DAT_40002f32;
+  cVar3 = DAT_400045a9;
+  if (cVar3 != cVar1) {
+    uVar5 = DAT_40002f35;
+    DAT_40002f36 = uVar5;
+    uVar5 = DAT_40002f34;
+    DAT_40002f35 = uVar5;
+    uVar2 = DAT_40002f33;
+    DAT_40002f33 = cVar3;
+    uVar5 = DAT_40002f32;
+    DAT_40002f34 = uVar2;
+    DAT_400045a9 = uVar5;
+  }
+  cVar1 = DAT_40002f37;
+  cVar3 = DAT_400045aa;
+  if (cVar3 != cVar1) {
+    uVar5 = DAT_40002f3a;
+    DAT_40002f3b = uVar5;
+    uVar5 = DAT_40002f39;
+    DAT_40002f3a = uVar5;
+    uVar2 = DAT_40002f38;
+    DAT_40002f38 = cVar3;
+    uVar5 = DAT_40002f37;
+    DAT_40002f39 = uVar2;
+    DAT_400045aa = uVar5;
+  }
+  uVar5 = DAT_40003c7b;
+  FUN_00113da0(0,&stack0x00000018);
+  FUN_00113da0(1,&stack0x00000018);
+  return;
+}
+
+

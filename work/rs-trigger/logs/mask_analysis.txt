@@ -1,0 +1,189 @@
+== 44 store sites to +0x94 ==
+
+--- STORE 0x0AC500  (54FD0094)  reg=r7 base=r29  fn=FUN_000ac488
+      0AC4F2 e_xori r0,r3,0x1
+      0AC4FC e_rlwimi  r7,r0,0x1a,0x5,0x5            INSERT dst=r7 src=r0 sh=26 mb=5 me=5 mask=0x04000000
+
+--- STORE 0x0AC51C  (541F0094)  reg=r0 base=r31  fn=FUN_000ac508
+      0AC51A BRANCH se_bseti r0,0x1e
+
+--- STORE 0x0AC52A  (541F0094)  reg=r0 base=r31  fn=FUN_000ac508
+      0AC528 BRANCH se_bseti r0,0x17
+
+--- STORE 0x0AC87E  (54DF0094)  reg=r6 base=r31  fn=FUN_000ac85e
+      0AC846 e_rlwimi  r7,r0,0x18,0x6,0x7            INSERT dst=r7 src=r0 sh=24 mb=6 me=7 mask=0x03000000
+      0AC84A e_rlwimi  r7,r0,0x12,0xc,0xd            INSERT dst=r7 src=r0 sh=18 mb=12 me=13 mask=0x000C0000
+      0AC852 e_lis r7,0x4000
+      0AC856 e_add16i r7,r7,0x3cb0
+      0AC85C BRANCH se_bclri r6,0x8
+      0AC85E e_or2i r6,0x4204 -> SET 0x00004204
+      0AC862 e_lis r5,0x4000
+      0AC866 BRANCH se_bclri r0,0x19
+      0AC86A BRANCH se_bmaski r7,0x8
+      0AC872 e_rlwinm  r0,r0,0x19,0x1f,0x1f          ROTMASK dst=r0 src=r0 sh=25 mb=31 me=31 mask=0x00000001 
+      0AC876 e_rlwimi  r6,r0,0x18,0x7,0x7            INSERT dst=r6 src=r0 sh=24 mb=7 me=7 mask=0x01000000
+
+--- STORE 0x0AC8BC  (541F0094)  reg=r0 base=r31  fn=FUN_000ac8a8
+      0AC8B4 e_rlwinm  r7,r7,0x19,0x1f,0x1f          ROTMASK dst=r7 src=r7 sh=25 mb=31 me=31 mask=0x00000001 
+      0AC8B8 e_rlwimi  r0,r7,0x19,0x6,0x6            INSERT dst=r0 src=r7 sh=25 mb=6 me=6 mask=0x02000000
+
+--- STORE 0x0ACBEC  (54670094)  reg=r3 base=r7  fn=FUN_000acb92
+      0ACBAA e_andi r4,r4,-0x7801 -> AND keep 0x-0007801
+      0ACBAE e_andi r5,r5,-0x3e000001 -> AND keep 0x-3E000001
+      0ACBB2 e_andi r0,r0,-0xfc000001 -> AND keep 0x-FC000001
+      0ACBB6 BRANCH se_bclri r6,0x15
+      0ACBB8 e_andi r0,r0,-0xf00001 -> AND keep 0x-0F00001
+      0ACBBC e_andi r3,r6,-0x9a -> AND keep 0x-000009A
+      0ACBC0 e_rlwinm  r0,r0,0x0,0x18,0xd            ROTMASK dst=r0 src=r0 sh=0 mb=24 me=13 mask=0xFFFC00FF (CLEAR of 0x0003FF00)
+      0ACBC4 e_andi r6,r5,-0xfb0001 -> AND keep 0x-0FB0001
+      0ACBCC e_andi r6,r6,-0x1c01 -> AND keep 0x-0001C01
+      0ACBD0 e_rlwinm  r0,r4,0x0,0x19,0x16           ROTMASK dst=r0 src=r4 sh=0 mb=25 me=22 mask=0xFFFFFE7F (CLEAR of 0x00000180)
+      0ACBD8 e_rlwinm  r6,r0,0x0,0x9,0x2             ROTMASK dst=r6 src=r0 sh=0 mb=9 me=2 mask=0xE07FFFFF (CLEAR of 0x1F800000)
+      0ACBE4 e_andi r0,r0,-0x1d -> AND keep 0x-000001D
+
+--- STORE 0x0ACBFE  (54070094)  reg=r0 base=r7  fn=FUN_000acb92
+      0ACBFC BRANCH se_bclri r0,0x3
+
+--- STORE 0x0ACC16  (54070094)  reg=r0 base=r7  fn=FUN_000acb92
+      0ACC12 e_andi r0,r0,-0x61 -> AND keep 0x-0000061
+
+--- STORE 0x0ACC2C  (54070094)  reg=r0 base=r7  fn=FUN_000acb92
+      0ACC2A BRANCH se_bclri r0,0x2
+
+--- STORE 0x0ACC44  (54C70094)  reg=r6 base=r7  fn=FUN_000acb92
+      0ACC38 e_andi r0,r0,-0xe1 -> AND keep 0x-00000E1
+      0ACC40 e_andi r6,r6,-0x3801 -> AND keep 0x-0003801
+
+--- STORE 0x0ACDA4  (54040094)  reg=r0 base=r4  fn=FUN_000accd4
+      0ACDA2 BRANCH se_bseti r0,0xf
+
+--- STORE 0x0AD57C  (54060094)  reg=r0 base=r6  fn=FUN_000ad4ec
+      0AD578 e_andi r0,r0,-0xc0001 -> AND keep 0x-00C0001
+
+--- STORE 0x0AD8F0  (541F0094)  reg=r0 base=r31  fn=FUN_000ad888
+      0AD8EE BRANCH se_bseti r0,0xe
+
+--- STORE 0x0AD954  (541F0094)  reg=r0 base=r31  fn=FUN_000ad924
+      0AD950 e_andi r0,r0,-0x420001 -> AND keep 0x-0420001
+
+--- STORE 0x0AD9A2  (541F0094)  reg=r0 base=r31  fn=FUN_000ad97c
+      0AD99E e_andi r0,r0,-0x420001 -> AND keep 0x-0420001
+
+--- STORE 0x0AD9D2  (541F0094)  reg=r0 base=r31  fn=FUN_000ad97c
+      0AD9D0 BRANCH se_bseti r0,0x9
+
+--- STORE 0x0ADA3E  (541F0094)  reg=r0 base=r31  fn=FUN_000ad97c
+      0ADA3C BRANCH se_bseti r0,0x4
+
+--- STORE 0x0ADA78  (541F0094)  reg=r0 base=r31  fn=FUN_000ad97c
+      0ADA76 BRANCH se_bclri r0,0x4
+
+--- STORE 0x0ADB68  (541F0094)  reg=r0 base=r31  fn=UNSWEPT
+      0ADB66 BRANCH se_bseti r0,0xa
+
+--- STORE 0x0ADBB8  (541F0094)  reg=r0 base=r31  fn=FUN_000adb98
+      0ADBB6 BRANCH se_bclri r0,0xa
+
+--- STORE 0x0ADC3C  (541F0094)  reg=r0 base=r31  fn=FUN_000adb98
+      0ADC3A BRANCH se_bseti r0,0x1
+
+--- STORE 0x0ADC5E  (541F0094)  reg=r0 base=r31  fn=FUN_000adb98
+      0ADC5C BRANCH se_bclri r0,0x1
+
+--- STORE 0x0ADC98  (541F0094)  reg=r0 base=r31  fn=FUN_000adb98
+      0ADC96 BRANCH se_bclri r0,0x1
+
+--- STORE 0x0ADF18  (54050094)  reg=r0 base=r5  fn=FUN_000ade12
+      0ADF16 BRANCH se_bclri r0,0xf
+
+--- STORE 0x0AE1D4  (54050094)  reg=r0 base=r5  fn=UNSWEPT
+      0AE1D2 BRANCH se_bclri r0,0xf
+
+--- STORE 0x0AE57E  (54050094)  reg=r0 base=r5  fn=UNSWEPT
+      0AE57C BRANCH se_bclri r0,0x2
+
+--- STORE 0x0AE5E8  (54650094)  reg=r3 base=r5  fn=FUN_000ae5e0
+      0AE5C6 e_rlwimi  r6,r0,0x5,0x18,0x1a           INSERT dst=r6 src=r0 sh=5 mb=24 me=26 mask=0x000000E0
+      0AE5D2 BRANCH se_bmaski r0,0x8
+      0AE5D4 BRANCH se_bclri r3,0xf
+      0AE5D6 BRANCH se_bseti r3,0x2
+      0AE5D8 e_andi r6,r6,0x7f -> AND keep 0x0000007F
+      0AE5E0 e_lis r6,0x4000
+
+--- STORE 0x0AE63C  (54050094)  reg=r0 base=r5  fn=FUN_000ae61e
+      0AE63A BRANCH se_bseti r0,0x2
+
+--- STORE 0x0AE68C  (54050094)  reg=r0 base=r5  fn=FUN_000ae676
+      0AE68A BRANCH se_bseti r0,0x0
+
+--- STORE 0x0AE6B4  (54050094)  reg=r0 base=r5  fn=UNSWEPT
+      0AE6B2 BRANCH se_bclri r0,0x0
+
+--- STORE 0x0AE70E  (54050094)  reg=r0 base=r5  fn=FUN_000ae6f8
+      0AE70C BRANCH se_bclri r0,0x0
+
+--- STORE 0x0AE7CE  (54C50094)  reg=r6 base=r5  fn=FUN_000ae7c0
+      0AE7CC BRANCH se_bseti r6,0x3
+
+--- STORE 0x0AE7EA  (54050094)  reg=r0 base=r5  fn=FUN_000ae7e4
+      0AE7E4 e_lis r6,0x4000
+      0AE7E8 BRANCH se_bclri r0,0x3
+
+--- STORE 0x0AE82E  (54070094)  reg=r0 base=r7  fn=FUN_000ae820
+    !! no matching e_lwz of 0x94(r7) found within 80 insns
+
+--- STORE 0x0AE948  (541E0094)  reg=r0 base=r30  fn=FUN_000ae922
+      0AE946 BRANCH se_bseti r0,0x8
+
+--- STORE 0x0AE98A  (541E0094)  reg=r0 base=r30  fn=UNSWEPT
+      0AE988 BRANCH se_bclri r0,0x8
+
+--- STORE 0x0AEA58  (541E0094)  reg=r0 base=r30  fn=FUN_000aea22
+      0AEA56 BRANCH se_bclri r0,0xb
+
+--- STORE 0x0AEAFC  (541E0094)  reg=r0 base=r30  fn=FUN_000aeaee
+      0AEAFA BRANCH se_bseti r0,0x10
+
+--- STORE 0x0AEB72  (549E0094)  reg=r4 base=r30  fn=UNSWEPT
+      0AEB54 e_or2i r6,0xe000 -> SET 0x0000E000
+      0AEB58 se_li r4,0xf
+      0AEB5A e_or2i r0,0x3800 -> SET 0x00003800
+      0AEB5E BRANCH se_bseti r0,0x2
+      0AEB60 e_rlwimi  r7,r4,0xf,0xd,0x10            INSERT dst=r7 src=r4 sh=15 mb=13 me=16 mask=0x00078000
+      0AEB64 e_ori r4,r0,0x60 -> SET 0x00000060
+      0AEB68 se_li r0,0x1
+      0AEB6A e_rlwimi  r7,r0,0x1,0x1d,0x1e           INSERT dst=r7 src=r0 sh=1 mb=29 me=30 mask=0x00000006
+      0AEB6E e_rlwimi  r7,r5,0x5,0x19,0x1a           INSERT dst=r7 src=r5 sh=5 mb=25 me=26 mask=0x00000060
+
+--- STORE 0x0AEBF0  (541E0094)  reg=r0 base=r30  fn=FUN_000aebcc
+      0AEBEE BRANCH se_bseti r0,0x1f
+
+--- STORE 0x0AECB0  (541E0094)  reg=r0 base=r30  fn=FUN_000aebcc
+      0AEC6A se_li r4,0x1
+      0AEC6C e_rlwimi  r31,r7,0x17,0x3,0x8           INSERT dst=r31 src=r7 sh=23 mb=3 me=8 mask=0x1F800000
+      0AEC70 e_rlwimi  r31,r4,0x7,0x17,0x18          INSERT dst=r31 src=r4 sh=7 mb=23 me=24 mask=0x00000180
+      0AEC74 e_andi r0,r0,-0xc0001 -> AND keep 0x-00C0001
+      0AEC78 e_or2i r0,0x98 -> SET 0x00000098
+      0AEC7C BRANCH se_bclri r0,0x4
+      0AEC7E BRANCH se_bseti r0,0x15
+      0AEC80 e_li r7,0xac
+      0AEC84 e_rlwimi  r3,r7,0x7,0x10,0x18           INSERT dst=r3 src=r7 sh=7 mb=16 me=24 mask=0x0000FF80
+      0AEC88 BRANCH se_bclri r3,0x1c
+      0AEC8A se_li r7,0x0
+      0AEC8C e_rlwimi  r3,r25,0x14,0x8,0xb           INSERT dst=r3 src=r25 sh=20 mb=8 me=11 mask=0x00F00000
+      0AEC96 e_or2is r26,0x23 -> SET 0x00230000
+      0AEC9C e_rlwimi  r3,r4,0x1a,0x4,0x5            INSERT dst=r3 src=r4 sh=26 mb=4 me=5 mask=0x0C000000
+      0AECA0 e_ori r7,r26,0x30000000 -> SET 0x30000000
+      0AECA4 e_rlwimi  r3,r4,0x1e,0x0,0x1            INSERT dst=r3 src=r4 sh=30 mb=0 me=1 mask=0xC0000000
+
+--- STORE 0x0AEE58  (541E0094)  reg=r0 base=r30  fn=FUN_000aee4a
+      0AEE56 BRANCH se_bclri r0,0x10
+
+--- STORE 0x0AEE70  (541E0094)  reg=r0 base=r30  fn=FUN_000aee5c
+      0AEE68 e_rlwinm  r7,r7,0x19,0x1f,0x1f          ROTMASK dst=r7 src=r7 sh=25 mb=31 me=31 mask=0x00000001 
+      0AEE6C e_rlwimi  r0,r7,0x18,0x7,0x7            INSERT dst=r0 src=r7 sh=24 mb=7 me=7 mask=0x01000000
+
+--- STORE 0x0AEEBE  (541E0094)  reg=r0 base=r30  fn=FUN_000aeeaa
+      0AEEB6 e_rlwinm  r7,r7,0x19,0x1f,0x1f          ROTMASK dst=r7 src=r7 sh=25 mb=31 me=31 mask=0x00000001 
+      0AEEBA e_rlwimi  r0,r7,0x19,0x6,0x6            INSERT dst=r0 src=r7 sh=25 mb=6 me=6 mask=0x02000000
+

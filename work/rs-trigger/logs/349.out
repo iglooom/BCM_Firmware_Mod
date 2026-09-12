@@ -1,0 +1,20 @@
+WARNING: Final field name in class ghidra.util.charset.CharsetInfo has been mutated reflectively by class com.google.gson.internal.bind.ReflectiveTypeAdapterFactory$2 in unnamed module @28b46423 (file:/opt/ghidra/Ghidra/Framework/Generic/lib/gson-2.13.2.jar)
+WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
+WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
+RX record @ 0x1520F8: 4000091800000000400004fe0000000000000000000080000835ff00
+  +0x00 dst image ptr   = 0x40000918
+  +0x04 src ptr         = 0x00000000
+  +0x08 flag byte ptr   = 0x400004FE
+  +0x0C ptr3            = 0x00000000
+  +0x15 idmatch         = 0x00
+  +0x16 FLAG OR MASK    = 0x80
+  +0x17 mask2           = 0x00
+  +0x19 mailbox         = 53
+  +0x1A COPYMASK        = 0xFF
+CONTROL (matches rx_frame_map.json): PASS
+
+descriptor @ 0x142FD4: 4000091e4000091e400004fe1f00208080c205004000091a4000091a400004fe
+  +0x00 src byte ptr = 0x4000091E
+  +0x0C mask         = 0x1F
+  +0x0D shift        = 0
+CONTROL (matches rx_signal_dict.json 0x4000091E mask 0x1F): PASS

@@ -1,0 +1,37 @@
+WARNING: Final field name in class ghidra.util.charset.CharsetInfo has been mutated reflectively by class com.google.gson.internal.bind.ReflectiveTypeAdapterFactory$2 in unnamed module @28b46423 (file:/opt/ghidra/Ghidra/Framework/Generic/lib/gson-2.13.2.jar)
+WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
+WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
+SWEPT: 352906 instructions, 000160 .. 143A7C
+TOTAL VOL_test_and_clear_dirty call sites: 770
+fully resolved: 410
+C1 (0x0AEEDA -> 0x40003F53 bit 2): PASS {'site': '0AEEDA', 'flag': '0x40003F53', 'bit': 2, 'mask': '0x20'}
+C2 (>=2 distinct sites resolve to 0x40003F53): PASS 2
+C3 non-degeneracy: 266 distinct flag addrs, bits=[0, 1, 2, 3, 4, 5, 6, 7] -> PASS
+
+=== consumers of APP_rke_code_valid 0x40003F53 ===
+  099308  bit=1 mask=0x40
+  0AEEDA  bit=2 mask=0x20
+
+=== all sites, flag in 0x40003F40..0x40003F60 (same band control) ===
+  044D58  0x40003F55 bit=5 mask=0x04
+  059082  0x40003F4D bit=1 mask=0x40
+  0590F0  0x40003F4D bit=1 mask=0x40
+  05BB72  0x40003F44 bit=1 mask=0x40
+  05C052  0x40003F54 bit=3 mask=0x10
+  065B66  0x40003F4F bit=0 mask=0x80
+  07EB9E  0x40003F56 bit=0 mask=0x80
+  07EC3E  0x40003F56 bit=0 mask=0x80
+  099308  0x40003F53 bit=1 mask=0x40
+  09CDEE  0x40003F60 bit=0 mask=0x80
+  0A3522  0x40003F4A bit=0 mask=0x80
+  0A80A2  0x40003F52 bit=0 mask=0x80
+  0A8178  0x40003F52 bit=None mask=None
+  0AEEDA  0x40003F53 bit=2 mask=0x20
+  0B530C  0x40003F57 bit=None mask=None
+  0B57D0  0x40003F57 bit=0 mask=0x80
+  0C1764  0x40003F50 bit=0 mask=0x80
+  0C4092  0x40003F50 bit=0 mask=0x80
+  0C4596  0x40003F4A bit=2 mask=0x20
+  0C4A0A  0x40003F4A bit=2 mask=0x20
+
+WROTE 347_tcd_sites.json

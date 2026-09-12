@@ -1,0 +1,89 @@
+WARNING: Final field name in class ghidra.util.charset.CharsetInfo has been mutated reflectively by class com.google.gson.internal.bind.ReflectiveTypeAdapterFactory$2 in unnamed module @28b46423 (file:/opt/ghidra/Ghidra/Framework/Generic/lib/gson-2.13.2.jar)
+WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
+WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
+======================================================================
+CLIMB from 0x0ADADA
+   {"block": "0ADADA", "reached_by": "FALLTHROUGH", "from": "0ADAD8", "prev_func": "FUN_000ad97c", "prev_entry": "0AD97C"}
+   {"block": "0AD97C", "reached_by": "FALLTHROUGH", "from": "0AD97A", "prev_func": "FUN_000ad970", "prev_entry": "0AD970"}
+   {"block": "0AD970", "reached_by": "FALLTHROUGH", "from": "0AD96E", "prev_func": "FUN_000ad924", "prev_entry": "0AD924"}
+   {"block": "0AD924", "reached_by": "FALLTHROUGH", "from": "0AD922", "prev_func": "FUN_000ad888", "prev_entry": "0AD888"}
+   {"block": "0AD888", "reached_by": "FALLTHROUGH", "from": "0AD884", "prev_func": "FUN_000ad7d4", "prev_entry": "0AD7D4"}
+   {"block": "0AD7D4", "reached_by": "FALLTHROUGH", "from": "0AD7D2", "prev_func": "FUN_000ad7c8", "prev_entry": "0AD7C8"}
+   {"block": "0AD7C8", "reached_by": "FALLTHROUGH", "from": "0AD7C6", "prev_func": "FUN_000ad754", "prev_entry": "0AD754"}
+   {"block": "0AD754", "reached_by": "FALLTHROUGH", "from": "0AD750", "prev_func": "FUN_000ad74a", "prev_entry": "0AD74A"}
+   {"block": "0AD74A", "reached_by": "FALLTHROUGH", "from": "0AD748", "prev_func": "FUN_000ad73e", "prev_entry": "0AD73E"}
+   {"block": "0AD73E", "reached_by": "JUMP-ONLY", "jumps_from": ["0AD71E"]}
+======================================================================
+CLIMB from 0x0AEEC6
+   {"block": "0AEEC6", "reached_by": "CALL", "callers": [{"from": "0628FC", "func": "APP_feature_periodic", "entry": "062848"}]}
+
+CONTROL (climb from 0x0AEEC6 terminates at APP_feature_periodic 062848): PASS
+
+###### STORES with resolved absolute targets ######
+--- 0AD970..0ADE12 ---
+  0AD98E  se_stw r0,0x0(r31)               -> 400095ec
+  0AD99A  e_stw r6,0x90(r31)               -> 4000967c
+  0AD9A2  e_stw r0,0x94(r31)               -> 40009680
+  0AD9A8  se_stw r0,0x34(r31)              -> 40009620
+  0AD9B4  se_stw r0,0x0(r6)                -> 40009658
+  0AD9D2  e_stw r0,0x94(r31)               -> 40009680
+  0AD9E8  se_stw r6,0x0(r3)                -> 400095dc
+  0AD9F2  se_stw r0,0x34(r31)              -> 40009620
+  0AD9F6  se_stw r0,0x0(r3)                -> 400095dc
+  0ADA00  se_stb r0,0x4(r3)                -> 400095e0
+  0ADA0E  e_stw r6,0x90(r31)               -> 4000967c
+  0ADA38  e_stw r6,0x90(r31)               -> 4000967c
+  0ADA3E  e_stw r0,0x94(r31)               -> 40009680
+  0ADA5E  e_stb r0,0x86(r31)               -> 40009672
+  0ADA72  e_stw r6,0x90(r31)               -> 4000967c
+  0ADA78  e_stw r0,0x94(r31)               -> 40009680
+  0ADA7E  e_stw r0,0x5c(r31)               -> 40009648
+  0ADA82  e_stb r0,0x86(r31)               -> 40009672
+  0ADB5E  e_stw r0,0x90(r31)               -> 4000967c
+  0ADB68  e_stw r0,0x94(r31)               -> 40009680
+  0ADB70  se_stw r0,0x0(r6)                -> 40009648
+  0ADBAE  e_stw r6,0x90(r31)               -> 4000967c
+  0ADBB8  e_stw r0,0x94(r31)               -> 40009680
+  0ADBBE  e_stw r0,0x5c(r31)               -> 40009648
+  0ADBCE  e_stw r6,0x90(r31)               -> 4000967c
+  0ADBFE  e_stw r6,0x90(r31)               -> 4000967c
+  0ADC36  e_stw r6,0x90(r31)               -> 4000967c
+  0ADC3C  e_stw r0,0x94(r31)               -> 40009680
+  0ADC54  e_stw r0,0x90(r31)               -> 4000967c
+  0ADC5E  e_stw r0,0x94(r31)               -> 40009680
+  0ADC7A  e_stw r6,0x90(r31)               -> 4000967c
+  0ADC80  e_stw r0,0x54(r31)               -> 40009640
+  0ADC98  e_stw r0,0x94(r31)               -> 40009680
+  0ADC9E  se_stw r0,0x0(r6)                -> 40009640
+  0ADCAE  se_stw r0,0x0(r6)                -> 40009640
+  0ADCBC  e_stw r6,0x90(r31)               -> 4000967c
+  0ADD0C  e_stw r7,0x8c(r31)               -> 40009678
+  0ADD12  e_stw r0,0x90(r31)               -> 4000967c
+  0ADD2E  e_stw r0,0x8c(r31)               -> 40009678
+  0ADD4A  e_stw r7,0x8c(r31)               -> 40009678
+  0ADD50  e_stw r0,0x54(r31)               -> 40009640
+  0ADD6C  e_stw r0,0x90(r31)               -> 4000967c
+  0ADD72  se_stw r0,0x0(r6)                -> 40009640
+  0ADD7A  e_stw r7,0x8c(r31)               -> 40009678
+  0ADD82  se_stw r0,0x0(r6)                -> 40009640
+  0ADDA0  e_stw r7,0x8c(r31)               -> 40009678
+  0ADDAA  e_stw r0,0x90(r31)               -> 4000967c
+  0ADDB8  e_stw r0,0x8c(r31)               -> 40009678
+  0ADDE2  se_stw r0,0x0(r7)                -> 40009630
+  0ADDE8  e_stb r0,0x80(r31)               -> 4000966c
+  0ADDEC  e_stw r0,0x44(r31)               -> 40009630
+--- 0AEEC6..0AEF60 ---
+  0AEEE6  se_stb r3,0x3(r30)               -> 4000968b
+  0AEEF2  se_stb r3,0x4(r30)               -> 4000968c
+  0AEEFE  se_stb r3,0x5(r30)               -> 4000968d
+  0AEF14  se_stb r0,0x5(r25)               -> 400095e1
+  0AEF20  se_stb r0,0x6(r25)               -> 400095e2
+  0AEF26  se_stb r3,0x6(r30)               -> 4000968e
+  0AEF4C  se_stb r6,0x7(r25)               -> 400095e3
+  0AEF50  se_stb r0,0x8(r25)               -> 400095e4
+  0AEF54  se_stb r0,0x9(r25)               -> 400095e5
+  0AEF58  se_stb r3,0xa(r25)               -> 400095e6
+  0AEF5A  se_stb r0,0xb(r25)               -> 400095e7
+  0AEF5E  se_stb r0,0xc(r25)               -> 400095e8
+
+WROTE 350_climb.json

@@ -1,0 +1,1000 @@
+WARNING: Final field name in class ghidra.util.charset.CharsetInfo has been mutated reflectively by class com.google.gson.internal.bind.ReflectiveTypeAdapterFactory$2 in unnamed module @28b46423 (file:/opt/ghidra/Ghidra/Framework/Generic/lib/gson-2.13.2.jar)
+WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
+WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
+===== (b) Ghidra references to 0x40009680 =====
+  0x0AE82E WRITE            e_stw r0,0x94(r7)                        FUN_000ae820
+  0x0AE636 READ             e_lwz r0,0x94(r5)                        FUN_000ae61e
+  0x0AE63C WRITE            e_stw r0,0x94(r5)                        FUN_000ae61e
+  0x0AE782 READ             e_lwz r6,0x94(r5)                        FUN_000ae6f8
+  0x0AE7CE WRITE            e_stw r6,0x94(r5)                        FUN_000ae7c0
+  0x0AE756 READ             e_lwz r6,0x94(r5)                        FUN_000ae6f8
+  0x0AE7C8 READ             e_lwz r6,0x94(r5)                        FUN_000ae7c0
+  0x0AE7D4 READ             e_lwz r0,0x94(r5)                        UNSWEPT
+  0x0AE7DC READ             e_lwz r0,0x94(r5)                        UNSWEPT
+  0x0AE7EA WRITE            e_stw r0,0x94(r5)                        FUN_000ae7e4
+  0x0AE6AE READ             e_lwz r0,0x94(r5)                        UNSWEPT
+  0x0AE6B4 WRITE            e_stw r0,0x94(r5)                        UNSWEPT
+  0x0AE682 READ             e_lwz r0,0x94(r5)                        FUN_000ae676
+  0x0AE68C WRITE            e_stw r0,0x94(r5)                        FUN_000ae676
+  0x0AE704 READ             e_lwz r0,0x94(r5)                        FUN_000ae6f8
+  0x0AE70E WRITE            e_stw r0,0x94(r5)                        FUN_000ae6f8
+  0x0AE6E8 READ             e_lwz r6,0x94(r5)                        UNSWEPT
+  0x0AE574 READ             e_lwz r0,0x94(r5)                        UNSWEPT
+  0x0AE57E WRITE            e_stw r0,0x94(r5)                        UNSWEPT
+  0x0AE5C2 READ             e_lwz r3,0x94(r5)                        UNSWEPT
+  0x0AE5E8 WRITE            e_stw r3,0x94(r5)                        FUN_000ae5e0
+  0x0AE5A2 READ             e_lwz r6,0x94(r5)                        UNSWEPT
+  0x0AE1CA READ             e_lwz r0,0x94(r5)                        UNSWEPT
+  0x0AE1D4 WRITE            e_stw r0,0x94(r5)                        UNSWEPT
+  0x0AE1BA READ             e_lwz r6,0x94(r5)                        UNSWEPT
+  0x0AEE64 READ             e_lwz r0,0x94(r30)                       FUN_000aee5c
+  0x0AEE70 WRITE            e_stw r0,0x94(r30)                       FUN_000aee5c
+  0x0AEEB2 READ             e_lwz r0,0x94(r30)                       FUN_000aeeaa
+  0x0AEEBE WRITE            e_stw r0,0x94(r30)                       FUN_000aeeaa
+  0x0AEDC4 READ             e_lwz r0,0x94(r30)                       UNSWEPT
+  0x0AEE52 READ             e_lwz r0,0x94(r30)                       FUN_000aee4a
+  0x0AEE58 WRITE            e_stw r0,0x94(r30)                       FUN_000aee4a
+  0x0AEAA6 READ             e_lwz r0,0x94(r30)                       FUN_000aea22
+  0x0AEAF6 READ             e_lwz r0,0x94(r30)                       FUN_000aeaee
+  0x0AEAFC WRITE            e_stw r0,0x94(r30)                       FUN_000aeaee
+  0x0AEB20 READ             e_lwz r0,0x94(r30)                       UNSWEPT
+  0x0AEB48 READ             e_lwz r0,0x94(r30)                       UNSWEPT
+  0x0AEB72 WRITE            e_stw r4,0x94(r30)                       UNSWEPT
+  0x0AEBB6 READ             e_lwz r0,0x94(r30)                       FUN_000aeb8e
+  0x0AEBE2 READ             e_lwz r0,0x94(r30)                       FUN_000aebcc
+  0x0AEBF0 WRITE            e_stw r0,0x94(r30)                       FUN_000aebcc
+  0x0AEC62 READ             e_lwz r0,0x94(r30)                       FUN_000aebcc
+  0x0AECB0 WRITE            e_stw r0,0x94(r30)                       FUN_000aebcc
+  0x0AEC2C READ             e_lwz r0,0x94(r30)                       FUN_000aebcc
+  0x0AE9DA READ             e_lwz r0,0x94(r30)                       FUN_000ae958
+  0x0AEA58 WRITE            e_stw r0,0x94(r30)                       FUN_000aea22
+  0x0AE9BC READ             e_lwz r0,0x94(r30)                       FUN_000ae958
+  0x0AEA4E READ             e_lwz r0,0x94(r30)                       FUN_000aea22
+  0x0AE93E READ             e_lwz r0,0x94(r30)                       FUN_000ae922
+  0x0AE948 WRITE            e_stw r0,0x94(r30)                       FUN_000ae922
+  0x0AE980 READ             e_lwz r0,0x94(r30)                       UNSWEPT
+  0x0AE98A WRITE            e_stw r0,0x94(r30)                       UNSWEPT
+  0x0AD570 READ             e_lwz r0,0x94(r6)                        FUN_000ad4ec
+  0x0AD57C WRITE            e_stw r0,0x94(r6)                        FUN_000ad4ec
+  0x0AD538 READ             e_lwz r0,0x94(r6)                        UNSWEPT
+  0x0AD55A READ             e_lwz r0,0x94(r6)                        UNSWEPT
+  0x0AD2BA READ             e_lwz r0,0x94(r6)                        FUN_000ad298
+  0x0AD24E READ             e_lwz r0,0x94(r6)                        FUN_000ad222
+  0x0AD1F8 READ             e_lwz r0,0x94(r6)                        FUN_000ad1de
+  0x0ACBA6 READ             e_lwz r6,0x94(r7)                        FUN_000acb92
+  0x0ACBEC WRITE            e_stw r3,0x94(r7)                        FUN_000acb92
+  0x0ACC0E READ             e_lwz r0,0x94(r7)                        FUN_000acb92
+  0x0ACC16 WRITE            e_stw r0,0x94(r7)                        FUN_000acb92
+  0x0ACC34 READ             e_lwz r6,0x94(r7)                        FUN_000acb92
+  0x0ACC44 WRITE            e_stw r6,0x94(r7)                        FUN_000acb92
+  0x0ACC26 READ             e_lwz r0,0x94(r7)                        FUN_000acb92
+  0x0ACC2C WRITE            e_stw r0,0x94(r7)                        FUN_000acb92
+  0x0ACBF8 READ             e_lwz r0,0x94(r7)                        FUN_000acb92
+  0x0ACBFE WRITE            e_stw r0,0x94(r7)                        FUN_000acb92
+  0x0AC4EE READ             e_lwz r7,0x94(r29)                       FUN_000ac488
+  0x0AC500 WRITE            e_stw r7,0x94(r29)                       FUN_000ac488
+  0x0ACE88 READ             e_lwz r5,0x94(r4)                        FUN_000accd4
+  0x0ACE18 READ             e_lwz r29,0x94(r4)                       FUN_000accd4
+  0x0ACD9E READ             e_lwz r0,0x94(r4)                        FUN_000accd4
+  0x0ACDA4 WRITE            e_stw r0,0x94(r4)                        FUN_000accd4
+  0x0AD0A6 READ             e_lwz r0,0x94(r4)                        FUN_000accd4
+  0x0AC516 READ             e_lwz r0,0x94(r31)                       FUN_000ac508
+  0x0AC51C WRITE            e_stw r0,0x94(r31)                       FUN_000ac508
+  0x0AC524 READ             e_lwz r0,0x94(r31)                       FUN_000ac508
+  0x0AC52A WRITE            e_stw r0,0x94(r31)                       FUN_000ac508
+  0x0AC842 READ             e_lwz r6,0x94(r31)                       FUN_000ac6b6
+  0x0AC87E WRITE            e_stw r6,0x94(r31)                       FUN_000ac85e
+  0x0AC8B0 READ             e_lwz r0,0x94(r31)                       FUN_000ac8a8
+  0x0AC8BC WRITE            e_stw r0,0x94(r31)                       FUN_000ac8a8
+  0x0ADF0E READ             e_lwz r0,0x94(r5)                        FUN_000ade12
+  0x0ADF18 WRITE            e_stw r0,0x94(r5)                        FUN_000ade12
+  0x0ADEFE READ             e_lwz r6,0x94(r5)                        FUN_000ade12
+  0x0ADCF2 READ             e_lwz r0,0x94(r31)                       FUN_000adcd6
+  0x0ADC58 READ             e_lwz r0,0x94(r31)                       FUN_000adb98
+  0x0ADC5E WRITE            e_stw r0,0x94(r31)                       FUN_000adb98
+  0x0ADC1C READ             e_lwz r0,0x94(r31)                       FUN_000adb98
+  0x0ADC32 READ             e_lwz r0,0x94(r31)                       FUN_000adb98
+  0x0ADC3C WRITE            e_stw r0,0x94(r31)                       FUN_000adb98
+  0x0ADC92 READ             e_lwz r0,0x94(r31)                       FUN_000adb98
+  0x0ADC98 WRITE            e_stw r0,0x94(r31)                       FUN_000adb98
+  0x0ADBB2 READ             e_lwz r0,0x94(r31)                       FUN_000adb98
+  0x0ADBB8 WRITE            e_stw r0,0x94(r31)                       FUN_000adb98
+  0x0ADB06 READ             e_lwz r0,0x94(r31)                       FUN_000adada
+  0x0ADB16 READ             e_lwz r0,0x94(r31)                       FUN_000adada
+  0x0ADAE6 READ             e_lwz r6,0x94(r31)                       FUN_000adada
+  0x0ADB62 READ             e_lwz r0,0x94(r31)                       UNSWEPT
+  0x0ADB68 WRITE            e_stw r0,0x94(r31)                       UNSWEPT
+  0x0ADACE READ             e_lwz r6,0x94(r31)                       FUN_000ad97c
+  0x0ADA34 READ             e_lwz r0,0x94(r31)                       FUN_000ad97c
+  0x0ADA3E WRITE            e_stw r0,0x94(r31)                       FUN_000ad97c
+  0x0ADA6E READ             e_lwz r0,0x94(r31)                       FUN_000ad97c
+  0x0ADA78 WRITE            e_stw r0,0x94(r31)                       FUN_000ad97c
+  0x0AD942 READ             e_lwz r0,0x94(r31)                       FUN_000ad924
+  0x0AD954 WRITE            e_stw r0,0x94(r31)                       FUN_000ad924
+  0x0AD8DC READ             e_lwz r0,0x94(r31)                       FUN_000ad888
+  0x0AD8E6 READ             e_lwz r0,0x94(r31)                       FUN_000ad888
+  0x0AD8F0 WRITE            e_stw r0,0x94(r31)                       FUN_000ad888
+  0x0AD9CC READ             e_lwz r0,0x94(r31)                       FUN_000ad97c
+  0x0AD9D2 WRITE            e_stw r0,0x94(r31)                       FUN_000ad97c
+  0x0AD996 READ             e_lwz r0,0x94(r31)                       FUN_000ad97c
+  0x0AD9A2 WRITE            e_stw r0,0x94(r31)                       FUN_000ad97c
+  0x0AD83E READ             e_lwz r0,0x94(r31)                       FUN_000ad7d4
+  0x0AD85E READ             e_lwz r0,0x94(r31)                       FUN_000ad7d4
+  0x0AD6E4 READ             e_lwz r0,0x94(r31)                       FUN_000ad6c6
+  0x0AD718 READ             e_lwz r0,0x94(r31)                       UNSWEPT
+
+===== (a) every word load/store with disp 0x94 =====
+  0x034AAA e_stw   r0    base=r7    FUN_00034a7a
+  0x034B16 e_lwz   r0    base=r7    FUN_00034ada
+  0x034BDC e_lwz   r7    base=r28   FUN_00034b48
+  0x034C56 e_lwz   r7    base=r28   FUN_00034b48
+  0x034C64 e_lwz   r0    base=r28   FUN_00034b48
+  0x034C78 e_lwz   r0    base=r28   FUN_00034b48
+  0x034C86 e_lwz   r0    base=r28   FUN_00034b48
+  0x034CA2 e_lwz   r0    base=r28   FUN_00034b48
+  0x034D00 e_stw   r0    base=r28   FUN_00034b48
+  0x039FB0 e_stw   r3    base=r11   FUN_00039d72
+  0x03A1FE e_stw   r10   base=r5    FUN_0003a16a
+  0x072122 e_stw   r4    base=r26   FUN_000720b0
+  0x08A678 e_lwz   r0    base=r6    FUN_0008a670
+  0x08E484 e_lwz   r0    base=r6    FUN_0008e47c
+  0x08E5C8 e_lwz   r0    base=r5    FUN_0008e5ba
+  0x08E8FA e_lwz   r0    base=r6    FUN_0008e8f2
+  0x08E98C e_lwz   r0    base=r30   FUN_0008e97e
+  0x08EF4E e_lwz   r0    base=r6    FUN_0008ef46
+  0x08F52C e_lwz   r0    base=r7    FUN_0008f524
+  0x08F832 e_lwz   r0    base=r7    FUN_0008f82a
+  0x08F900 e_lwz   r0    base=r31   FUN_0008f8f2
+  0x08F922 e_lwz   r0    base=r31   FUN_0008f8f2
+  0x08F92A e_stw   r0    base=r31   FUN_0008f8f2
+  0x08F958 e_lwz   r0    base=r31   FUN_0008f8f2
+  0x08F95E e_stw   r0    base=r31   FUN_0008f8f2
+  0x08FACE e_lwz   r0    base=r31   FUN_0008faa2
+  0x08FAD4 e_stw   r0    base=r31   FUN_0008faa2
+  0x08FB18 e_lwz   r0    base=r31   FUN_0008faa2
+  0x08FB1E e_stw   r0    base=r31   FUN_0008faa2
+  0x08FB26 e_lwz   r0    base=r31   FUN_0008faa2
+  0x08FB2C e_stw   r0    base=r31   FUN_0008faa2
+  0x08FB42 e_lwz   r0    base=r31   FUN_0008faa2
+  0x08FB48 e_stw   r0    base=r31   FUN_0008faa2
+  0x08FB50 e_lwz   r0    base=r31   FUN_0008faa2
+  0x08FB56 e_stw   r0    base=r31   FUN_0008faa2
+  0x08FB5E e_lwz   r0    base=r31   FUN_0008faa2
+  0x08FB64 e_stw   r0    base=r31   FUN_0008faa2
+  0x08FB6C e_lwz   r0    base=r31   FUN_0008faa2
+  0x08FB72 e_stw   r0    base=r31   FUN_0008faa2
+  0x08FB7A e_lwz   r0    base=r31   FUN_0008faa2
+  0x08FB80 e_stw   r0    base=r31   FUN_0008faa2
+  0x08FB88 e_lwz   r0    base=r31   FUN_0008faa2
+  0x08FB8E e_stw   r0    base=r31   FUN_0008faa2
+  0x08FB96 e_lwz   r0    base=r31   FUN_0008faa2
+  0x08FB9C e_stw   r0    base=r31   FUN_0008faa2
+  0x08FBC0 e_lwz   r0    base=r31   FUN_0008faa2
+  0x08FBC6 e_stw   r0    base=r31   FUN_0008faa2
+  0x08FBF8 e_lwz   r0    base=r31   FUN_0008faa2
+  0x08FBFE e_stw   r0    base=r31   FUN_0008faa2
+  0x095430 e_lwz   r0    base=r31   FUN_00095418
+  0x095448 e_lwz   r0    base=r31   FUN_00095418
+  0x09548C e_lwz   r0    base=r31   FUN_00095418
+  0x09549C e_lwz   r0    base=r31   FUN_00095418
+  0x0954B0 e_lwz   r0    base=r31   FUN_00095418
+  0x095514 e_lwz   r6    base=r7    FUN_000954e8
+  0x095520 e_stw   r6    base=r7    FUN_000954e8
+  0x0AA16A e_lwz   r4    base=r23   FUN_000aa064
+  0x0AA2C2 e_stw   r4    base=r23   FUN_000aa064
+  0x0AACDE e_stw   r6    base=r7    FUN_000aac98
+  0x0AAD58 e_stw   r4    base=r27   FUN_000aac98
+  0x0AC4EE e_lwz   r7    base=r29   FUN_000ac488
+  0x0AC500 e_stw   r7    base=r29   FUN_000ac488
+  0x0AC516 e_lwz   r0    base=r31   FUN_000ac508
+  0x0AC51C e_stw   r0    base=r31   FUN_000ac508
+  0x0AC524 e_lwz   r0    base=r31   FUN_000ac508
+  0x0AC52A e_stw   r0    base=r31   FUN_000ac508
+  0x0AC842 e_lwz   r6    base=r31   FUN_000ac6b6
+  0x0AC87E e_stw   r6    base=r31   FUN_000ac85e
+  0x0AC8B0 e_lwz   r0    base=r31   FUN_000ac8a8
+  0x0AC8BC e_stw   r0    base=r31   FUN_000ac8a8
+  0x0ACBA6 e_lwz   r6    base=r7    FUN_000acb92
+  0x0ACBEC e_stw   r3    base=r7    FUN_000acb92
+  0x0ACBF8 e_lwz   r0    base=r7    FUN_000acb92
+  0x0ACBFE e_stw   r0    base=r7    FUN_000acb92
+  0x0ACC0E e_lwz   r0    base=r7    FUN_000acb92
+  0x0ACC16 e_stw   r0    base=r7    FUN_000acb92
+  0x0ACC26 e_lwz   r0    base=r7    FUN_000acb92
+  0x0ACC2C e_stw   r0    base=r7    FUN_000acb92
+  0x0ACC34 e_lwz   r6    base=r7    FUN_000acb92
+  0x0ACC44 e_stw   r6    base=r7    FUN_000acb92
+  0x0ACD9E e_lwz   r0    base=r4    FUN_000accd4
+  0x0ACDA4 e_stw   r0    base=r4    FUN_000accd4
+  0x0ACE18 e_lwz   r29   base=r4    FUN_000accd4
+  0x0ACE88 e_lwz   r5    base=r4    FUN_000accd4
+  0x0AD0A6 e_lwz   r0    base=r4    FUN_000accd4
+  0x0AD1F8 e_lwz   r0    base=r6    FUN_000ad1de
+  0x0AD24E e_lwz   r0    base=r6    FUN_000ad222
+  0x0AD2BA e_lwz   r0    base=r6    FUN_000ad298
+  0x0AD538 e_lwz   r0    base=r6    UNSWEPT
+  0x0AD55A e_lwz   r0    base=r6    UNSWEPT
+  0x0AD570 e_lwz   r0    base=r6    FUN_000ad4ec
+  0x0AD57C e_stw   r0    base=r6    FUN_000ad4ec
+  0x0AD6E4 e_lwz   r0    base=r31   FUN_000ad6c6
+  0x0AD718 e_lwz   r0    base=r31   UNSWEPT
+  0x0AD83E e_lwz   r0    base=r31   FUN_000ad7d4
+  0x0AD85E e_lwz   r0    base=r31   FUN_000ad7d4
+  0x0AD8DC e_lwz   r0    base=r31   FUN_000ad888
+  0x0AD8E6 e_lwz   r0    base=r31   FUN_000ad888
+  0x0AD8F0 e_stw   r0    base=r31   FUN_000ad888
+  0x0AD942 e_lwz   r0    base=r31   FUN_000ad924
+  0x0AD954 e_stw   r0    base=r31   FUN_000ad924
+  0x0AD996 e_lwz   r0    base=r31   FUN_000ad97c
+  0x0AD9A2 e_stw   r0    base=r31   FUN_000ad97c
+  0x0AD9CC e_lwz   r0    base=r31   FUN_000ad97c
+  0x0AD9D2 e_stw   r0    base=r31   FUN_000ad97c
+  0x0ADA34 e_lwz   r0    base=r31   FUN_000ad97c
+  0x0ADA3E e_stw   r0    base=r31   FUN_000ad97c
+  0x0ADA6E e_lwz   r0    base=r31   FUN_000ad97c
+  0x0ADA78 e_stw   r0    base=r31   FUN_000ad97c
+  0x0ADACE e_lwz   r6    base=r31   FUN_000ad97c
+  0x0ADAE6 e_lwz   r6    base=r31   FUN_000adada
+  0x0ADB06 e_lwz   r0    base=r31   FUN_000adada
+  0x0ADB16 e_lwz   r0    base=r31   FUN_000adada
+  0x0ADB62 e_lwz   r0    base=r31   UNSWEPT
+  0x0ADB68 e_stw   r0    base=r31   UNSWEPT
+  0x0ADBB2 e_lwz   r0    base=r31   FUN_000adb98
+  0x0ADBB8 e_stw   r0    base=r31   FUN_000adb98
+  0x0ADC1C e_lwz   r0    base=r31   FUN_000adb98
+  0x0ADC32 e_lwz   r0    base=r31   FUN_000adb98
+  0x0ADC3C e_stw   r0    base=r31   FUN_000adb98
+  0x0ADC58 e_lwz   r0    base=r31   FUN_000adb98
+  0x0ADC5E e_stw   r0    base=r31   FUN_000adb98
+  0x0ADC92 e_lwz   r0    base=r31   FUN_000adb98
+  0x0ADC98 e_stw   r0    base=r31   FUN_000adb98
+  0x0ADCF2 e_lwz   r0    base=r31   FUN_000adcd6
+  0x0ADEFE e_lwz   r6    base=r5    FUN_000ade12
+  0x0ADF0E e_lwz   r0    base=r5    FUN_000ade12
+  0x0ADF18 e_stw   r0    base=r5    FUN_000ade12
+  0x0AE1BA e_lwz   r6    base=r5    UNSWEPT
+  0x0AE1CA e_lwz   r0    base=r5    UNSWEPT
+  0x0AE1D4 e_stw   r0    base=r5    UNSWEPT
+  0x0AE574 e_lwz   r0    base=r5    UNSWEPT
+  0x0AE57E e_stw   r0    base=r5    UNSWEPT
+  0x0AE5A2 e_lwz   r6    base=r5    UNSWEPT
+  0x0AE5C2 e_lwz   r3    base=r5    UNSWEPT
+  0x0AE5E8 e_stw   r3    base=r5    FUN_000ae5e0
+  0x0AE636 e_lwz   r0    base=r5    FUN_000ae61e
+  0x0AE63C e_stw   r0    base=r5    FUN_000ae61e
+  0x0AE682 e_lwz   r0    base=r5    FUN_000ae676
+  0x0AE68C e_stw   r0    base=r5    FUN_000ae676
+  0x0AE6AE e_lwz   r0    base=r5    UNSWEPT
+  0x0AE6B4 e_stw   r0    base=r5    UNSWEPT
+  0x0AE6E8 e_lwz   r6    base=r5    UNSWEPT
+  0x0AE704 e_lwz   r0    base=r5    FUN_000ae6f8
+  0x0AE70E e_stw   r0    base=r5    FUN_000ae6f8
+  0x0AE756 e_lwz   r6    base=r5    FUN_000ae6f8
+  0x0AE782 e_lwz   r6    base=r5    FUN_000ae6f8
+  0x0AE7C8 e_lwz   r6    base=r5    FUN_000ae7c0
+  0x0AE7CE e_stw   r6    base=r5    FUN_000ae7c0
+  0x0AE7D4 e_lwz   r0    base=r5    UNSWEPT
+  0x0AE7DC e_lwz   r0    base=r5    UNSWEPT
+  0x0AE7EA e_stw   r0    base=r5    FUN_000ae7e4
+  0x0AE82E e_stw   r0    base=r7    FUN_000ae820
+  0x0AE93E e_lwz   r0    base=r30   FUN_000ae922
+  0x0AE948 e_stw   r0    base=r30   FUN_000ae922
+  0x0AE980 e_lwz   r0    base=r30   UNSWEPT
+  0x0AE98A e_stw   r0    base=r30   UNSWEPT
+  0x0AE9BC e_lwz   r0    base=r30   FUN_000ae958
+  0x0AE9DA e_lwz   r0    base=r30   FUN_000ae958
+  0x0AEA4E e_lwz   r0    base=r30   FUN_000aea22
+  0x0AEA58 e_stw   r0    base=r30   FUN_000aea22
+  0x0AEAA6 e_lwz   r0    base=r30   FUN_000aea22
+  0x0AEAF6 e_lwz   r0    base=r30   FUN_000aeaee
+  0x0AEAFC e_stw   r0    base=r30   FUN_000aeaee
+  0x0AEB20 e_lwz   r0    base=r30   UNSWEPT
+  0x0AEB48 e_lwz   r0    base=r30   UNSWEPT
+  0x0AEB72 e_stw   r4    base=r30   UNSWEPT
+  0x0AEBB6 e_lwz   r0    base=r30   FUN_000aeb8e
+  0x0AEBE2 e_lwz   r0    base=r30   FUN_000aebcc
+  0x0AEBF0 e_stw   r0    base=r30   FUN_000aebcc
+  0x0AEC2C e_lwz   r0    base=r30   FUN_000aebcc
+  0x0AEC62 e_lwz   r0    base=r30   FUN_000aebcc
+  0x0AECB0 e_stw   r0    base=r30   FUN_000aebcc
+  0x0AEDC4 e_lwz   r0    base=r30   UNSWEPT
+  0x0AEE52 e_lwz   r0    base=r30   FUN_000aee4a
+  0x0AEE58 e_stw   r0    base=r30   FUN_000aee4a
+  0x0AEE64 e_lwz   r0    base=r30   FUN_000aee5c
+  0x0AEE70 e_stw   r0    base=r30   FUN_000aee5c
+  0x0AEEB2 e_lwz   r0    base=r30   FUN_000aeeaa
+  0x0AEEBE e_stw   r0    base=r30   FUN_000aeeaa
+  0x0CDDFC e_lwz   r3    base=r7    FUN_000cddc6
+  0x111022 e_lwz   r0    base=r6    FUN_0011101a
+  0x111030 e_stw   r0    base=r6    FUN_0011101a
+  0x11103E e_lwz   r0    base=r6    FUN_0011101a
+  0x111044 e_stw   r0    base=r6    FUN_0011101a
+  0x111052 e_lwz   r0    base=r6    FUN_0011101a
+  0x111058 e_stw   r0    base=r6    FUN_0011101a
+  0x111062 e_lwz   r0    base=r6    FUN_0011101a
+  0x111068 e_stw   r0    base=r6    FUN_0011101a
+  0x111090 e_lwz   r0    base=r6    FUN_0011101a
+  0x111096 e_stw   r0    base=r6    FUN_0011101a
+  0x1110A0 e_lwz   r0    base=r6    FUN_0011101a
+  0x1110A6 e_stw   r0    base=r6    FUN_0011101a
+  0x1110BA e_lwz   r3    base=r6    FUN_0011101a
+  0x111434 e_stw   r0    base=r7    FUN_00111426
+  0x1115EE e_lwz   r0    base=r31   FUN_0011144e
+  0x1115F4 e_stw   r0    base=r31   FUN_0011144e
+  total 197
+
+function containing 0x0ADA3E: FUN_000ad97c @ 000ad97c body=[[000ad97c, 000ada03] [000ada12, 000adad9]]
+
+========== FUN_000acb92 @ 000acb92 ==========
+
+void FUN_000acb92(void)
+
+{
+  uint uVar1;
+  uint uVar2;
+  uint uVar3;
+  uint uVar4;
+  
+  uVar2 = DAT_40009678;
+  uVar4 = DAT_40009684;
+  uVar1 = DAT_4000967c;
+  uVar3 = DAT_40009680;
+  DAT_4000967c = uVar1 & 0x308007f;
+  DAT_40009684 = uVar4 & 0xc104e3ff;
+  uVar1 = DAT_40009674;
+  DAT_40009678 = uVar2 & 0xc03f843f;
+  DAT_40009674 = uVar1 & 0xffffffe3;
+  DAT_40009680 = uVar3 & 0xfffffb66;
+  if (((uVar2 & 0xc03f843f) >> 5 & 3) == 3) {
+    uVar1 = DAT_40009680;
+    DAT_40009680 = uVar1 & 0xefffffff;
+  }
+  uVar1 = DAT_40009678;
+  DAT_40009678 = uVar1 & 0xffffff81;
+  uVar1 = DAT_40009680;
+  DAT_40009680 = uVar1 & 0xffffff9f;
+  uVar1 = DAT_40009674;
+  if ((uVar1 >> 5 & 7) == 2) {
+    uVar1 = DAT_40009680;
+    DAT_40009680 = uVar1 & 0xdfffffff;
+  }
+  uVar1 = DAT_40009674;
+  uVar2 = DAT_40009680;
+  DAT_40009674 = uVar1 & 0xffffff1f;
+  DAT_40009680 = uVar2 & 0xffffc7ff;
+  uVar2 = DAT_40009678;
+  DAT_40009678 = uVar2 & 0xff003fff;
+  if ((uVar1 >> 8 & 0xf) == 6) {
+    uVar1 = DAT_4000967c;
+    DAT_4000967c = uVar1 | 0x20;
+  }
+  uVar1 = DAT_40009674;
+  uVar2 = DAT_40009684;
+  DAT_40009674 = uVar1 & 0xfffff0ff;
+  DAT_40009684 = uVar2 & 0xffffbfff;
+  if ((uVar1 >> 0xc & 0xf) == 6) {
+    uVar1 = DAT_4000967c;
+    DAT_4000967c = uVar1 | 0x20;
+  }
+  uVar1 = DAT_40009674;
+  DAT_40009674 = uVar1 & 0xffff0fff;
+  uVar1 = DAT_40009684;
+  DAT_40009684 = uVar1 & 0xffff5fff;
+  return;
+}
+
+
+
+========== FUN_000ad888 @ 000ad888 ==========
+
+void FUN_000ad888(undefined8 param_1,undefined8 param_2,ushort *param_3,undefined8 param_4,
+                 int param_5)
+
+{
+  byte bVar1;
+  uint uVar2;
+  uint uVar3;
+  char cVar4;
+  int iVar5;
+  uint in_r0;
+  uint uVar6;
+  undefined1 uVar7;
+  char cVar8;
+  uint *puVar9;
+  uint uVar10;
+  int unaff_r30;
+  int *unaff_r31;
+  
+  uVar10 = in_r0 >> 0x14 & 3;
+  if (uVar10 == 0) {
+LAB_000ada04:
+    unaff_r31[0x24] = unaff_r31[0x24] & 0xffcfffffU | 0x100000;
+  }
+  else if (uVar10 == 1) {
+    if ((*(char *)(param_5 + 0xf3) == '\x02') && (*(char *)(unaff_r30 + 0x23a) != '\b')) {
+      bVar1 = *(byte *)(unaff_r30 + 0x272);
+      *unaff_r31 = 0;
+      DAT_400095e0 = (char)((bVar1 & 0xc) >> 2) * '\x05' + '\x05';
+LAB_000ad938:
+      unaff_r31[0x1b] = 0;
+      unaff_r31[0x24] = unaff_r31[0x24] & 0xffcfffffU | 0x200000;
+      unaff_r31[0xd] = 0;
+      unaff_r31[0x25] = unaff_r31[0x25] & 0xffbdffff;
+    }
+  }
+  else if (uVar10 < 3) {
+    if ((*(char *)(unaff_r30 + 0x23a) == '\b') && (((uint)unaff_r31[0x25] >> 0x17 & 1) != 0)) {
+      bVar1 = *(byte *)(unaff_r30 + 0x272);
+      unaff_r31[0x25] = unaff_r31[0x25] | 0x20000;
+      unaff_r31[0x24] = unaff_r31[0x24] | 0x300000;
+      unaff_r31[2] = (((bVar1 & 0xc) >> 2) * 5 + 5) * 60000;
+      unaff_r31[0xd] = 0;
+      DAT_400095dc = *unaff_r31;
+LAB_000ad9b6:
+      uVar10 = unaff_r31[0xd];
+      uVar6 = *unaff_r31 + unaff_r31[2];
+      if (uVar10 < uVar6) {
+        uVar3 = unaff_r31[0xc];
+        uVar2 = unaff_r31[0x1b];
+        if (uVar2 <= uVar3) {
+          if ((uVar6 + uVar2) - uVar10 < uVar3) {
+            unaff_r31[0xd] = uVar10 + 10;
+            uVar6 = uVar6 - (uVar10 + 10);
+            DAT_400095dc = uVar6;
+            uVar7 = (undefined1)((ulonglong)uVar6 / 60000);
+          }
+          else {
+            DAT_400095dc = uVar3 - uVar2;
+            uVar7 = (undefined1)((ulonglong)(uVar3 - uVar2) / 60000);
+          }
+          DAT_400095e0 = uVar7;
+          goto LAB_000ada12;
+        }
+      }
+      unaff_r31[0x25] = unaff_r31[0x25] | 0x400000;
+    }
+  }
+  else {
+    if (uVar10 != 3) goto LAB_000ada04;
+    if ((*(char *)(unaff_r30 + 0x23a) != '\b') || (bVar1 = DAT_40003cb2, (bVar1 >> 6 & 1) != 0)) {
+      *unaff_r31 = 0;
+      DAT_400095dc = 0;
+      DAT_400095e0 = 0;
+      goto LAB_000ad938;
+    }
+    if ((((*param_3 >> 9 & 1) != 0) && (1 < *(byte *)(unaff_r31 + 0x20))) ||
+       ((*(char *)(unaff_r30 + 0x25a) != '\x01' &&
+        ((cVar8 = DAT_40003cc3, -1 < cVar8 && (bVar1 = DAT_40003ce5, (bVar1 >> 5 & 1) == 0)))))) {
+      unaff_r31[0x1b] = unaff_r31[0x1b] + 10;
+      goto LAB_000ad9b6;
+    }
+    iVar5 = DAT_400095dc;
+    *unaff_r31 = iVar5;
+    unaff_r31[0x24] = unaff_r31[0x24] & 0xffcfffffU | 0x200000;
+    unaff_r31[0x25] = unaff_r31[0x25] & 0xffbdffff;
+    unaff_r31[0xd] = 0;
+  }
+LAB_000ada12:
+  uVar10 = (uint)unaff_r31[0x24] >> 0x1a & 3;
+  if (uVar10 == 1) {
+    cVar8 = DAT_400095e1;
+    if (cVar8 == '\x01') {
+      unaff_r31[0x24] = unaff_r31[0x24] & 0xf3ffffffU | 0x8000000;
+      unaff_r31[0x25] = unaff_r31[0x25] | 0x8000000;
+LAB_000ada4e:
+      cVar8 = DAT_400095e1;
+      if (cVar8 == '\x01') {
+        cVar8 = '\0';
+      }
+      else {
+        cVar8 = *(char *)((int)unaff_r31 + 0x86) + '\n';
+      }
+      *(char *)((int)unaff_r31 + 0x86) = cVar8;
+    }
+  }
+  else {
+    if ((uVar10 == 2) && (*(byte *)((int)unaff_r31 + 0x86) < 200)) goto LAB_000ada4e;
+    unaff_r31[0x24] = unaff_r31[0x24] & 0xf3ffffffU | 0x4000000;
+    unaff_r31[0x25] = unaff_r31[0x25] & 0xf7ffffff;
+    unaff_r31[0x17] = 0;
+    *(undefined1 *)((int)unaff_r31 + 0x86) = 0;
+  }
+  uVar10 = (uint)unaff_r31[0x24] >> 0x16 & 3;
+  if (uVar10 == 0) {
+LAB_000adbc4:
+    unaff_r31[0x24] = unaff_r31[0x24] & 0xff3fffffU | 0x400000;
+    goto LAB_000adbd2;
+  }
+  if (uVar10 == 1) {
+    if (*(char *)(param_5 + 0xf3) != '\x02') goto LAB_000adbd2;
+    goto LAB_000adba4;
+  }
+  if (uVar10 < 3) {
+    cVar8 = DAT_40003cb0;
+    if (cVar8 < '\0') {
+      if ((((uint)unaff_r31[0x24] >> 5 & 1) == 0) &&
+         ((((*(char *)(param_5 + 0x16) == '\x01' && (((uint)unaff_r31[0x25] >> 0x1c & 3) == 3)) &&
+           (cVar4 = DAT_40003c42, cVar4 < '\0')) ||
+          (((((uint)unaff_r31[0x25] >> 0x1b & 7) == 7 &&
+            ((*(ushort *)(unaff_r30 + 0x82) & 0xf) == 8)) &&
+           ((*(ushort *)(unaff_r30 + 0x82) >> 4 & 1) != 0)))))) {
+        uVar10 = unaff_r31[0x17];
+        if ((uint)unaff_r31[8] < uVar10) {
+          unaff_r31[0x24] = unaff_r31[0x24] | 0xc00000;
+          unaff_r31[0x25] = unaff_r31[0x25] | 0x200000;
+        }
+        else {
+          unaff_r31[0x17] = uVar10 + 10;
+        }
+        goto LAB_000adbd2;
+      }
+      if (-1 < cVar8) goto LAB_000adb06;
+LAB_000adb0e:
+      if ((((*(char *)(param_5 + 0x16) != '\x01') || (((uint)unaff_r31[0x25] >> 0x19 & 1) == 0)) ||
+          (cVar8 = DAT_40003c42, cVar8 < '\0')) &&
+         ((((*(ushort *)(unaff_r30 + 0x82) & 0xf) != 0 ||
+           ((*(ushort *)((int)unaff_r31 + 0x76) & 0xf) != 8)) ||
+          ((cVar8 = DAT_400095e1, cVar8 != '\x01' || ((*(ushort *)(unaff_r30 + 0x82) >> 4 & 1) != 0)
+           ))))) goto LAB_000adbd2;
+    }
+    else {
+LAB_000adb06:
+      if (((uint)unaff_r31[0x25] >> 0x18 & 1) == 0) goto LAB_000adb0e;
+    }
+LAB_000adbb2:
+    unaff_r31[0x25] = unaff_r31[0x25] & 0xffdfffff;
+    unaff_r31[0x17] = 0;
+  }
+  else {
+    if (uVar10 != 3) goto LAB_000adbc4;
+    cVar8 = DAT_40003cb0;
+    if (-1 < cVar8) {
+LAB_000adba4:
+      unaff_r31[0x24] = unaff_r31[0x24] & 0xff3fffffU | 0x800000;
+      goto LAB_000adbb2;
+    }
+    if (*(char *)(param_5 + 0x16) == '\x01') {
+      cVar8 = DAT_40003c42;
+      if (-1 < cVar8) goto LAB_000adba4;
+    }
+    else if ((((*(ushort *)(unaff_r30 + 0x82) & 0xf) == 0) &&
+             (cVar8 = DAT_400095e1, cVar8 == '\x01')) &&
+            ((*(ushort *)(unaff_r30 + 0x82) >> 4 & 1) == 0)) goto LAB_000adba4;
+  }
+LAB_000adbd2:
+  uVar10 = (uint)unaff_r31[0x24] >> 0x1e;
+  if (uVar10 == 0) {
+LAB_000adcb2:
+    uVar10 = unaff_r31[0x24] & 0x3fffffffU | 0x40000000;
+LAB_000adcbc:
+    unaff_r31[0x24] = uVar10;
+  }
+  else if (uVar10 == 1) {
+    if ((*(char *)(param_5 + 0xf3) == '\x02') && ((*param_3 >> 8 & 1) != 0)) {
+      unaff_r31[0x24] = unaff_r31[0x24] & 0x3fffffffU | 0x80000000;
+LAB_000adc58:
+      unaff_r31[0x25] = unaff_r31[0x25] & 0xbfffffff;
+    }
+  }
+  else if (uVar10 < 3) {
+    if (((*(char *)(unaff_r30 + 0x2f3) == '\x02') && (cVar8 = DAT_40003cb0, cVar8 < '\0')) &&
+       (((unaff_r31[0x24] & 0x22U) == 0 && (((uint)unaff_r31[0x25] >> 0x1c & 3) == 3)))) {
+      unaff_r31[0x24] = unaff_r31[0x24] & 0xfffffffU | 0xd0000000;
+      unaff_r31[0x25] = unaff_r31[0x25] | 0x40000000;
+LAB_000adc7e:
+      unaff_r31[0x15] = 0;
+    }
+  }
+  else {
+    if (uVar10 != 3) goto LAB_000adcb2;
+    if (*(char *)(unaff_r30 + 0x2f3) != '\x02') {
+      unaff_r31[0x24] = unaff_r31[0x24] & 0xfffffffU | 0x80000000;
+      goto LAB_000adc58;
+    }
+    uVar10 = (uint)unaff_r31[0x24] >> 0x1c & 3;
+    if (uVar10 == 1) {
+      puVar9 = (uint *)(unaff_r31 + 0x15);
+      if ((uint)unaff_r31[7] < *puVar9) {
+        unaff_r31[0x25] = unaff_r31[0x25] & 0xbfffffff;
+        *puVar9 = 0;
+        uVar10 = unaff_r31[0x24] & 0xcfffffffU | 0x20000000;
+        goto LAB_000adcbc;
+      }
+      *puVar9 = *puVar9 + 10;
+    }
+    else if (uVar10 != 2) {
+      unaff_r31[0x24] = unaff_r31[0x24] & 0xcfffffffU | 0x10000000;
+      goto LAB_000adc7e;
+    }
+  }
+  uVar10 = (uint)unaff_r31[0x23] >> 0xd & 3;
+  if (uVar10 == 0) {
+LAB_000addb0:
+    unaff_r31[0x23] = unaff_r31[0x23] | 0x6000;
+    goto LAB_000addbc;
+  }
+  if (uVar10 == 1) {
+    cVar8 = DAT_40001aab;
+    if ((((cVar8 != '\x02') || (cVar8 = DAT_40003cb0, -1 < cVar8)) ||
+        ((unaff_r31[0x24] & 0x22U) != 0)) || (((uint)unaff_r31[0x25] >> 0x1c & 3) != 3))
+    goto LAB_000addbc;
+    unaff_r31[0x23] = unaff_r31[0x23] & 0xffff87ffU | 0x4800;
+    unaff_r31[0x24] = unaff_r31[0x24] | 1;
+LAB_000add4e:
+    unaff_r31[0x15] = 0;
+  }
+  else {
+    if (uVar10 < 3) {
+      cVar8 = DAT_40001aab;
+      if (cVar8 == '\x02') {
+        uVar10 = (uint)unaff_r31[0x23] >> 0xb & 3;
+        if (uVar10 == 1) {
+          puVar9 = (uint *)(unaff_r31 + 0x15);
+          if ((uint)unaff_r31[7] < *puVar9) {
+            unaff_r31[0x24] = unaff_r31[0x24] & 0xfffffffe;
+            *puVar9 = 0;
+            unaff_r31[0x23] = unaff_r31[0x23] & 0xffffe7ffU | 0x1000;
+          }
+          else {
+            *puVar9 = *puVar9 + 10;
+          }
+          goto LAB_000addbc;
+        }
+        if (uVar10 == 2) goto LAB_000addbc;
+        unaff_r31[0x23] = unaff_r31[0x23] & 0xffffe7ffU | 0x800;
+        goto LAB_000add4e;
+      }
+      unaff_r31[0x23] = unaff_r31[0x23] & 0xffff87ffU | 0x2000;
+    }
+    else {
+      if (uVar10 != 3) goto LAB_000addb0;
+      if ((*(char *)(param_5 + 0xf3) != '\x02') || (*(char *)(param_5 + 0x33) != '\x05'))
+      goto LAB_000addbc;
+      unaff_r31[0x23] = unaff_r31[0x23] & 0xffff9fffU | 0x2000;
+    }
+    unaff_r31[0x24] = unaff_r31[0x24] & 0xfffffffe;
+  }
+LAB_000addbc:
+  if (((*param_3 >> 9 & 1) != 0) && (2 < *(byte *)(unaff_r30 + 0x23a) - 5)) {
+    uVar10 = unaff_r31[0x11];
+    if (uVar10 <= (uint)unaff_r31[6]) {
+      if (*(char *)(unaff_r31 + 0x20) == '\0') {
+        return;
+      }
+      unaff_r31[0x11] = uVar10 + 10;
+      return;
+    }
+  }
+  *(undefined1 *)(unaff_r31 + 0x20) = 0;
+  unaff_r31[0x11] = 0;
+  return;
+}
+
+
+
+========== FUN_000ad97c @ 000ad97c ==========
+
+void FUN_000ad97c(uint *param_1,undefined8 param_2,ushort *param_3,undefined8 param_4,int param_5)
+
+{
+  uint uVar1;
+  uint uVar2;
+  char cVar3;
+  byte bVar4;
+  uint uVar5;
+  undefined1 uVar6;
+  char cVar7;
+  uint *puVar8;
+  uint uVar9;
+  int unaff_r30;
+  uint *unaff_r31;
+  
+  bVar4 = DAT_40003ce5;
+  if ((bVar4 >> 5 & 1) == 0) {
+    unaff_r31[0x1b] = unaff_r31[0x1b] + 10;
+    uVar9 = unaff_r31[0xd];
+    uVar5 = *unaff_r31 + unaff_r31[2];
+    if (uVar9 < uVar5) {
+      uVar2 = unaff_r31[0xc];
+      uVar1 = unaff_r31[0x1b];
+      if (uVar1 <= uVar2) {
+        if ((uVar5 + uVar1) - uVar9 < uVar2) {
+          unaff_r31[0xd] = uVar9 + 10;
+          uVar5 = uVar5 - (uVar9 + 10);
+          *param_1 = uVar5;
+          uVar6 = (undefined1)((ulonglong)uVar5 / 60000);
+        }
+        else {
+          *param_1 = uVar2 - uVar1;
+          uVar6 = (undefined1)((ulonglong)(uVar2 - uVar1) / 60000);
+        }
+        *(undefined1 *)(param_1 + 1) = uVar6;
+        goto LAB_000ada12;
+      }
+    }
+    unaff_r31[0x25] = unaff_r31[0x25] | 0x400000;
+  }
+  else {
+    *unaff_r31 = *param_1;
+    unaff_r31[0x24] = unaff_r31[0x24] & 0xffcfffff | 0x200000;
+    unaff_r31[0x25] = unaff_r31[0x25] & 0xffbdffff;
+    unaff_r31[0xd] = 0;
+  }
+LAB_000ada12:
+  uVar9 = unaff_r31[0x24] >> 0x1a & 3;
+  if (uVar9 == 1) {
+    if (*(char *)((int)param_1 + 5) == '\x01') {
+      unaff_r31[0x24] = unaff_r31[0x24] & 0xf3ffffff | 0x8000000;
+      unaff_r31[0x25] = unaff_r31[0x25] | 0x8000000;
+LAB_000ada4e:
+      if (*(char *)((int)param_1 + 5) == '\x01') {
+        cVar7 = '\0';
+      }
+      else {
+        cVar7 = *(char *)((int)unaff_r31 + 0x86) + '\n';
+      }
+      *(char *)((int)unaff_r31 + 0x86) = cVar7;
+    }
+  }
+  else {
+    if ((uVar9 == 2) && (*(byte *)((int)unaff_r31 + 0x86) < 200)) goto LAB_000ada4e;
+    unaff_r31[0x24] = unaff_r31[0x24] & 0xf3ffffff | 0x4000000;
+    unaff_r31[0x25] = unaff_r31[0x25] & 0xf7ffffff;
+    unaff_r31[0x17] = 0;
+    *(undefined1 *)((int)unaff_r31 + 0x86) = 0;
+  }
+  uVar9 = unaff_r31[0x24] >> 0x16 & 3;
+  if (uVar9 == 0) {
+LAB_000adbc4:
+    unaff_r31[0x24] = unaff_r31[0x24] & 0xff3fffff | 0x400000;
+    goto LAB_000adbd2;
+  }
+  if (uVar9 == 1) {
+    if (*(char *)(param_5 + 0xf3) != '\x02') goto LAB_000adbd2;
+    goto LAB_000adba4;
+  }
+  if (uVar9 < 3) {
+    cVar7 = DAT_40003cb0;
+    if (cVar7 < '\0') {
+      if (((unaff_r31[0x24] >> 5 & 1) == 0) &&
+         ((((*(char *)(param_5 + 0x16) == '\x01' && ((unaff_r31[0x25] >> 0x1c & 3) == 3)) &&
+           (cVar3 = DAT_40003c42, cVar3 < '\0')) ||
+          ((((unaff_r31[0x25] >> 0x1b & 7) == 7 && ((*(ushort *)(unaff_r30 + 0x82) & 0xf) == 8)) &&
+           ((*(ushort *)(unaff_r30 + 0x82) >> 4 & 1) != 0)))))) {
+        uVar9 = unaff_r31[0x17];
+        if (unaff_r31[8] < uVar9) {
+          unaff_r31[0x24] = unaff_r31[0x24] | 0xc00000;
+          unaff_r31[0x25] = unaff_r31[0x25] | 0x200000;
+        }
+        else {
+          unaff_r31[0x17] = uVar9 + 10;
+        }
+        goto LAB_000adbd2;
+      }
+      if (-1 < cVar7) goto LAB_000adb06;
+LAB_000adb0e:
+      if ((((*(char *)(param_5 + 0x16) != '\x01') || ((unaff_r31[0x25] >> 0x19 & 1) == 0)) ||
+          (cVar7 = DAT_40003c42, cVar7 < '\0')) &&
+         ((((*(ushort *)(unaff_r30 + 0x82) & 0xf) != 0 ||
+           ((*(ushort *)((int)unaff_r31 + 0x76) & 0xf) != 8)) ||
+          ((*(char *)((int)param_1 + 5) != '\x01' || ((*(ushort *)(unaff_r30 + 0x82) >> 4 & 1) != 0)
+           ))))) goto LAB_000adbd2;
+    }
+    else {
+LAB_000adb06:
+      if ((unaff_r31[0x25] >> 0x18 & 1) == 0) goto LAB_000adb0e;
+    }
+LAB_000adbb2:
+    unaff_r31[0x25] = unaff_r31[0x25] & 0xffdfffff;
+    unaff_r31[0x17] = 0;
+  }
+  else {
+    if (uVar9 != 3) goto LAB_000adbc4;
+    cVar7 = DAT_40003cb0;
+    if (-1 < cVar7) {
+LAB_000adba4:
+      unaff_r31[0x24] = unaff_r31[0x24] & 0xff3fffff | 0x800000;
+      goto LAB_000adbb2;
+    }
+    if (*(char *)(param_5 + 0x16) == '\x01') {
+      cVar7 = DAT_40003c42;
+      if (-1 < cVar7) goto LAB_000adba4;
+    }
+    else if ((((*(ushort *)(unaff_r30 + 0x82) & 0xf) == 0) &&
+             (*(char *)((int)param_1 + 5) == '\x01')) &&
+            ((*(ushort *)(unaff_r30 + 0x82) >> 4 & 1) == 0)) goto LAB_000adba4;
+  }
+LAB_000adbd2:
+  uVar9 = unaff_r31[0x24] >> 0x1e;
+  if (uVar9 == 0) {
+LAB_000adcb2:
+    uVar9 = unaff_r31[0x24] & 0x3fffffff | 0x40000000;
+LAB_000adcbc:
+    unaff_r31[0x24] = uVar9;
+  }
+  else if (uVar9 == 1) {
+    if ((*(char *)(param_5 + 0xf3) == '\x02') && ((*param_3 >> 8 & 1) != 0)) {
+      unaff_r31[0x24] = unaff_r31[0x24] & 0x3fffffff | 0x80000000;
+LAB_000adc58:
+      unaff_r31[0x25] = unaff_r31[0x25] & 0xbfffffff;
+    }
+  }
+  else if (uVar9 < 3) {
+    if (((*(char *)(unaff_r30 + 0x2f3) == '\x02') && (cVar7 = DAT_40003cb0, cVar7 < '\0')) &&
+       (((unaff_r31[0x24] & 0x22) == 0 && ((unaff_r31[0x25] >> 0x1c & 3) == 3)))) {
+      unaff_r31[0x24] = unaff_r31[0x24] & 0xfffffff | 0xd0000000;
+      unaff_r31[0x25] = unaff_r31[0x25] | 0x40000000;
+LAB_000adc7e:
+      unaff_r31[0x15] = 0;
+    }
+  }
+  else {
+    if (uVar9 != 3) goto LAB_000adcb2;
+    if (*(char *)(unaff_r30 + 0x2f3) != '\x02') {
+      unaff_r31[0x24] = unaff_r31[0x24] & 0xfffffff | 0x80000000;
+      goto LAB_000adc58;
+    }
+    uVar9 = unaff_r31[0x24] >> 0x1c & 3;
+    if (uVar9 == 1) {
+      puVar8 = unaff_r31 + 0x15;
+      if (unaff_r31[7] < *puVar8) {
+        unaff_r31[0x25] = unaff_r31[0x25] & 0xbfffffff;
+        *puVar8 = 0;
+        uVar9 = unaff_r31[0x24] & 0xcfffffff | 0x20000000;
+        goto LAB_000adcbc;
+      }
+      *puVar8 = *puVar8 + 10;
+    }
+    else if (uVar9 != 2) {
+      unaff_r31[0x24] = unaff_r31[0x24] & 0xcfffffff | 0x10000000;
+      goto LAB_000adc7e;
+    }
+  }
+  uVar9 = unaff_r31[0x23] >> 0xd & 3;
+  if (uVar9 == 0) {
+LAB_000addb0:
+    unaff_r31[0x23] = unaff_r31[0x23] | 0x6000;
+    goto LAB_000addbc;
+  }
+  if (uVar9 == 1) {
+    cVar7 = DAT_40001aab;
+    if ((((cVar7 != '\x02') || (cVar7 = DAT_40003cb0, -1 < cVar7)) ||
+        ((unaff_r31[0x24] & 0x22) != 0)) || ((unaff_r31[0x25] >> 0x1c & 3) != 3)) goto LAB_000addbc;
+    unaff_r31[0x23] = unaff_r31[0x23] & 0xffff87ff | 0x4800;
+    unaff_r31[0x24] = unaff_r31[0x24] | 1;
+LAB_000add4e:
+    unaff_r31[0x15] = 0;
+  }
+  else {
+    if (uVar9 < 3) {
+      cVar7 = DAT_40001aab;
+      if (cVar7 == '\x02') {
+        uVar9 = unaff_r31[0x23] >> 0xb & 3;
+        if (uVar9 == 1) {
+          puVar8 = unaff_r31 + 0x15;
+          if (unaff_r31[7] < *puVar8) {
+            unaff_r31[0x24] = unaff_r31[0x24] & 0xfffffffe;
+            *puVar8 = 0;
+            unaff_r31[0x23] = unaff_r31[0x23] & 0xffffe7ff | 0x1000;
+          }
+          else {
+            *puVar8 = *puVar8 + 10;
+          }
+          goto LAB_000addbc;
+        }
+        if (uVar9 == 2) goto LAB_000addbc;
+        unaff_r31[0x23] = unaff_r31[0x23] & 0xffffe7ff | 0x800;
+        goto LAB_000add4e;
+      }
+      unaff_r31[0x23] = unaff_r31[0x23] & 0xffff87ff | 0x2000;
+    }
+    else {
+      if (uVar9 != 3) goto LAB_000addb0;
+      if ((*(char *)(param_5 + 0xf3) != '\x02') || (*(char *)(param_5 + 0x33) != '\x05'))
+      goto LAB_000addbc;
+      unaff_r31[0x23] = unaff_r31[0x23] & 0xffff9fff | 0x2000;
+    }
+    unaff_r31[0x24] = unaff_r31[0x24] & 0xfffffffe;
+  }
+LAB_000addbc:
+  if (((*param_3 >> 9 & 1) != 0) && (2 < *(byte *)(unaff_r30 + 0x23a) - 5)) {
+    uVar9 = unaff_r31[0x11];
+    if (uVar9 <= unaff_r31[6]) {
+      if (*(char *)(unaff_r31 + 0x20) == '\0') {
+        return;
+      }
+      unaff_r31[0x11] = uVar9 + 10;
+      return;
+    }
+  }
+  *(undefined1 *)(unaff_r31 + 0x20) = 0;
+  unaff_r31[0x11] = 0;
+  return;
+}
+
+
+
+========== FUN_000ac8a8 @ 000ac8a8 ==========
+
+void FUN_000ac8a8(void)
+
+{
+  byte bVar1;
+  int unaff_r31;
+  
+  bVar1 = DAT_40003c42;
+  *(uint *)(unaff_r31 + 0x94) =
+       (uint)(bVar1 >> 7) << 0x19 | *(uint *)(unaff_r31 + 0x94) & 0xfdffffff;
+  return;
+}
+
+
+
+========== FUN_000ae820 @ 000ae820 ==========
+
+void FUN_000ae820(void)
+
+{
+  uint uVar1;
+  
+  uVar1 = DAT_40009678;
+  DAT_40009680 = 0;
+  DAT_4000966c = 0;
+  DAT_40009678 = uVar1 & 1;
+  uVar1 = DAT_40009684;
+  DAT_4000966b = 0;
+  DAT_40009628 = 0;
+  DAT_40009604 = 0;
+  DAT_400095fc = 0;
+  DAT_4000960c = 0;
+  DAT_40009684 = uVar1 & 0x7f;
+  uVar1 = DAT_40009674;
+  DAT_4000967c = 0;
+  DAT_4000966d = 0x75;
+  DAT_40009674 = uVar1 & 0xfffe0001;
+  DAT_40009648 = 0;
+  DAT_40009634 = 0;
+  DAT_40009662 = 0;
+  DAT_40009638 = 0;
+  DAT_4000963c = 0;
+  DAT_40009608 = 0;
+  DAT_40009640 = 0;
+  DAT_400095f4 = 0;
+  DAT_40009620 = 0;
+  DAT_40009630 = 0;
+  DAT_40009600 = 0;
+  DAT_4000962c = 0;
+  DAT_400095ec = 0;
+  DAT_40009614 = 0;
+  DAT_40009610 = 0;
+  DAT_40009624 = 0;
+  DAT_400095f8 = 2000;
+  DAT_4000966e = 1;
+  DAT_4000966a = 0;
+  DAT_40009669 = 0;
+  DAT_40009668 = 0;
+  DAT_40009644 = 0;
+  DAT_40009658 = 0;
+  DAT_40009664 = 0;
+  DAT_40009666 = 0;
+  DAT_40009650 = 0;
+  DAT_40009674._0_1_ = 0;
+  DAT_40009671 = 0;
+  DAT_40009673 = 0;
+  DAT_4000966f = 2;
+  DAT_40009674._1_1_ = 0;
+  DAT_40009672 = 0;
+  DAT_40009670 = 4;
+  DAT_40009618 = 0;
+  DAT_4000964c = 0;
+  DAT_4000961c = 0;
+  DAT_400095f0 = 0;
+  DAT_40009654 = 0;
+  DAT_40009660 = 0x3c;
+  DAT_4000965c = 0;
+  DAT_400095dc = 0;
+  DAT_400095e0 = 0;
+  return;
+}
+
+

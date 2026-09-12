@@ -100,6 +100,21 @@ Plus `0x4125`/`0x412D` (the `0x1E0` images) cycling `42`↔`00` and `80`↔`00`.
 
 ### 4.1 `req_word_74` is NOT inert — correcting layer 36
 
+> ## ⚠⚠ THE BIT IDENTIFICATION BELOW IS WRONG — see `docs/bench_session_3.md` §3
+>
+> `0x06` in b2 is **LSB bits 9|10**, not "word bits 17 and 18". Those are Path A's **edge
+> detector** bits (`APP_lock_req_edge_detect_A/B` contain the literal constants `| 0x400`,
+> `& 0xFFFFFDFF`, `& 0xFFFFFBFF`), *not* the RKE handoff field, whose writer sites decode to LSB
+> bits 14..18 and **do not intersect** `0x600`.
+>
+> Consequences, both retracted: this section does **not** refute layer 36's bit-level negative, and
+> the revival of the `0x8B3D6` "bit 17" lead in the last paragraph is **withdrawn**. The cause was
+> two documents in this repo numbering bits of the same word in two different conventions
+> (LSB from the decompiler, MSB from an `mb`/`me` decode) and this section silently picking one.
+>
+> What survives: **the cell is not inert at runtime.** That much is correct, and session 3 §4
+> strengthens it — the press-driven mechanism here is Path A, and Path A *is* RKE-driven.
+
 Layer 36 (`docs/rke_lock_join.md`) identified `APP_req_word_74` bits 15..20 as the relocated RKE
 handoff, then found the bit-level join to the lock chain **empty** — recorded as a clean controlled
 negative.

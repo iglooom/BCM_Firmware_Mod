@@ -1,0 +1,336 @@
+WARNING: Final field name in class ghidra.util.charset.CharsetInfo has been mutated reflectively by class com.google.gson.internal.bind.ReflectiveTypeAdapterFactory$2 in unnamed module @28b46423 (file:/opt/ghidra/Ghidra/Framework/Generic/lib/gson-2.13.2.jar)
+WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
+WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
+SCAN SCOPE: whole program, all memory blocks (CFLASH 0..0x17FFFF, SRAM 0x40000000..0x40017FFF, etc.)
+
+=== 0x400095E1  SUBJECT  arrival byte : 12 refs ===
+    000ae03c READ     se_lbz r0,0x5(r6)                  in FUN_000ade12
+    000ae018 READ     se_lbz r31,0x5(r6)                 in FUN_000ade12
+    000adff6 READ     se_lbz r30,0x5(r6)                 in FUN_000ade12
+    000adf9e READ     se_lbz r31,0x5(r6)                 in FUN_000ade12
+    000adf68 READ     se_lbz r0,0x5(r6)                  in FUN_000ade12
+    000adeb2 READ     se_lbz r30,0x5(r6)                 in FUN_000ade12
+    000ade62 READ     se_lbz r31,0x5(r6)                 in FUN_000ade12
+    000ada24 READ     se_lbz r0,0x5(r3)                  in FUN_000ad97c
+    000aef14 WRITE    se_stb r0,0x5(r25)                 in FUN_000aeec6
+    000adb3e READ     se_lbz r0,0x5(r3)                  in FUN_000adb1e
+    000adb8c READ     se_lbz r0,0x5(r3)                  in <unswept>
+    000ada4e READ     se_lbz r0,0x5(r3)                  in FUN_000ad97c
+
+=== 0x400095E2  CONTROL  sibling byte : 6 refs ===
+    000ae04c READ     se_lbz r0,0x6(r6)                  in FUN_000ade12
+    000ae006 READ     se_lbz r30,0x6(r6)                 in FUN_000ade12
+    000adfe0 READ     se_lbz r0,0x6(r6)                  in FUN_000ade12
+    000adf78 READ     se_lbz r0,0x6(r6)                  in FUN_000ade12
+    000adec6 READ     se_lbz r30,0x6(r6)                 in FUN_000ade12
+    000aef20 WRITE    se_stb r0,0x6(r25)                 in FUN_000aeec6
+
+=== 0x4000968B  SUBJECT  staging byte : 2 refs ===
+    000aeee6 WRITE    se_stb r3,0x3(r30)                 in FUN_000aeec6
+    000aef0a READ     se_lbz r0,0x3(r30)                 in FUN_000aeec6
+
+=== 0x4000968C  CONTROL  staging sibling : 2 refs ===
+    000aeef2 WRITE    se_stb r3,0x4(r30)                 in FUN_000aeec6
+    000aef16 READ     se_lbz r0,0x4(r30)                 in FUN_000aeec6
+
+===== DISASM 0x0ADA00..0x0ADA90 (bit-27 setter + guard) =====
+  000ada00  se_stb r0,0x4(r3)                        ->400095e0(WRITE)
+  000ada02  se_b 0x000ada12                          ->000ada12(UNCONDITIONAL_JUMP)
+  000ada04  e_lwz r6,0x90(r31)                       ->4000967c(READ)
+  000ada08  se_li r0,0x1                             
+  000ada0a  e_rlwimi r6,r0,0x14,0xa,0xb              
+  000ada0e  e_stw r6,0x90(r31)                       ->4000967c(WRITE)
+  000ada12  e_lwz r0,0x90(r31)                       ->4000967c(READ)
+  000ada16  e_rlwinm r0,r0,0x6,0x1e,0x1f             
+  000ada1a  se_cmpli r0,0x1                          
+  000ada1c  se_beq cr0,0x000ada24                    ->000ada24(CONDITIONAL_JUMP)
+  000ada1e  se_cmpli r0,0x2                          
+  000ada20  se_beq cr0,0x000ada44                    ->000ada44(CONDITIONAL_JUMP)
+  000ada22  se_b 0x000ada64                          ->000ada64(UNCONDITIONAL_JUMP)
+  000ada24  se_lbz r0,0x5(r3)                        ->400095e1(READ)
+  000ada26  se_cmpi r0,0x1                           
+  000ada28  se_bne cr0,0x000ada86                    ->000ada86(CONDITIONAL_JUMP)
+  000ada2a  e_lwz r6,0x90(r31)                       ->4000967c(READ)
+  000ada2e  se_li r0,0x2                             
+  000ada30  e_rlwimi r6,r0,0x1a,0x4,0x5              
+  000ada34  e_lwz r0,0x94(r31)                       ->40009680(READ)
+  000ada38  e_stw r6,0x90(r31)                       ->4000967c(WRITE)
+  000ada3c  se_bseti r0,0x4                          
+  000ada3e  e_stw r0,0x94(r31)                       ->40009680(WRITE)
+  000ada42  se_b 0x000ada4e                          ->000ada4e(UNCONDITIONAL_JUMP)
+  000ada44  e_lbz r0,0x86(r31)                       ->40009672(READ)
+  000ada48  e_cmpli cr0,r0,0xc8                      
+  000ada4c  se_bge cr0,0x000ada64                    ->000ada64(CONDITIONAL_JUMP)
+  000ada4e  se_lbz r0,0x5(r3)                        ->400095e1(READ)
+  000ada50  se_cmpi r0,0x1                           
+  000ada52  se_bne cr0,0x000ada58                    ->000ada58(CONDITIONAL_JUMP)
+  000ada54  se_li r0,0x0                             
+  000ada56  se_b 0x000ada5e                          ->000ada5e(UNCONDITIONAL_JUMP)
+  000ada58  e_lbz r0,0x86(r31)                       ->40009672(READ)
+  000ada5c  se_addi r0,0xa                           
+  000ada5e  e_stb r0,0x86(r31)                       ->40009672(WRITE)
+  000ada62  se_b 0x000ada86                          ->000ada86(UNCONDITIONAL_JUMP)
+  000ada64  e_lwz r6,0x90(r31)                       ->4000967c(READ)
+  000ada68  se_li r0,0x1                             
+  000ada6a  e_rlwimi r6,r0,0x1a,0x4,0x5              
+  000ada6e  e_lwz r0,0x94(r31)                       ->40009680(READ)
+  000ada72  e_stw r6,0x90(r31)                       ->4000967c(WRITE)
+  000ada76  se_bclri r0,0x4                          
+  000ada78  e_stw r0,0x94(r31)                       ->40009680(WRITE)
+  000ada7c  se_li r0,0x0                             
+  000ada7e  e_stw r0,0x5c(r31)                       ->40009648(WRITE)
+  000ada82  e_stb r0,0x86(r31)                       ->40009672(WRITE)
+  000ada86  e_lwz r0,0x90(r31)                       ->4000967c(READ)
+  000ada8a  e_lis r4,0x4000                          
+  000ada8e  e_add16i r4,r4,0x3cb0                    
+
+===== DISASM 0x058560..0x058574 (the SET) with raw bytes =====
+  00058560  1c632fd4     e_add16i r3,r3,0x2fd4                   
+  00058564  780a35d5     e_bl 0x000fbb38                         
+  00058568  2c80         se_bmaski r0,0x8                        
+  0005856a  341e0051     e_stb r0,0x51(r30)                      
+  0005856e  5c7f0082     e_sth r3,0x82(r31)                      
+  00058572  e821         se_b 0x000585b4                         
+  00058574  7060e014     e_lis r3,0x14                           
+
+===== decompile 0x0AD97C =====
+
+void FUN_000ad97c(uint *param_1,undefined8 param_2,ushort *param_3,undefined8 param_4,int param_5)
+
+{
+  uint uVar1;
+  uint uVar2;
+  char cVar3;
+  byte bVar4;
+  uint uVar5;
+  undefined1 uVar6;
+  char cVar7;
+  uint *puVar8;
+  uint uVar9;
+  int unaff_r30;
+  uint *unaff_r31;
+  
+  bVar4 = DAT_40003ce5;
+  if ((bVar4 >> 5 & 1) == 0) {
+    unaff_r31[0x1b] = unaff_r31[0x1b] + 10;
+    uVar9 = unaff_r31[0xd];
+    uVar5 = *unaff_r31 + unaff_r31[2];
+    if (uVar9 < uVar5) {
+      uVar2 = unaff_r31[0xc];
+      uVar1 = unaff_r31[0x1b];
+      if (uVar1 <= uVar2) {
+        if ((uVar5 + uVar1) - uVar9 < uVar2) {
+          unaff_r31[0xd] = uVar9 + 10;
+          uVar5 = uVar5 - (uVar9 + 10);
+          *param_1 = uVar5;
+          uVar6 = (undefined1)((ulonglong)uVar5 / 60000);
+        }
+        else {
+          *param_1 = uVar2 - uVar1;
+          uVar6 = (undefined1)((ulonglong)(uVar2 - uVar1) / 60000);
+        }
+        *(undefined1 *)(param_1 + 1) = uVar6;
+        goto LAB_000ada12;
+      }
+    }
+    unaff_r31[0x25] = unaff_r31[0x25] | 0x400000;
+  }
+  else {
+    *unaff_r31 = *param_1;
+    unaff_r31[0x24] = unaff_r31[0x24] & 0xffcfffff | 0x200000;
+    unaff_r31[0x25] = unaff_r31[0x25] & 0xffbdffff;
+    unaff_r31[0xd] = 0;
+  }
+LAB_000ada12:
+  uVar9 = unaff_r31[0x24] >> 0x1a & 3;
+  if (uVar9 == 1) {
+    if (*(char *)((int)param_1 + 5) == '\x01') {
+      unaff_r31[0x24] = unaff_r31[0x24] & 0xf3ffffff | 0x8000000;
+      unaff_r31[0x25] = unaff_r31[0x25] | 0x8000000;
+LAB_000ada4e:
+      if (*(char *)((int)param_1 + 5) == '\x01') {
+        cVar7 = '\0';
+      }
+      else {
+        cVar7 = *(char *)((int)unaff_r31 + 0x86) + '\n';
+      }
+      *(char *)((int)unaff_r31 + 0x86) = cVar7;
+    }
+  }
+  else {
+    if ((uVar9 == 2) && (*(byte *)((int)unaff_r31 + 0x86) < 200)) goto LAB_000ada4e;
+    unaff_r31[0x24] = unaff_r31[0x24] & 0xf3ffffff | 0x4000000;
+    unaff_r31[0x25] = unaff_r31[0x25] & 0xf7ffffff;
+    unaff_r31[0x17] = 0;
+    *(undefined1 *)((int)unaff_r31 + 0x86) = 0;
+  }
+  uVar9 = unaff_r31[0x24] >> 0x16 & 3;
+  if (uVar9 == 0) {
+LAB_000adbc4:
+    unaff_r31[0x24] = unaff_r31[0x24] & 0xff3fffff | 0x400000;
+    goto LAB_000adbd2;
+  }
+  if (uVar9 == 1) {
+    if (*(char *)(param_5 + 0xf3) != '\x02') goto LAB_000adbd2;
+    goto LAB_000adba4;
+  }
+  if (uVar9 < 3) {
+    cVar7 = DAT_40003cb0;
+    if (cVar7 < '\0') {
+      if (((unaff_r31[0x24] >> 5 & 1) == 0) &&
+         ((((*(char *)(param_5 + 0x16) == '\x01' && ((unaff_r31[0x25] >> 0x1c & 3) == 3)) &&
+           (cVar3 = DAT_40003c42, cVar3 < '\0')) ||
+          ((((unaff_r31[0x25] >> 0x1b & 7) == 7 && ((*(ushort *)(unaff_r30 + 0x82) & 0xf) == 8)) &&
+           ((*(ushort *)(unaff_r30 + 0x82) >> 4 & 1) != 0)))))) {
+        uVar9 = unaff_r31[0x17];
+        if (unaff_r31[8] < uVar9) {
+          unaff_r31[0x24] = unaff_r31[0x24] | 0xc00000;
+          unaff_r31[0x25] = unaff_r31[0x25] | 0x200000;
+        }
+        else {
+          unaff_r31[0x17] = uVar9 + 10;
+        }
+        goto LAB_000adbd2;
+      }
+      if (-1 < cVar7) goto LAB_000adb06;
+LAB_000adb0e:
+      if ((((*(char *)(param_5 + 0x16) != '\x01') || ((unaff_r31[0x25] >> 0x19 & 1) == 0)) ||
+          (cVar7 = DAT_40003c42, cVar7 < '\0')) &&
+         ((((*(ushort *)(unaff_r30 + 0x82) & 0xf) != 0 ||
+           ((*(ushort *)((int)unaff_r31 + 0x76) & 0xf) != 8)) ||
+          ((*(char *)((int)param_1 + 5) != '\x01' || ((*(ushort *)(unaff_r30 + 0x82) >> 4 & 1) != 0)
+           ))))) goto LAB_000adbd2;
+    }
+    else {
+LAB_000adb06:
+      if ((unaff_r31[0x25] >> 0x18 & 1) == 0) goto LAB_000adb0e;
+    }
+LAB_000adbb2:
+    unaff_r31[0x25] = unaff_r31[0x25] & 0xffdfffff;
+    unaff_r31[0x17] = 0;
+  }
+  else {
+    if (uVar9 != 3) goto LAB_000adbc4;
+    cVar7 = DAT_40003cb0;
+    if (-1 < cVar7) {
+LAB_000adba4:
+      unaff_r31[0x24] = unaff_r31[0x24] & 0xff3fffff | 0x800000;
+      goto LAB_000adbb2;
+    }
+    if (*(char *)(param_5 + 0x16) == '\x01') {
+      cVar7 = DAT_40003c42;
+      if (-1 < cVar7) goto LAB_000adba4;
+    }
+    else if ((((*(ushort *)(unaff_r30 + 0x82) & 0xf) == 0) &&
+             (*(char *)((int)param_1 + 5) == '\x01')) &&
+            ((*(ushort *)(unaff_r30 + 0x82) >> 4 & 1) == 0)) goto LAB_000adba4;
+  }
+LAB_000adbd2:
+  uVar9 = unaff_r31[0x24] >> 0x1e;
+  if (uVar9 == 0) {
+LAB_000adcb2:
+    uVar9 = unaff_r31[0x24] & 0x3fffffff | 0x40000000;
+LAB_000adcbc:
+    unaff_r31[0x24] = uVar9;
+  }
+  else if (uVar9 == 1) {
+    if ((*(char *)(param_5 + 0xf3) == '\x02') && ((*param_3 >> 8 & 1) != 0)) {
+      unaff_r31[0x24] = unaff_r31[0x24] & 0x3fffffff | 0x80000000;
+LAB_000adc58:
+      unaff_r31[0x25] = unaff_r31[0x25] & 0xbfffffff;
+    }
+  }
+  else if (uVar9 < 3) {
+    if (((*(char *)(unaff_r30 + 0x2f3) == '\x02') && (cVar7 = DAT_40003cb0, cVar7 < '\0')) &&
+       (((unaff_r31[0x24] & 0x22) == 0 && ((unaff_r31[0x25] >> 0x1c & 3) == 3)))) {
+      unaff_r31[0x24] = unaff_r31[0x24] & 0xfffffff | 0xd0000000;
+      unaff_r31[0x25] = unaff_r31[0x25] | 0x40000000;
+LAB_000adc7e:
+      unaff_r31[0x15] = 0;
+    }
+  }
+  else {
+    if (uVar9 != 3) goto LAB_000adcb2;
+    if (*(char *)(unaff_r30 + 0x2f3) != '\x02') {
+      unaff_r31[0x24] = unaff_r31[0x24] & 0xfffffff | 0x80000000;
+      goto LAB_000adc58;
+    }
+    uVar9 = unaff_r31[0x24] >> 0x1c & 3;
+    if (uVar9 == 1) {
+      puVar8 = unaff_r31 + 0x15;
+      if (unaff_r31[7] < *puVar8) {
+        unaff_r31[0x25] = unaff_r31[0x25] & 0xbfffffff;
+        *puVar8 = 0;
+        uVar9 = unaff_r31[0x24] & 0xcfffffff | 0x20000000;
+        goto LAB_000adcbc;
+      }
+      *puVar8 = *puVar8 + 10;
+    }
+    else if (uVar9 != 2) {
+      unaff_r31[0x24] = unaff_r31[0x24] & 0xcfffffff | 0x10000000;
+      goto LAB_000adc7e;
+    }
+  }
+  uVar9 = unaff_r31[0x23] >> 0xd & 3;
+  if (uVar9 == 0) {
+LAB_000addb0:
+    unaff_r31[0x23] = unaff_r31[0x23] | 0x6000;
+    goto LAB_000addbc;
+  }
+  if (uVar9 == 1) {
+    cVar7 = DAT_40001aab;
+    if ((((cVar7 != '\x02') || (cVar7 = DAT_40003cb0, -1 < cVar7)) ||
+        ((unaff_r31[0x24] & 0x22) != 0)) || ((unaff_r31[0x25] >> 0x1c & 3) != 3)) goto LAB_000addbc;
+    unaff_r31[0x23] = unaff_r31[0x23] & 0xffff87ff | 0x4800;
+    unaff_r31[0x24] = unaff_r31[0x24] | 1;
+LAB_000add4e:
+    unaff_r31[0x15] = 0;
+  }
+  else {
+    if (uVar9 < 3) {
+      cVar7 = DAT_40001aab;
+      if (cVar7 == '\x02') {
+        uVar9 = unaff_r31[0x23] >> 0xb & 3;
+        if (uVar9 == 1) {
+          puVar8 = unaff_r31 + 0x15;
+          if (unaff_r31[7] < *puVar8) {
+            unaff_r31[0x24] = unaff_r31[0x24] & 0xfffffffe;
+            *puVar8 = 0;
+            unaff_r31[0x23] = unaff_r31[0x23] & 0xffffe7ff | 0x1000;
+          }
+          else {
+            *puVar8 = *puVar8 + 10;
+          }
+          goto LAB_000addbc;
+        }
+        if (uVar9 == 2) goto LAB_000addbc;
+        unaff_r31[0x23] = unaff_r31[0x23] & 0xffffe7ff | 0x800;
+        goto LAB_000add4e;
+      }
+      unaff_r31[0x23] = unaff_r31[0x23] & 0xffff87ff | 0x2000;
+    }
+    else {
+      if (uVar9 != 3) goto LAB_000addb0;
+      if ((*(char *)(param_5 + 0xf3) != '\x02') || (*(char *)(param_5 + 0x33) != '\x05'))
+      goto LAB_000addbc;
+      unaff_r31[0x23] = unaff_r31[0x23] & 0xffff9fff | 0x2000;
+    }
+    unaff_r31[0x24] = unaff_r31[0x24] & 0xfffffffe;
+  }
+LAB_000addbc:
+  if (((*param_3 >> 9 & 1) != 0) && (2 < *(byte *)(unaff_r30 + 0x23a) - 5)) {
+    uVar9 = unaff_r31[0x11];
+    if (uVar9 <= unaff_r31[6]) {
+      if (*(char *)(unaff_r31 + 0x20) == '\0') {
+        return;
+      }
+      unaff_r31[0x11] = uVar9 + 10;
+      return;
+    }
+  }
+  *(undefined1 *)(unaff_r31 + 0x20) = 0;
+  unaff_r31[0x11] = 0;
+  return;
+}
+
+

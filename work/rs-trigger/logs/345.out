@@ -1,0 +1,33 @@
+WARNING: Final field name in class ghidra.util.charset.CharsetInfo has been mutated reflectively by class com.google.gson.internal.bind.ReflectiveTypeAdapterFactory$2 in unnamed module @28b46423 (file:/opt/ghidra/Ghidra/Framework/Generic/lib/gson-2.13.2.jar)
+WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
+WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
+=== ROUND TRIP: assembled bytes -> disassembly ===
+  73c8e000     -> PARSE FAIL No matching overloads found for ghidra.app.plugin.processors (wanted e_lis r30,0x4000          ) CHECK
+  1fde3f02     -> PARSE FAIL No matching overloads found for ghidra.app.plugin.processors (wanted e_add16i r30,r30,0x3f02   ) CHECK
+  2c80         -> PARSE FAIL No matching overloads found for ghidra.app.plugin.processors (wanted se_bmaski r0,0x8          ) CHECK
+  341e0051     -> PARSE FAIL No matching overloads found for ghidra.app.plugin.processors (wanted e_stb r0,0x51(r30)        ) CHECK
+  7068e000     -> PARSE FAIL No matching overloads found for ghidra.app.plugin.processors (wanted e_lis r3,0x4000           ) CHECK
+  1c633f53     -> PARSE FAIL No matching overloads found for ghidra.app.plugin.processors (wanted e_add16i r3,r3,0x3f53     ) CHECK
+  9003         -> PARSE FAIL No matching overloads found for ghidra.app.plugin.processors (wanted se_stb r0,0x0(r3)         ) CHECK
+  8003         -> PARSE FAIL No matching overloads found for ghidra.app.plugin.processors (wanted se_lbz r0,0x0(r3)         ) CHECK
+  1800d020     -> PARSE FAIL No matching overloads found for ghidra.app.plugin.processors (wanted e_ori r0,r0,0x20          ) CHECK
+  7000e0ff     -> PARSE FAIL No matching overloads found for ghidra.app.plugin.processors (wanted e_li r0,0xff              ) CHECK
+
+=== every reference to APP_rke_code_valid 0x40003F53 ===
+   00099302 PARAM    e_add16i r3,r3,0x3f53              in FUN_000992fe
+   0005856a WRITE    e_stb r0,0x51(r30)                 in APP_rke_code_commit
+   000aeed4 PARAM    e_addi r3,r29,0x51                 in FUN_000aeec6
+   -> WRITE refs: 1
+
+=== callers of FUN_000AEEC6 / FUN_000AD97C / FUN_000ADE12 ===
+  0x0AEEC6 : 1 refs
+      from 000628fc UNCONDITIONAL_CALL   in APP_feature_periodic
+  0x0AD97C : 0 refs
+  0x0ADE12 : 0 refs
+  0x058538 : 6 refs
+      from 00058800 UNCONDITIONAL_CALL   in FUN_0005878c
+      from 00058812 UNCONDITIONAL_CALL   in FUN_0005878c
+      from 00058818 UNCONDITIONAL_CALL   in FUN_0005878c
+      from 0005882a UNCONDITIONAL_CALL   in FUN_0005878c
+      from 00058692 UNCONDITIONAL_CALL   in <unswept>
+      from 000586c6 UNCONDITIONAL_CALL   in FUN_000586b6

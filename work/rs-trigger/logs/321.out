@@ -1,0 +1,73 @@
+WARNING: Final field name in class ghidra.util.charset.CharsetInfo has been mutated reflectively by class com.google.gson.internal.bind.ReflectiveTypeAdapterFactory$2 in unnamed module @28b46423 (file:/opt/ghidra/Ghidra/Framework/Generic/lib/gson-2.13.2.jar)
+WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
+WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
+==============================================================================
+SCOPE (rule 18)
+==============================================================================
+   block CFLASH           00000000..0017ffff  r-x
+   block SHADOW           00200000..00203fff  r--
+   block DFLASH           00800000..0080ffff  r--
+   block SRAM             40000000..40017fff  r--
+   block PBRIDGE_A        c3f00000..c3ffffff  r--
+   block PBRIDGE_B        ffe00000..ffffffff  r--
+   functions in program: 13588
+
+==============================================================================
+A. REFERENCE MANAGER  (absolute references only)
+==============================================================================
+   0x40002F37 ctrl same-struct byte (+0x217 / r31+0x7), writer 0x113788 refs=10   stores=2
+   0x40002F32 ctrl same-struct byte (+0x212 / r31+0x2), writer 0x11378A refs=17   stores=2
+   0x40002F30 ctrl same-struct byte (+0x210 / r31+0x0)             refs=1    stores=0
+   0x4000965C ctrl other-region enum, 6 documented writers         refs=8    stores=6
+   0x40002F3C TARGET gate byte                                     refs=25   stores=2
+
+==============================================================================
+B. LINEAR BASE+DISP SWEEP over EVERY instruction in the image
+==============================================================================
+   instructions swept : 352906
+   store instructions : 45142
+   base resolved      : 15544
+   disp parse skipped : 272
+   0x40002F37 ctrl same-struct byte (+0x217 / r31+0x7), writer 0x113788 stores=2
+   0x40002F32 ctrl same-struct byte (+0x212 / r31+0x2), writer 0x11378A stores=2
+   0x40002F30 ctrl same-struct byte (+0x210 / r31+0x0)             stores=0
+   0x4000965C ctrl other-region enum, 6 documented writers         stores=3
+   0x40002F3C TARGET gate byte                                     stores=2
+
+==============================================================================
+C. DECOMPILER P-CODE  CALLOTHER 0x10000002 (store)
+==============================================================================
+   functions decompiled: 13588  (failed 0, no ram-resolved op 1892)
+   0x40002F37 ctrl same-struct byte (+0x217 / r31+0x7), writer 0x113788 stores=4
+   0x40002F32 ctrl same-struct byte (+0x212 / r31+0x2), writer 0x11378A stores=4
+   0x40002F30 ctrl same-struct byte (+0x210 / r31+0x0)             stores=0
+   0x4000965C ctrl other-region enum, 6 documented writers         stores=9
+   0x40002F3C TARGET gate byte                                     stores=4
+
+wrote /home/gl/Projects/ford/BCM/Research/work/rs-trigger/f3c_writers.json
+
+==============================================================================
+UNION PER CELL
+==============================================================================
+
+control 0x40002F37  ctrl same-struct byte (+0x217 / r31+0x7), writer 0x113788   union=2
+   0x11363A  e_stb r0,0x217(r30)           by=A,B,C  fn=FUN_00113580
+   0x113788  se_stb r0,0x7(r31)            by=A,B,C  fn=FUN_0011367e
+
+control 0x40002F32  ctrl same-struct byte (+0x212 / r31+0x2), writer 0x11378A   union=2
+   0x1135F4  e_stb r0,0x212(r30)           by=A,B,C  fn=FUN_00113580
+   0x11378A  se_stb r0,0x2(r31)            by=A,B,C  fn=FUN_0011367e
+
+control 0x40002F30  ctrl same-struct byte (+0x210 / r31+0x0)   union=0
+
+control 0x4000965C  ctrl other-region enum, 6 documented writers   union=6
+   0x0AD700  se_stw r0,0x0(r7)             by=A,B,C  fn=FUN_000ad6c6
+   0x0AD738  e_stw r0,0x70(r31)            by=A,C  fn=FUN_000ad72e
+   0x0AD762  e_stw r6,0x70(r31)            by=A,B,C  fn=FUN_000ad754
+   0x0AE8D4  se_stw r0,0x2c(r6)            by=A,B,C  fn=FUN_000ae820
+   0x0AEB88  se_stw r7,0x2c(r6)            by=A,C  fn=UNSWEPT
+   0x0AEBE0  se_stw r0,0x2c(r6)            by=A,C  fn=FUN_000aebcc
+
+TARGET  0x40002F3C  TARGET gate byte   union=2
+   0x1135AE  e_stb r0,0x21c(r30)           by=A,B,C  fn=FUN_00113580
+   0x11378C  se_stb r0,0xc(r31)            by=A,B,C  fn=FUN_0011367e

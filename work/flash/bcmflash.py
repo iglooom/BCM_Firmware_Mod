@@ -16,6 +16,20 @@ PROVEN SEQUENCE (replicated from the OEM capture):
     10 02                       programmingSession
     27 01 / 27 02 <key>         securityAccess (level 1)
     3E 80                       TesterPresent, suppressed
+    (from here on, a background thread also broadcasts 02 3E 80 on the
+     functional ID 0x7DF every 2 s so the session cannot time out while a
+     long erase or transfer blocks the physical channel)
+
+    With --quiet-bus, ONE more functional request is sent just BEFORE the 10 02
+    above, to stop the other modules transmitting:
+        7DF#02 10 82 x20        programmingSession, response suppressed
+    and undone after the reset with 7DF#02 11 81 (functional hardReset, every
+    module reboots).  Measured on
+    the vehicle: a module in programmingSession stops its normal application
+    frames, so this alone quiets the network - 28/85 are not needed, and an
+    earlier 10 03 + 85 02 + 28 03 01 attempt did NOT work.  TesterPresent by
+    itself quiets nothing; it only refreshes S3, which is what makes the quiet
+    persist.
     -- SBL stage (RAM) ------------------------------------------------
     34 00 44 <addr><len>        RequestDownload per SBL block
     36 <bc> <data...>           TransferData, chunked per the 74 response
@@ -45,8 +59,10 @@ Usage:
 import argparse
 import os
 import re
+import socket
 import struct
 import sys
+import threading
 import time
 import zlib
 
@@ -59,6 +75,17 @@ SECRET_L1 = bytes.fromhex("64000B0C59")
 # Which DID carries the SOFTWARE part number, per VBF part type.  Measured live
 # on the bench BCM - see do_flash() for the full readout and why F111 is wrong.
 IDENT_DID = {"EXE": "F188", "DATA": "F124", "SBL": "F188"}
+# Functional (broadcast) request ID for TesterPresent keepalive, and its period.
+# 2 s is comfortably inside the 5 s S3 session timeout even if one frame is lost.
+TP_BROADCAST_ID = 0x7DF
+TP_INTERVAL = 2.0
+PROGRESS_STEP = 5                       # report a permanent progress line every N %
+# --quiet-bus arming (functional 10 82) is fire-and-forget - the response is
+# suppressed, so a module that misses it stays noisy and we would never know.
+# Send it many times rather than rely on one frame landing everywhere.
+# Raised 5 -> 20 on the vehicle: with 5 the bus went quiet but SOME MODULES
+# STAYED NOISY, so a single sweep of the network is demonstrably not enough.
+QUIET_ARM_REPEAT = 20
 NRC = {0x10: "generalReject", 0x11: "serviceNotSupported",
        0x12: "subFunctionNotSupported", 0x13: "incorrectMessageLength",
        0x21: "busyRepeatRequest", 0x22: "conditionsNotCorrect",
@@ -262,12 +289,228 @@ class Ecu:
         return r
 
 
+# ------------------------------------------------ raw functional (broadcast)
+def raw_can_socket(iface):
+    s = socket.socket(socket.AF_CAN, socket.SOCK_RAW, socket.CAN_RAW)
+    s.bind((iface,))
+    return s
+
+
+def can_frame(can_id, payload):
+    """One classic CAN frame, zero-padded to 8 (Ford pads functional requests)."""
+    data = bytes(payload)
+    assert len(data) <= 8
+    # struct can_frame { u32 can_id; u8 can_dlc; u8 pad,res0,res1; u8 data[8]; }
+    return struct.pack("=IB3x8s", can_id, 8, data.ljust(8, b"\x00"))
+
+
+def single_frame(payload):
+    """ISO-TP single frame: PCI = 0x0<len>, then the UDS payload."""
+    p = bytes(payload)
+    assert len(p) <= 7
+    return bytes([len(p)]) + p
+
+
+class BusQuiet:
+    """Silence normal (application) CAN traffic for the duration of the flash.
+
+    ONE request does it, measured on the vehicle:
+
+        7DF#02 10 82    functional programmingSession, response suppressed
+
+    A module in programmingSession stops transmitting its normal application
+    frames, so the broadcast 10 02 quiets the whole network by itself.  No
+    CommunicationControl (28) and no ControlDTCSetting (85) are required.
+
+    ⚠ Things that do NOT quiet the bus, recorded so nobody re-adds them:
+      * TesterPresent.  3E 80 only refreshes the S3 timer of a module ALREADY
+        in a non-default session; a module in its default session ignores it
+        and keeps transmitting.  It is what makes the quiet PERSIST, not what
+        causes it - without it S3 expires (~5 s) and everyone wakes up.
+      * An earlier version sent 10 03 + 85 02 + 28 03 01.  On the car the bus
+        stayed noisy.  Because every request carried the suppress bit, nobody
+        could answer even to reject, so the failure was invisible - see
+        work/flash/quietprobe.py, which exists to read those NRCs.
+
+    The suppress bit is deliberate: a functional request is answered by EVERY
+    module at once, and an ISO-TP socket bound to one rx ID cannot receive that
+    storm.  Consequence, stated plainly: THERE IS NO CONFIRMATION.  Nothing here
+    is checked; watch the bus with candump for proof.  Hence opt-in, default off.
+
+    Restore is a functional hardReset (11 81) - every module reboots into its
+    default session and resumes normal transmission.  S3 would also release them
+    on its own a few seconds after the last TesterPresent, so the reset is the
+    deliberate, immediate route rather than the only one.
+    """
+
+    ARM = [("10 02 programmingSession (bus goes quiet)", [0x10, 0x82])]
+    RESTORE = [("11 01 hardReset, ALL modules", [0x11, 0x81])]
+
+    def __init__(self, iface="can0", can_id=0x7DF, dry=True, log=None,
+                 enabled=False):
+        self.iface, self.can_id = iface, can_id
+        self.dry, self.log, self.enabled = dry, log, enabled
+        self.armed = False
+
+    def _say(self, msg):
+        print(msg)
+        if self.log:
+            self.log.write(msg + "\n")
+            self.log.flush()
+
+    def _send(self, seq, what, repeat=1):
+        if not self.enabled:
+            return
+        self._say("   %s:" % what)
+        if self.dry:
+            for name, req in seq:
+                self._say("      [dry] %03X  %s  x%d   (%s)"
+                          % (self.can_id, single_frame(req).hex().upper(),
+                             repeat, name))
+            return
+        sock = raw_can_socket(self.iface)
+        try:
+            for name, req in seq:
+                frame = can_frame(self.can_id, single_frame(req))
+                # Repeated because a functional request is fire-and-forget: the
+                # response is suppressed, so a module that missed it (asleep,
+                # busy, or the first frame after an idle bus - the same reason
+                # the wake-up 3E 00 is sent twice) can never be detected, and
+                # would simply stay noisy for the whole flash.
+                for _ in range(repeat):
+                    sock.send(frame)
+                    time.sleep(0.02)
+                self._say("      sent %03X  %s  x%d   (%s)  [unconfirmed]"
+                          % (self.can_id, single_frame(req).hex().upper(),
+                             repeat, name))
+                time.sleep(0.05)
+        finally:
+            sock.close()
+
+    def arm(self):
+        if not self.enabled:
+            return self
+        self._send(self.ARM, "quiet-bus: silencing normal communication",
+                   repeat=QUIET_ARM_REPEAT)
+        self.armed = True
+        return self
+
+    def restore(self):
+        """Reset every module so it leaves programmingSession and talks again.
+
+        MUST run after the keepalive stops: while TesterPresent is still going,
+        S3 never expires.  Best-effort: never raises, because it runs from a
+        finally that may already be unwinding an exception, and a failure to
+        restore must not mask the real error.
+        """
+        if not (self.enabled and self.armed):
+            return
+        try:
+            self._send(self.RESTORE, "quiet-bus: resetting all modules")
+        except Exception as e:                          # noqa: BLE001
+            self._say("   !! quiet-bus reset FAILED: %s" % e)
+            self._say("      normal communication returns on its own ~5 s after")
+            self._say("      the last TesterPresent (S3 timeout).")
+        self.armed = False
+
+
+# -------------------------------------------------- broadcast TesterPresent
+class TesterPresentBroadcast:
+    """Functionally-addressed TesterPresent (3E 80) every `interval` seconds.
+
+    Sent on a SEPARATE raw CAN socket, not the ISO-TP one, because the flash
+    spends long stretches blocked inside Ecu.req() waiting for an erase or a
+    TransferData response - exactly the window in which the session would
+    otherwise time out (S3 = 5 s).  The sub-function is 0x80
+    (suppressPosRspMsgIndication) so no ECU answers and nothing can be mistaken
+    for the reply to the request currently in flight on the physical channel.
+
+    A raw single frame is used rather than an ISO-TP socket: the payload is
+    2 bytes, so it is always a single frame, and interleaving a different CAN ID
+    with an in-progress ISO-TP transfer is legal (arbitration handles it).
+    """
+
+    def __init__(self, iface="can0", can_id=0x7DF, interval=2.0,
+                 dry=True, log=None):
+        self.iface, self.can_id, self.interval = iface, can_id, interval
+        self.dry, self.log = dry, log
+        self.sock = None
+        self._stop = threading.Event()
+        self._thread = None
+        self.sent = 0
+
+    # PCI 0x02, SID 0x3E, sub-function 0x80, padded to 8 with 0x00
+    FRAME = single_frame([0x3E, 0x80]).ljust(8, b"\x00")
+
+    def _say(self, msg):
+        print(msg)
+        if self.log:
+            self.log.write(msg + "\n")
+            self.log.flush()
+
+    def start(self):
+        if self.interval <= 0:
+            return self
+        if self.dry:
+            self._say("   [dry] tester-present broadcast %03X 02 3E 80 every %.1fs"
+                      % (self.can_id, self.interval))
+            return self
+        self.sock = raw_can_socket(self.iface)
+        self._thread = threading.Thread(target=self._run, daemon=True)
+        self._thread.start()
+        self._say("   keepalive: broadcast 3E 80 on %03X every %.1f s"
+                  % (self.can_id, self.interval))
+        return self
+
+    def _run(self):
+        frame = can_frame(self.can_id, self.FRAME)
+        sock = self.sock
+        if sock is None:
+            return
+        while not self._stop.is_set():
+            try:
+                sock.send(frame)
+                self.sent += 1
+            except OSError:
+                pass                    # bus hiccup: keep trying, never abort
+            self._stop.wait(self.interval)
+
+    def stop(self):
+        self._stop.set()
+        if self._thread:
+            self._thread.join(timeout=self.interval + 1.0)
+            self._thread = None
+        if self.sock:
+            self.sock.close()
+            self.sock = None
+
+    def __enter__(self):
+        return self.start()
+
+    def __exit__(self, *exc):
+        self.stop()
+        return False
+
+
 # ------------------------------------------------------------- flash sequence
 def download_blocks(ecu, blocks, tag):
     """34 RequestDownload -> 36 TransferData (chunked) -> 37 TransferExit."""
     total = sum(b["length"] for b in blocks)
     done = 0
     t0 = time.time()
+    next_mark = PROGRESS_STEP            # next whole-transfer % milestone to report
+
+    def milestone(pct, rate):
+        """Permanent, logged progress line at each PROGRESS_STEP % of the transfer."""
+        line = ("      %s %3d%%  %s / %s  %.1f KiB/s  elapsed %.0fs"
+                % (tag, int(pct), human(done), human(total),
+                   rate / 1024, time.time() - t0))
+        sys.stdout.write("\r" + line + "\n")   # \r clears the live counter line
+        sys.stdout.flush()
+        if ecu.log:
+            ecu.log.write(line + "\n")
+            ecu.log.flush()
+
     for bi, b in enumerate(blocks):
         rd = "340044" + struct.pack(">I", b["start"]).hex() \
             + struct.pack(">I", b["length"]).hex()
@@ -297,10 +540,14 @@ def download_blocks(ecu, blocks, tag):
             off += len(piece)
             done += len(piece)
             bc = (bc + 1) & 0xFF
+            el = time.time() - t0
+            rate = done / el if el > 0 else 0
+            pct = 100.0 * done / total if total else 100
+            # permanent milestone line every PROGRESS_STEP % of the whole transfer
+            while pct >= next_mark and next_mark <= 100:
+                milestone(next_mark, rate)
+                next_mark += PROGRESS_STEP
             if bc % 64 == 0 or off >= b["length"]:
-                el = time.time() - t0
-                rate = done / el if el > 0 else 0
-                pct = 100.0 * done / total if total else 100
                 sys.stdout.write("\r      %s %5.1f%%  %s / %s  %.1f KiB/s   "
                                  % (tag, pct, human(done), human(total),
                                     rate / 1024))
@@ -352,6 +599,12 @@ def do_flash(a):
     print("   5. download %d block(s), %s total"
           % (len(vbf.blocks), human(sum(b["length"] for b in vbf.blocks))))
     print("   6. 11 01 ECUReset")
+    if a.quiet_bus:
+        print("   --quiet-bus: functional 7DF#02 10 82 x%d before step 2,"
+              % QUIET_ARM_REPEAT)
+        print("                7DF#02 11 81 (reset ALL modules) after step 6")
+    print("   throughout 3-6: broadcast 3E 80 on 0x%03X every %.1f s; progress "
+          "reported every %d%%" % (a.tp_id, a.tp_interval, PROGRESS_STEP))
     if a.dry:
         print("\n[DRY RUN] nothing was sent. Re-run with --execute to flash.")
         print("          Every frame below would have been transmitted:\n")
@@ -395,36 +648,61 @@ def do_flash(a):
             print("   identity OK")
 
     print("\n== 2. session + security ==")
-    ecu.expect("1002", 0x50, "10 02", timeout=5.0)
-    time.sleep(0.1)
-    r = ecu.expect("2701", 0x67, "27 01", timeout=5.0)
-    if a.dry:
-        print("   [dry] key would be computed from the live seed")
-    else:
-        key = key_from_seed(list(r[2:5]))
-        print("   seed %s -> key %s" % (bytes(r[2:5]).hex().upper(), key.hex().upper()))
-        ecu.expect("2702" + key.hex(), 0x67, "27 02", timeout=5.0)
-    ecu.req("3E80", timeout=1.0, what="3E 80")
+    # ⚠ ORDER MATTERS: quiet the rest of the network BEFORE opening the BCM's
+    # programming session, so the functional 10 03 cannot disturb the 10 02 we
+    # are about to establish on the physical channel.
+    quiet = BusQuiet(a.iface, a.tp_id, dry=a.dry, log=log,
+                     enabled=a.quiet_bus).arm()
+    try:
+        ecu.expect("1002", 0x50, "10 02", timeout=5.0)
+        time.sleep(0.1)
+        r = ecu.expect("2701", 0x67, "27 01", timeout=5.0)
+        if a.dry:
+            print("   [dry] key would be computed from the live seed")
+        else:
+            key = key_from_seed(list(r[2:5]))
+            print("   seed %s -> key %s"
+                  % (bytes(r[2:5]).hex().upper(), key.hex().upper()))
+            ecu.expect("2702" + key.hex(), 0x67, "27 02", timeout=5.0)
+        ecu.req("3E80", timeout=1.0, what="3E 80")
 
-    print("\n== 3. SBL upload (RAM) ==")
-    download_blocks(ecu, sbl.blocks, "sbl")
-    ecu.expect("31010301" + struct.pack(">I", sbl.call).hex(), 0x71,
-               "start SBL", timeout=10.0)
-    print("   SBL running at 0x%08X" % sbl.call)
+        # Keep the programming session alive for the whole erase+download, which
+        # can block for tens of seconds at a time inside a single request.  With
+        # --quiet-bus this ALSO holds the other modules in their extended
+        # session, which is what keeps them silent.
+        tp = TesterPresentBroadcast(a.iface, a.tp_id, a.tp_interval,
+                                    dry=a.dry, log=log).start()
+        try:
+            print("\n== 3. SBL upload (RAM) ==")
+            download_blocks(ecu, sbl.blocks, "sbl")
+            ecu.expect("31010301" + struct.pack(">I", sbl.call).hex(), 0x71,
+                       "start SBL", timeout=10.0)
+            print("   SBL running at 0x%08X" % sbl.call)
 
-    print("\n== 4. erase %d region(s) ==" % len(vbf.erase))
-    for s, l in vbf.erase:
-        # ⚠ the OEM capture answers 7F 31 78 (responsePending) FIRST and only
-        # then 71 01 FF 00 ~230 ms later.  Ecu.req() waits through pending.
-        ecu.expect("3101FF00" + struct.pack(">I", s).hex()
-                   + struct.pack(">I", l).hex(), 0x71,
-                   "erase %08X" % s, timeout=10.0, pending_timeout=a.erase_timeout)
+            print("\n== 4. erase %d region(s) ==" % len(vbf.erase))
+            for s, l in vbf.erase:
+                # ⚠ the OEM capture answers 7F 31 78 (responsePending) FIRST and
+                # only then 71 01 FF 00 ~230 ms later.  Ecu.req() waits through
+                # pending.
+                ecu.expect("3101FF00" + struct.pack(">I", s).hex()
+                           + struct.pack(">I", l).hex(), 0x71,
+                           "erase %08X" % s, timeout=10.0,
+                           pending_timeout=a.erase_timeout)
 
-    print("\n== 5. download application ==")
-    download_blocks(ecu, vbf.blocks, "app")
+            print("\n== 5. download application ==")
+            download_blocks(ecu, vbf.blocks, "app")
 
-    print("\n== 6. reset ==")
-    ecu.req("1101", timeout=5.0, what="11 01")
+            print("\n== 6. reset ==")
+            ecu.req("1101", timeout=5.0, what="11 01")
+        finally:
+            # Stop the keepalive FIRST: while it runs, S3 never expires and the
+            # other modules stay in the extended session holding 28 03 01.
+            tp.stop()
+            if tp.sent:
+                print("   keepalive: %d broadcast TesterPresent frames sent"
+                      % tp.sent)
+    finally:
+        quiet.restore()
     print("\n*** %s ***" % ("DRY RUN COMPLETE - nothing sent" if a.dry
                             else "FLASH COMPLETE"))
     if not a.dry:
@@ -495,6 +773,19 @@ def main():
     s.add_argument("--force", action="store_true",
                    help="ignore an identity mismatch")
     s.add_argument("--erase-timeout", type=float, default=60.0)
+    s.add_argument("--tp-interval", type=float, default=TP_INTERVAL,
+                   help="broadcast TesterPresent period in seconds "
+                        "(default %.1f; 0 disables)" % TP_INTERVAL)
+    s.add_argument("--tp-id", type=lambda x: int(x, 0), default=TP_BROADCAST_ID,
+                   help="functional/broadcast CAN ID for TesterPresent "
+                        "(default 0x%03X)" % TP_BROADCAST_ID)
+    s.add_argument("--quiet-bus", action="store_true",
+                   help="silence the OTHER modules for the duration of the "
+                        "flash with functional 7DF#02 10 82 "
+                        "(programmingSession), undone with 7DF#02 10 81.  "
+                        "Verified on the vehicle, but UNCONFIRMED at runtime "
+                        "(the response is suppressed) and network-wide - off "
+                        "by default")
     s.add_argument("--logfile", default=os.path.join(ROOT, "work/flash/logs/flash.log"))
     a = ap.parse_args()
     if a.cmd == "flash":

@@ -1,0 +1,102 @@
+{
+ "firmware": "JV6T-14C094-AD",
+ "project": "ghidra_proj_fullflash/BCM_OwnerFlash (cflash.bin)",
+ "report": "work/rs-trigger/logs/subagent_rx_path.md",
+ "scripts": ["work/rs-trigger/345_rx_path_decomp.py",
+             "work/rs-trigger/346_dirty_semantics.py",
+             "work/rs-trigger/347_valid_flag_consumers.py",
+             "work/rs-trigger/348_stores_and_callers.py",
+             "work/rs-trigger/349_rx_record_raw.py",
+             "work/rs-trigger/350_fallthrough_climb.py",
+             "work/rs-trigger/351_bfs_to_scheduler.py"],
+
+ "headline": "The receive path's missing ingredient is the DIRTY FLAG VALUE, not an extra cell. APP_rke_code_commit writes 0x40003F53 = 0xFF; VOL_test_and_clear_dirty(p,n) tests mask (0x80>>n); the only two consumers in the whole image use bit index 1 (mask 0x40) and bit index 2 (mask 0x20). The debug service writes 0x01 = mask-bit index 7, which NO consumer reads. Hence the command code persists and nothing fires.",
+
+ "call_chain": [
+  {"step": 1,  "addr": "0x0FC63E", "name": "VOL_rx_copy_to_image",   "edge": "net-table ptr", "role": "FlexCAN MB53 -> frame image 0x40000918..0x4000091F (copymask 0xFF); ORs 0x80 into arrival flag 0x400004FE"},
+  {"step": 2,  "addr": "0x05878C", "name": "FUN_0005878C",           "edge": "-", "role": "RKE poll block"},
+  {"step": 3,  "addr": "0x0580AE", "name": "FUN_000580AE",           "edge": "CALL", "role": "arrival-flag test-and-clear (0x0FB0EE / 0x0FB0D8)"},
+  {"step": 4,  "addr": "0x0585B8", "name": "FUN_000585B8",           "edge": "CALL", "role": "fob-identity gate; calls commit at 0x058690 and 0x0586C4"},
+  {"step": 5,  "addr": "0x0584A4", "name": "APP_rke_code_validate",  "edge": "CALL@0x0585C4", "role": "variant-0: get16(desc 0x142FD4); requires (code & 0xF) - 2 <= 1"},
+  {"step": 6,  "addr": "0x0FBB38", "name": "VOL_sig_get16",          "edge": "CALL@0x058564", "role": "CONCAT11(mask & *d[0], *(d[0]+1)) -- reads d6 AND d7"},
+  {"step": 7,  "addr": "0x058538", "name": "APP_rke_code_commit",    "edge": "CALL", "role": "SOLE writer of 0x40003F53 and 0x40002DA2"},
+  {"step": 8,  "addr": "0x062848", "name": "APP_feature_periodic",   "edge": "scheduler", "role": "calls step 9 at 0x0628FC"},
+  {"step": 9,  "addr": "0x0AEEC6", "name": "FUN_000aeec6",           "edge": "CALL@0x0628FC", "role": "0x0AEEDA tcd(0x40003F53, bit 2) -> 0x4000968B -> 0x0AEF14 -> 0x400095E1"},
+  {"step": 10, "addr": "0x0AE8DC", "name": "FUN_000ae8dc",           "edge": "CALL@0x0AEF64", "role": "tail call from step 9"},
+  {"step": 11, "addr": "0x0AE922", "name": "sweep-split block",      "edge": "JUMP@0x0AE91A", "role": "chain 0x0AE922 -> 0x0AE958 -> 0x0AEA16 -> 0x0AEA22 -> 0x0AEB14"},
+  {"step": 12, "addr": "0x0AD6C6", "name": "FUN_000ad6c6",           "edge": "CALL@0x0AEB18", "role": "-"},
+  {"step": 13, "addr": "0x0AD74A", "name": "sweep-split blocks",     "edge": "JUMP@0x0AD6DA then FALLTHROUGH", "role": "0x0AD74A -> 0x0AD754 -> 0x0AD7C8 -> 0x0AD7D4 -> 0x0AD888 -> 0x0AD924 -> 0x0AD970"},
+  {"step": 14, "addr": "0x0AD97C", "name": "FUN_000ad97c",           "edge": "FALLTHROUGH@0x0AD97A", "role": "reads 0x400095E1; 0x0ADA3E sets 0x40009680 |= 0x08000000 (the (req94>>27)&7==7 term)"},
+  {"step": 15, "addr": "0x0ADADA", "name": "FUN_000ADADA",           "edge": "FALLTHROUGH@0x0ADAD8", "role": "CONSUMER: tests (code & 0xF)==8"}
+ ],
+
+ "ram_cells_written": [
+  {"id": "R1", "addr": "0x40000918-0x4000091F", "value": "the 8 raw CAN bytes",
+   "kind": "computed", "written_at": "0x0FC6xx copy loop", "reproduced_by_debug_service": false,
+   "note": "pointer-only access; 0 absolute refs"},
+  {"id": "R2", "addr": "0x400004FE", "value": "|= 0x80",
+   "kind": "literal", "written_at": "0x0FC6xx", "reproduced_by_debug_service": false,
+   "note": "OR mask read from RX record 0x1520F8 +0x16; pointer-only, 0 absolute refs"},
+  {"id": "R3", "addr": "0x40003F53", "value": "0xFF",
+   "kind": "literal (se_bmaski r0,0x8)", "written_at": "0x05856A",
+   "reproduced_by_debug_service": "WRONG_VALUE",
+   "note": "SOLE writer in image. Debug service writes 0x01 = tcd bit index 7, which no consumer reads. Consumers: 0x099308 bit 1 (mask 0x40), 0x0AEEDA bit 2 (mask 0x20)."},
+  {"id": "R4", "addr": "0x40002DA2", "value": "0x1808 / 0x1818 (16-bit)",
+   "kind": "computed (VOL_sig_get16)", "written_at": "0x05856E",
+   "reproduced_by_debug_service": true,
+   "note": "SOLE writer. FUN_000ADADA also tests (code>>4)&1 != 0, so 0x1818 satisfies the guard and 0x1808 does not."},
+  {"id": "R5", "addr": "0x4000968B", "value": "tcd(0x40003F53, bit 2) -> 0 or 1",
+   "kind": "computed", "written_at": "0x0AEEE6", "reproduced_by_debug_service": false},
+  {"id": "R6", "addr": "0x400095E1", "value": "copy of 0x4000968B -> 1",
+   "kind": "computed", "written_at": "0x0AEF14", "reproduced_by_debug_service": false,
+   "note": "SOLE writer in image; 11 readers"},
+  {"id": "R7", "addr": "0x4000967C", "value": "field 0x0C000000 := 2",
+   "kind": "literal into field (e_rlwimi, se_li r0,0x2)", "written_at": "0x0ADA38",
+   "reproduced_by_debug_service": false},
+  {"id": "R8", "addr": "0x40009680", "value": "|= 0x08000000",
+   "kind": "literal (se_bseti r0,0x4)", "written_at": "0x0ADA3E",
+   "reproduced_by_debug_service": false,
+   "note": "the bit FUN_000ADADA's (req94>>0x1B)&7==7 term needs; re-cleared by 0x0ADA78 ~200ms after 0x400095E1 drops"},
+  {"id": "R9", "addr": "0x40009672", "value": "0 while held, else += 10",
+   "kind": "literal / computed", "written_at": "0x0ADA5E, 0x0ADA82",
+   "reproduced_by_debug_service": false},
+  {"id": "R10", "addr": "0x40009648", "value": "0 on clear; += 10 per tick when armed",
+   "kind": "literal / computed", "written_at": "0x0ADA7E and consumer body",
+   "reproduced_by_debug_service": false}
+ ],
+
+ "minimal_cave_recipe": [
+  "*(u16*)0x40002DA2 = 0x1818   (NOT 0x1808 -- the (code>>4)&1 guard term)",
+  "*(u8 *)0x40003F53 = 0xFF     (THE FIX -- 0x01 is an unread bit index)",
+  "re-assert both for several 10 ms ticks, because both consumers test-and-CLEAR the flag"
+ ],
+ "cells_the_cave_need_not_write": ["0x4000968B", "0x400095E1", "0x4000967C", "0x40009680", "0x40009672", "0x40009648"],
+ "cells_the_cave_must_not_force": {
+  "0x40009680": "forcing bit 0x08000000 directly is re-cleared by 0x0ADA78 within ~200 ms; drive it from 0x40003F53 instead"
+ },
+
+ "controls": {
+  "347_C1_known_site_0x0AEEDA_resolves_to_0x40003F53_bit2": "PASS",
+  "347_C2_two_distinct_sites_resolve_to_0x40003F53": "PASS",
+  "347_C3_non_degeneracy_266_distinct_flags_bits_0_to_7": "PASS",
+  "347_swept_range": "352906 instructions, 0x000160..0x143A7C",
+  "348_climb_recovers_APP_feature_periodic_as_caller_of_0x0AEEC6": "PASS",
+  "349_rx_record_matches_rx_frame_map_json": "PASS",
+  "349_descriptor_matches_rx_signal_dict_json": "PASS",
+  "351_C1_bfs_from_0x0AEEC6_reaches_0x062848": "PASS",
+  "351_C2_unrelated_site_0x07890A_reaches_0x062848": "PASS",
+  "351_C3_non_vacuity_0x000200_does_NOT_reach_0x062848": "PASS"
+ },
+
+ "instrument_failures_caught_and_fixed": [
+  "347 v1: def-table backward walker latched the FIRST register def and mis-resolved 0x0AEEDA to 0x40000051. Cause: self-accumulating bases (e_add16i r29,r29,0x3f02). Fixed with backward SUBSTITUTION; C1 then passed.",
+  "349 v1: mem.getBytes() with a Python bytearray silently returns all zeros through jpype -> a perfect false negative. Control failed; fixed with a Java byte[]."
+ ],
+
+ "not_established": [
+  "That bit 0x08000000 alone is sufficient -- bits 28/29 of 0x40009680 and the DAT_40003C42<0 alternative arm were not re-derived.",
+  "Runtime reachability: the 0x0AEEC6->0x0ADADA chain is a static CALL/JUMP/FALLTHROUGH closure only (AGENTS rule 43).",
+  "0x1818 vs 0x1808: the (code>>4)&1 guard is present in the 0x0ADADA listing, but bench_session_4.md records that term as refuted from the wire side. Conflict flagged, not adjudicated.",
+  "Whether tcd bit 2 (mask 0x20) alone suffices or bit 1 (mask 0x40, APP_rke_command_demux) is also needed; writing 0xFF sidesteps this."
+ ]
+}

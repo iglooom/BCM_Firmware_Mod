@@ -8,6 +8,10 @@ file is the *current state of belief*, including what is **not** known.
 Image: `backups/owner-backup-20260911T090300Z/cflash.bin` (owner full flash, `JV6T-14C094-AD`).
 Ghidra project: `ghidra_proj_fullflash` / `BCM_OwnerFlash`, **1,161 user-defined symbols**.
 
+> 📊 **Visual call-chain diagram:** [`rke_chain_diagram.html`](rke_chain_diagram.html) — both paths,
+> colour-coded by evidence status (proven / bench-confirmed / open / refuted), clickable nodes
+> carrying the derivation and the caveat for each hop. Open it in a browser.
+
 > **Confidence levels** used throughout:
 > **(a)** proven — multiple independent methods agree, controls passed;
 > **(b)** strong — one controlled method, no contradicting evidence;
@@ -27,10 +31,30 @@ mistaken for one:
 | Entry to lock module | `APP_lock_request_input` `0x40008D2C` | `APP_rke_to_body_cmd` `0x8D522` |
 | Mechanism | level → edge detector → `req_word_74` bit 10 | 3-bit command **enum** → `APP_body_cmd_bus` bits 11..13 |
 | Scheduled? | **yes**, via `APP_feature_periodic` (a) | **open** — climb stalled at `0x93890`/`0x8F8F2` |
-| Which feature? | **open** — *not* RKE (a) | RKE (a) |
+| Which feature? | ~~**open** — *not* RKE (a)~~ **RKE-DRIVEN (a)** — see below | RKE (a) |
+
+> ⚠ **"Path A is *not* RKE" is REFUTED on the bench** (`docs/bench_session_3.md` §4). An RKE lock or
+> unlock press raises `APP_lock_request_input` (11 rises over 48 s of presses), while a **bus-matched
+> idle window** — the RFA idle stream running, module equally awake, no command bits set — produces
+> **0 rises in 24 s**. The static "disjoint in code" result (`233`) still stands as far as it goes;
+> what it cannot see is that the two paths meet at runtime. Note also that the *identity* of the
+> feature owning Path A remains open: RKE drives it, but so may other inputs.
+>
+> Ordering is **not** resolved: `APP_lock_request_input` moves **simultaneously with
+> `APP_lock_command → 02`** (the triplet's third member) to ±10 ms at two cadences — below this
+> instrument's resolution. An earlier "lock_command leads by 510 ms" reading was a pairing artifact
+> and is withdrawn (session 3 §5).
 
 They are **disjoint in code** (a): no block that reads an RKE cell writes into Path A's input struct
 or source cells, confirmed by two agreeing instruments with passing controls (`233`).
+
+> ⚠ **That is a claim about CODE, and it does not survive promotion to behaviour.** On the bench an
+> RKE press drives Path A (§1 note above, `bench_session_3.md` §4). Both results are correct
+> measurements of different things: the two paths do not touch *in the code the analyser swept*, and
+> they still meet at runtime. The join is therefore either through RAM that `233` did not model, or
+> in code Ghidra never swept into a function — and the latter is not hypothetical here: `0x9749A`
+> and `0x97474` (§2) are both in unswept blocks invisible to every reference-based method.
+> AGENTS.md rule 43.
 
 ---
 
@@ -40,6 +64,7 @@ or source cells, confirmed by two agreeing instruments with passing controls (`2
 APP_lock_src_state_machine 0x95770          (658-byte state machine, selects a value)
   └ 0x959C2  se_stb r0,0x3(r7)      ──▶ APP_lock_src_origin      0x40008D6B
   └ 0x97994  e_stb  r6,0xf(r21)     ──▶ APP_lock_src_level       0x40008EF7
+  └ 0x97974  e_stb  r6,0xc(r21)     ──▶ APP_lock_src_unk_EF4     0x40008EF4   [p-code only]
   └ 0x9749A  se_stb r0,0xc(r29)     ──▶ APP_lock_request_input   0x40008D2C   [unswept block]
   └ APP_lock_req_edge_detect_A/B  0x86F90 / 0x8A812
         if (b==1 && !(req74 & bit9))  req74 |= bit10;    // rising edge
@@ -66,13 +91,16 @@ APP_feature_periodic 0x62848 --CALL--> APP_lock_chain_01 0x96B9C -> ... -> APP_l
 | `APP_lock_sm_input_struct` | `0x40008CEC` | SM base struct (derived by control, §4.2) |
 | `APP_lock_src_origin` / `_2` | `0x40008D6B` / `6C` | SM output |
 | `APP_lock_src_level` / `_2` | `0x40008EF7` / `F8` | copied by `APP_lock_src_producer` `0x978D2` |
+| `APP_lock_src_unk_EF4` | `0x40008EF4` | **sibling byte of `_src_level`**, same producer, same base `r21` (+0xC vs +0xF). Bench-confirmed press-responsive; **meaning open**. Found only by p-code — invisible to the reference manager *and* to a verified struct-field scan (`bench_session_3.md` §8.1) |
 | `APP_lock_request_input` / `_2` | `0x40008D2C` / `2D` | edge detector input |
 | `APP_req_word_74` | `0x40008E74` | bit 9 = level memory, **bit 10 = edge event** |
 | `APP_req_word_70` | `0x40008E70` | **bit 3 = lock request** |
 | `APP_lock_command` | `0x40002E70` | `0x01` LOCK / `0x02` UNLOCK → `0x3A` d3 |
 
 **Which feature owns Path A is open.** Candidates: door-switch lock, interior lock button,
-autolock-on-drive-away. It is *not* RKE (a).
+autolock-on-drive-away. ~~It is *not* RKE (a).~~ **An RKE press demonstrably drives it** — see the
+§1 note and `bench_session_3.md` §4 (11 rises under presses vs 0 in a bus-matched idle window).
+Whether RKE is the *only* driver remains open.
 
 ---
 
@@ -167,7 +195,7 @@ The fob command is decoded from captures as *bit flags* but consumed in code as 
 | 38 | ~~`APP_body_cmd_bus` bits 11..13 → `APP_lock_command`: the last RKE hop~~ | **CLOSED IN LAYER 36 — BY REFUTATION.** The fixed decoder shows the field has 4 writes and **1 read** (not "0 read"), and its sole reader `FUN_0008D4DA` `0x8D4DA` is a *timed* body feature that writes nothing reaching the lock command. At bit resolution the RKE chain and all 32 lock-command writers share **no bits at all**. The real handoff is **`APP_req_word_74` bits 15..20**. See `docs/rke_lock_join.md` |
 | 41 | **Which of the 9 `req_word_74` bit-15..20 consumers actuates the lock** | **open — and not answerable statically.** Control-flow reachability is *saturated* in this region: unrelated control sites (RX copier, acc-fix hook sites, DID readers) reach the same lock writes. Two candidate answers were generated and both destroyed by their own controls (`rke_lock_join.md` §5). Needs a bench/vehicle measurement |
 | 42 | What `FUN_0008D4DA` actuates | open (c) — timed, duration `DAT_4000588F × 50`; writes `0x40002E44`, which packs into HS `0x380` d4 and MS `0x1A8`/`0x1B0`/`0x290`/`0x370` |
-| 39 | Which feature owns Path A | open — start from `APP_lock_sm_input_struct` `0x40008CEC` (132 writer blocks) |
+| 39 | Which feature owns Path A | **partly answered** — RKE *drives* it (bench, `bench_session_3.md` §4: 11 rises under presses vs 0 in a bus-matched idle window), which refutes the old "not RKE (a)". Whether RKE is the *only* driver, and which feature *owns* the state machine, remain open. Start from `APP_lock_sm_input_struct` `0x40008CEC` (132 writer blocks) |
 | 40 | Scheduling of `APP_rke_to_body_cmd` | open — flow-edge climb stalled at `0x93890` / `0x8F8F2` without reaching a spine symbol |
 | — | Meaning of `APP_rke_join_gate` `0x40008D3A` | open — only its *role* as an arm selector is known |
 | — | Ignition interaction | **untouched by layers 29–36.** The refusal mechanism remains as layer 30 left it: `APP_lock_request_dispatch` is the only function that both tests `APP_power_mode` and writes `APP_lock_command`, but no branch was observed suppressing a command |

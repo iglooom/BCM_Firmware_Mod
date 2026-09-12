@@ -1,0 +1,67 @@
+==============================================================================
+DECODER ROUND-TRIP CONTROL (must be 10/10 or the scan is void)
+==============================================================================
+   0x1135AE  341e021c expect e_stb     got {'mn': 'e_stb', 'src': 'r0', 'base': 'r30', 'disp': 540}   OK
+   0x11378C  9c0f79ff expect se_stb    got {'mn': 'se_stb', 'src': 'r0', 'base': 'r31', 'disp': 12}   OK
+   0x113788  970f920f expect se_stb    got {'mn': 'se_stb', 'src': 'r0', 'base': 'r31', 'disp': 7}   OK
+   0x11378A  920f9c0f expect se_stb    got {'mn': 'se_stb', 'src': 'r0', 'base': 'r31', 'disp': 2}   OK
+   0x113786  4850970f expect se_li     got {'mn': 'se_li', 'dst': 'r0', 'val': 5}   OK
+   0x1135AC  4840341e expect se_li     got {'mn': 'se_li', 'dst': 'r0', 'val': 4}   OK
+   0x0AD6CC  73c8e000 expect e_lis     got {'mn': 'e_lis', 'dst': 'r30', 'val': 1073741824}   OK
+   0x0AD6D0  1fde2d20 expect e_add16i  got {'mn': 'e_add16i', 'dst': 'r30', 'src': 'r30', 'val': 11552}   OK
+   0x11363A  341e0217 expect e_stb     got {'mn': 'e_stb', 'src': 'r0', 'base': 'r30', 'disp': 535}   OK
+   0x1135F4  341e0212 expect e_stb     got {'mn': 'e_stb', 'src': 'r0', 'base': 'r30', 'disp': 530}   OK
+   10/10
+
+==============================================================================
+D1. RAW LINEAR SCAN: every 2-byte offset, 0x000000..0x180000
+==============================================================================
+   store-shaped words seen : 37412
+   with a resolvable base  : 14102
+   0x40002F3C TARGET gate byte (struct 0x40002D20 +0x21C)    hits=2
+   0x40002F37 control +0x217 (same struct, same form)        hits=2
+   0x40002F32 control +0x212 (same struct, same form)        hits=2
+   0x4000965C control other-region enum                      hits=2
+
+==============================================================================
+D2. DISPLACEMENT-ONLY UPPER BOUND (base unknown allowed)
+==============================================================================
+   byte-stores with disp 0x21C or 0xC anywhere in image: 372
+     disp 0x21C : 1
+     disp 0x0C  : 371
+   (upper bound -- most have a base unrelated to 0x40002D20)
+   disp 0x21C sites:
+     0x1135AE  e_stb r0,0x21c(r30)
+
+==============================================================================
+D3. IS LITERAL 3 EVER STORED THROUGH disp 0x21C / 0xC ?
+==============================================================================
+   se_li rX,3 occurrences in image      : 755
+   ...whose register is then byte-stored
+      at disp 0x21C or 0xC              : 4
+     li@0x077DB0 -> store@0x077DB4 se_stb 0xc(r6)
+     li@0x077E00 -> store@0x077E02 se_stb 0xc(r6)
+     li@0x077F76 -> store@0x077F78 se_stb 0xc(r27)
+     li@0x0F6752 -> store@0x0F6754 se_stb 0xc(r1)
+
+==============================================================================
+RESOLVED HITS WITH VALUES
+==============================================================================
+
+ 0x40002F3C  TARGET gate byte (struct 0x40002D20 +0x21C)
+   0x1135AE  e_stb   r0,0x21c(r30)  base=0x40002D20  value=literal 4
+   0x11378C  se_stb  r0,0xc(r31)  base=0x40002F30  value=literal 5
+
+ 0x40002F37  control +0x217 (same struct, same form)
+   0x11363A  e_stb   r0,0x217(r30)  base=0x40002D20  value=literal 4
+   0x113788  se_stb  r0,0x7(r31)  base=0x40002F30  value=literal 5
+
+ 0x40002F32  control +0x212 (same struct, same form)
+   0x1135F4  e_stb   r0,0x212(r30)  base=0x40002D20  value=literal 4
+   0x11378A  se_stb  r0,0x2(r31)  base=0x40002F30  value=literal 5
+
+ 0x4000965C  control other-region enum
+   0x0AD738  e_stw   r0,0x70(r31)  base=0x400095EC  value=literal 0
+   0x0AD762  e_stw   r6,0x70(r31)  base=0x400095EC  value=NOT a nearby literal
+
+wrote /home/gl/Projects/ford/BCM/Research/work/rs-trigger/f3c_rawscan.json

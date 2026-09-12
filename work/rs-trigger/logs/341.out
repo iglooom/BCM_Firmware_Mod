@@ -1,0 +1,89 @@
+WARNING: Final field name in class ghidra.util.charset.CharsetInfo has been mutated reflectively by class com.google.gson.internal.bind.ReflectiveTypeAdapterFactory$2 in unnamed module @28b46423 (file:/opt/ghidra/Ghidra/Framework/Generic/lib/gson-2.13.2.jar)
+WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
+WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
+SWEPT SCOPE -- blocks:
+   CFLASH       00000000..0017ffff
+   SHADOW       00200000..00203fff
+   DFLASH       00800000..0080ffff
+   SRAM         40000000..40017fff
+   PBRIDGE_A    c3f00000..c3ffffff
+   PBRIDGE_B    ffe00000..ffffffff
+SCAN: all refs to VOL_test_and_clear_dirty @0x031360
+
+call sites: 782   fully resolved: 753   (96.3%)
+by addressing form: Counter({'base+disp': 387, 'absolute': 366})
+
+CONTROL C1 abs 0x40003FF1 bit2             : PASS at 0x0AE92C form=absolute
+CONTROL C2 base+disp 0x40003FC0 bit4       : PASS at 0x04C630 form=base+disp
+
+=== ALL sites whose flag is APP_rke_code_valid 0x40003F53 ===
+    {'site': '0x099308', 'func': 'FUN_000992fe@000992fe', 'flag': '0x40003F53', 'bit': 1, 'form': 'absolute'}
+    {'site': '0x0AEEDA', 'func': 'FUN_000aeec6@000aeec6', 'flag': '0x40003F53', 'bit': 2, 'form': 'base+disp'}
+
+=== unresolved flag pointer (reported, not hidden) ===
+    6 sites
+    {'site': '0x060404', 'func': 'FUN_000603ea@000603ea', 'flag': None, 'bit': None, 'form': None}
+    {'site': '0x080806', 'func': 'FUN_0008079c@0008079c', 'flag': None, 'bit': 1, 'form': None}
+    {'site': '0x080848', 'func': 'FUN_0008079c@0008079c', 'flag': None, 'bit': 1, 'form': None}
+    {'site': '0x0A62CA', 'func': 'FUN_000a61e2@000a61e2', 'flag': None, 'bit': None, 'form': None}
+    {'site': '0x0AA5DE', 'func': 'FUN_000aa5d2@000aa5d2', 'flag': None, 'bit': 0, 'form': None}
+    {'site': '0x0B0E72', 'func': 'FUN_000b0e22@000b0e22', 'flag': None, 'bit': 0, 'form': None}
+
+=== bit histogram for flag 0x40003F53 across whole image ===
+Counter({1: 1, 2: 1})
+
+=== neighbourhood: all flags in 0x40003F40..0x40003F60 ===
+    0x40003F40   bit 0   0x096BE4   base+disp    APP_lock_chain_03@00096ba2
+    0x40003F42   bit 0   0x096BF4   base+disp    APP_lock_chain_03@00096ba2
+    0x40003F44   bit 1   0x05BB72   base+disp    FUN_0005babe@0005babe
+    0x40003F45   bit 1   0x05BB7E   base+disp    FUN_0005babe@0005babe
+    0x40003F4A   bit 0   0x0A3522   base+disp    FUN_000a34d4@000a34d4
+    0x40003F4A   bit 1   0x0972E4   base+disp    APP_lock_chain_10@00097250
+    0x40003F4A   bit 2   0x0C4596   base+disp    FUN_000c4514@000c4514
+    0x40003F4A   bit 2   0x0C4678   base+disp    FUN_000c4622@000c4622
+    0x40003F4A   bit 2   0x0C4724   base+disp    None
+    0x40003F4A   bit 2   0x0C47C6   base+disp    FUN_000c47ac@000c47ac
+    0x40003F4A   bit 2   0x0C4800   base+disp    FUN_000c47ac@000c47ac
+    0x40003F4A   bit 2   0x0C482E   base+disp    FUN_000c47ac@000c47ac
+    0x40003F4A   bit 2   0x0C48D0   base+disp    FUN_000c48b6@000c48b6
+    0x40003F4A   bit 2   0x0C4A0A   absolute     FUN_000c4a00@000c4a00
+    0x40003F4A   bit 3   0x0B42B2   base+disp    FUN_000b416e@000b416e
+    0x40003F4A   bit 4   0x05BC7A   base+disp    FUN_0005bc5a@0005bc5a
+    0x40003F4B   bit 0   0x09732A   base+disp    APP_lock_chain_10@00097250
+    0x40003F4D   bit 1   0x059082   base+disp    FUN_0005906e@0005906e
+    0x40003F4D   bit 1   0x0590F0   base+disp    FUN_000590dc@000590dc
+    0x40003F4E   bit 7   0x04BE7A   base+disp    FUN_0004b7b0@0004b7b0
+    0x40003F4F   bit 0   0x065B66   absolute     FUN_00065b5c@00065b5c
+    0x40003F50   bit 0   0x0C1764   absolute     FUN_000c1752@000c1752
+    0x40003F50   bit 0   0x0C4092   absolute     FUN_000c4080@000c4080
+    0x40003F51   bit 0   0x0A355C   base+disp    FUN_000a34d4@000a34d4
+    0x40003F52   bit 0   0x0A80A2   base+disp    FUN_000a8058@000a8058
+    0x40003F52   bit 1   0x0B426E   base+disp    FUN_000b416e@000b416e
+    0x40003F53   bit 1   0x099308   absolute     FUN_000992fe@000992fe
+    0x40003F53   bit 2   0x0AEEDA   base+disp    FUN_000aeec6@000aeec6
+    0x40003F54   bit 0   0x09731C   base+disp    APP_lock_chain_10@00097250
+    0x40003F54   bit 2   0x0AEEEE   base+disp    FUN_000aeec6@000aeec6
+    0x40003F54   bit 3   0x05C052   absolute     FUN_0005c048@0005c048
+    0x40003F55   bit 4   0x04BEA4   base+disp    FUN_0004b7b0@0004b7b0
+    0x40003F55   bit 5   0x044D58   absolute     FUN_00044d4c@00044d4c
+    0x40003F56   bit 0   0x07E482   base+disp    FUN_0007e450@0007e450
+    0x40003F56   bit 0   0x07EB9E   absolute     FUN_0007eb94@0007eb94
+    0x40003F56   bit 0   0x07EC3E   absolute     FUN_0007ec30@0007ec30
+    0x40003F57   bit 0   0x0B57D0   base+disp    FUN_000b575a@000b575a
+    0x40003F58   bit 0   0x0B54FC   base+disp    FUN_000b5270@000b5270
+    0x40003F58   bit 0   0x0B59D0   base+disp    FUN_000b575a@000b575a
+    0x40003F59   bit 0   0x0B534A   base+disp    FUN_000b5270@000b5270
+    0x40003F59   bit 0   0x0B581A   base+disp    FUN_000b575a@000b575a
+    0x40003F5A   bit 0   0x0B5442   base+disp    FUN_000b5270@000b5270
+    0x40003F5A   bit 0   0x0B5916   base+disp    FUN_000b575a@000b575a
+    0x40003F5B   bit 0   0x0B53C6   base+disp    FUN_000b5270@000b5270
+    0x40003F5B   bit 0   0x0B5896   base+disp    FUN_000b575a@000b575a
+    0x40003F5C   bit 0   0x0B553A   base+disp    FUN_000b5270@000b5270
+    0x40003F5C   bit 0   0x0B5A0E   base+disp    FUN_000b575a@000b575a
+    0x40003F5D   bit 1   0x0C45C0   base+disp    FUN_000c4514@000c4514
+    0x40003F5D   bit 1   0x0C4650   base+disp    FUN_000c4622@000c4622
+    0x40003F5E   bit 0   0x09CF42   base+disp    FUN_0009cd58@0009cd58
+    0x40003F5F   bit 0   0x09CE32   base+disp    FUN_0009cd58@0009cd58
+    0x40003F60   bit 0   0x09CDEE   base+disp    FUN_0009cd58@0009cd58
+
+wrote /home/gl/Projects/ford/BCM/Research/work/rs-trigger/logs/341_dirty_sites.json

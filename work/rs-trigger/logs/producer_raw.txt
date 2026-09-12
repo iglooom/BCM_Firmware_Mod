@@ -1,0 +1,241 @@
+WARNING: Final field name in class ghidra.util.charset.CharsetInfo has been mutated reflectively by class com.google.gson.internal.bind.ReflectiveTypeAdapterFactory$2 in unnamed module @28b46423 (file:/opt/ghidra/Ghidra/Framework/Generic/lib/gson-2.13.2.jar)
+WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
+WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
+
+===== 0x0AEEC6 .. 0x0AEF80 =====
+0AEEC6 se_mflr    r0                                         ; FUN_000aeec6
+0AEEC8 e_bl       0x0010df1a                                 ; FUN_000aeec6  -> FUN_0010df1a
+0AEECC e_lis      r29, 0x4000                                ; FUN_000aeec6
+0AEED0 e_add16i   r29, r29, 0x3f02                           ; FUN_000aeec6
+0AEED4 e_addi     r3, r29, 0x51                              ; FUN_000aeec6  -> APP_rke_code_valid
+0AEED8 se_li      r4, 0x2                                    ; FUN_000aeec6
+0AEEDA e_bl       0x00031360                                 ; FUN_000aeec6  -> VOL_test_and_clear_dirty
+0AEEDE e_lis      r30, 0x4001                                ; FUN_000aeec6
+0AEEE2 e_add16i   r30, r30, -0x6978                          ; FUN_000aeec6
+0AEEE6 se_stb     r3, 0x3(r30)                               ; FUN_000aeec6  -> DAT_4000968b
+0AEEE8 e_addi     r3, r29, 0x52                              ; FUN_000aeec6  -> DAT_40003f54
+0AEEEC se_li      r4, 0x2                                    ; FUN_000aeec6
+0AEEEE e_bl       0x00031360                                 ; FUN_000aeec6  -> VOL_test_and_clear_dirty
+0AEEF2 se_stb     r3, 0x4(r30)                               ; FUN_000aeec6  -> DAT_4000968c
+0AEEF4 e_addi     r3, r29, 0xf7                              ; FUN_000aeec6  -> DAT_40003ff9
+0AEEF8 se_li      r4, 0x0                                    ; FUN_000aeec6
+0AEEFA e_bl       0x00031360                                 ; FUN_000aeec6  -> VOL_test_and_clear_dirty
+0AEEFE se_stb     r3, 0x5(r30)                               ; FUN_000aeec6  -> DAT_4000968d
+0AEF00 e_addi     r3, r29, 0xf4                              ; FUN_000aeec6  -> DAT_40003ff6
+0AEF04 se_li      r4, 0x1                                    ; FUN_000aeec6
+0AEF06 e_bl       0x00031360                                 ; FUN_000aeec6  -> VOL_test_and_clear_dirty
+0AEF0A se_lbz     r0, 0x3(r30)                               ; FUN_000aeec6  -> DAT_4000968b
+0AEF0C e_lis      r25, 0x4001                                ; FUN_000aeec6
+0AEF10 e_add16i   r25, r25, -0x6a24                          ; FUN_000aeec6
+0AEF14 se_stb     r0, 0x5(r25)                               ; FUN_000aeec6  -> DAT_400095e1
+0AEF16 se_lbz     r0, 0x4(r30)                               ; FUN_000aeec6  -> DAT_4000968c
+0AEF18 e_lis      r28, 0x4000                                ; FUN_000aeec6
+0AEF1C e_add16i   r28, r28, 0x2d20                           ; FUN_000aeec6
+0AEF20 se_stb     r0, 0x6(r25)                               ; FUN_000aeec6  -> DAT_400095e2
+0AEF22 e_lbz      r0, 0x131(r28)                             ; FUN_000aeec6  -> DAT_40002e51
+0AEF26 se_stb     r3, 0x6(r30)                               ; FUN_000aeec6  -> DAT_4000968e
+0AEF28 se_li      r6, 0x0                                    ; FUN_000aeec6
+0AEF2A e_andi     r7, r0, 0x20                               ; FUN_000aeec6
+0AEF2E se_btsti   r0, 0x1f                                   ; FUN_000aeec6
+0AEF30 se_beq     cr0, 0x000aef48                            ; FUN_000aeec6  -> LAB_000aef48
+0AEF32 se_btsti   r0, 0x1e                                   ; FUN_000aeec6
+0AEF34 se_beq     cr0, 0x000aef48                            ; FUN_000aeec6  -> LAB_000aef48
+0AEF36 se_btsti   r0, 0x1d                                   ; FUN_000aeec6
+0AEF38 se_beq     cr0, 0x000aef48                            ; FUN_000aeec6  -> LAB_000aef48
+0AEF3A se_btsti   r0, 0x1c                                   ; FUN_000aeec6
+0AEF3C se_beq     cr0, 0x000aef48                            ; FUN_000aeec6  -> LAB_000aef48
+0AEF3E se_btsti   r0, 0x1b                                   ; FUN_000aeec6
+0AEF40 se_beq     cr0, 0x000aef48                            ; FUN_000aeec6  -> LAB_000aef48
+0AEF42 se_cmpi    r7, 0x0                                    ; FUN_000aeec6
+0AEF44 se_beq     cr0, 0x000aef48                            ; FUN_000aeec6  -> LAB_000aef48
+0AEF46 se_li      r6, 0x1                                    ; FUN_000aeec6
+0AEF48 cntlzw     r0, r7                                     ; FUN_000aeec6
+0AEF4C se_stb     r6, 0x7(r25)                               ; FUN_000aeec6  -> DAT_400095e3
+0AEF4E se_srwi    r0, 0x5                                    ; FUN_000aeec6
+0AEF50 se_stb     r0, 0x8(r25)                               ; FUN_000aeec6  -> DAT_400095e4
+0AEF52 se_lbz     r0, 0x5(r30)                               ; FUN_000aeec6  -> DAT_4000968d
+0AEF54 se_stb     r0, 0x9(r25)                               ; FUN_000aeec6  -> DAT_400095e5
+0AEF56 se_lbz     r0, 0x0(r30)                               ; FUN_000aeec6  -> DAT_40009688
+0AEF58 se_stb     r3, 0xa(r25)                               ; FUN_000aeec6  -> DAT_400095e6
+0AEF5A se_stb     r0, 0xb(r25)                               ; FUN_000aeec6  -> DAT_400095e7
+0AEF5C se_lbz     r0, 0x1(r30)                               ; FUN_000aeec6  -> DAT_40009689
+0AEF5E se_stb     r0, 0xc(r25)                               ; FUN_000aeec6  -> DAT_400095e8
+0AEF60 se_lbz     r0, 0x2(r30)                               ; FUN_000aeec6  -> DAT_4000968a
+0AEF62 se_stb     r0, 0xd(r25)                               ; FUN_000aeec6  -> DAT_400095e9
+0AEF64 e_bl       0x000ae8dc                                 ; FUN_000aeec6  -> FUN_000ae8dc
+0AEF68 se_lbz     r31, 0x4(r25)                              ; FUN_000aeec6  -> DAT_400095e0
+0AEF6A se_mr      r3, r31                                    ; FUN_000aeec6
+0AEF6C e_bl       0x0010ccca                                 ; FUN_000aeec6  -> FUN_0010ccca
+0AEF70 se_mr      r26, r3                                    ; FUN_000aeec6
+0AEF72 se_lwz     r3, 0x0(r25)                               ; FUN_000aeec6  -> DAT_400095dc
+0AEF74 se_mr      r27, r4                                    ; FUN_000aeec6
+0AEF76 e_bl       0x0010ccca                                 ; FUN_000aeec6  -> FUN_0010ccca
+0AEF7A e_lis      r5, 0x40ed                                 ; FUN_000aeec6
+0AEF7E se_li      r6, 0x0                                    ; FUN_000aeec6
+
+===== 0x0AE900 .. 0x0AEA00 =====
+0AE900 e_b        0x000aeec2                                 ; FUN_000ae8dc  -> LAB_000aeec2
+0AE904 e_bl       0x000ac3c0                                 ; FUN_000ae8dc  -> FUN_000ac3c0
+0AE908 e_bl       0x000ac488                                 ; FUN_000ae8dc  -> FUN_000ac488
+0AE90C e_bl       0x000ac8c4                                 ; FUN_000ae8dc  -> FUN_000ac8c4
+0AE910 e_lwz      r0, 0x8c(r30)                              ; FUN_000ae8dc  -> DAT_40009678
+0AE914 e_rlwinm   r0, r0, 0x17, 0x1e, 0x1f                   ; FUN_000ae8dc
+0AE918 se_cmpli   r0, 0x1                                    ; FUN_000ae8dc
+0AE91A se_beq     cr0, 0x000ae922                            ; FUN_000ae8dc  -> FUN_000ae922
+0AE91C se_cmpli   r0, 0x2                                    ; FUN_000ae8dc
+0AE91E se_beq     cr0, 0x000ae94e                            ; FUN_000ae8dc  -> LAB_000ae94e
+0AE920 se_b       0x000ae976                                 ; FUN_000ae8dc  -> LAB_000ae976
+0AE922 e_lis      r3, 0x4000                                 ; FUN_000ae922
+0AE926 e_add16i   r3, r3, 0x3ff1                             ; FUN_000ae922  -> DAT_40003ff1
+0AE92A se_li      r4, 0x2                                    ; FUN_000ae922
+0AE92C e_bl       0x00031360                                 ; FUN_000ae922  -> VOL_test_and_clear_dirty
+0AE930 se_cmpi    r3, 0x1                                    ; FUN_000ae922
+0AE932 se_bne     cr0, 0x000ae994                            ; FUN_000ae922  -> LAB_000ae994
+0AE934 e_lwz      r7, 0x8c(r30)                              ; FUN_000ae922  -> DAT_40009678
+0AE938 se_li      r0, 0x2                                    ; FUN_000ae922
+0AE93A e_rlwimi   r7, r0, 0x9, 0x15, 0x16                    ; FUN_000ae922
+0AE93E e_lwz      r0, 0x94(r30)                              ; FUN_000ae922  -> DAT_40009680
+0AE942 e_stw      r7, 0x8c(r30)                              ; FUN_000ae922  -> DAT_40009678
+0AE946 se_bseti   r0, 0x8                                    ; FUN_000ae922
+0AE948 e_stw      r0, 0x94(r30)                              ; FUN_000ae922  -> DAT_40009680
+0AE94C se_b       0x000ae958                                 ; FUN_000ae922  -> FUN_000ae958
+0AE94E e_lbz      r0, 0x89(r30)                              ; UNSWEPT  -> DAT_40009674+1
+0AE952 e_cmpli    cr0, r0, 0x32                              ; UNSWEPT
+0AE956 se_bge     cr0, 0x000ae976                            ; UNSWEPT  -> LAB_000ae976
+0AE958 e_lis      r3, 0x4000                                 ; FUN_000ae958
+0AE95C e_add16i   r3, r3, 0x3ff1                             ; FUN_000ae958  -> DAT_40003ff1
+0AE960 se_li      r4, 0x2                                    ; FUN_000ae958
+0AE962 e_bl       0x00031360                                 ; FUN_000ae958  -> VOL_test_and_clear_dirty
+0AE966 se_cmpi    r3, 0x1                                    ; FUN_000ae958
+0AE968 se_beq     cr0, 0x000ae98e                            ; FUN_000ae958  -> LAB_000ae98e
+0AE96A e_addi     r5, r30, 0x84                              ; FUN_000ae958
+0AE96E se_lbz     r0, 0x5(r5)                                ; FUN_000ae958  -> DAT_40009674+1
+0AE970 se_addi    r0, 0xa                                    ; FUN_000ae958
+0AE972 se_stb     r0, 0x5(r5)                                ; FUN_000ae958  -> DAT_40009674+1
+0AE974 se_b       0x000ae994                                 ; FUN_000ae958  -> LAB_000ae994
+0AE976 e_lwz      r7, 0x8c(r30)                              ; UNSWEPT  -> DAT_40009678
+0AE97A se_li      r0, 0x1                                    ; UNSWEPT
+0AE97C e_rlwimi   r7, r0, 0x9, 0x15, 0x16                    ; UNSWEPT
+0AE980 e_lwz      r0, 0x94(r30)                              ; UNSWEPT  -> DAT_40009680
+0AE984 e_stw      r7, 0x8c(r30)                              ; UNSWEPT  -> DAT_40009678
+0AE988 se_bclri   r0, 0x8                                    ; UNSWEPT
+0AE98A e_stw      r0, 0x94(r30)                              ; UNSWEPT  -> DAT_40009680
+0AE98E se_li      r0, 0x0                                    ; FUN_000ae958
+0AE990 e_stb      r0, 0x89(r30)                              ; FUN_000ae958  -> DAT_40009674+1
+0AE994 e_lwz      r0, 0x8c(r30)                              ; FUN_000ae958  -> DAT_40009678
+0AE998 e_lis      r29, 0x4000                                ; FUN_000ae958
+0AE99C e_add16i   r29, r29, 0x2d20                           ; FUN_000ae958
+0AE9A0 se_srwi    r0, 0x1d                                   ; FUN_000ae958
+0AE9A2 se_cmpli   r0, 0x1                                    ; FUN_000ae958
+0AE9A4 se_blt     cr0, 0x000aea5e                            ; FUN_000ae958  -> LAB_000aea5e
+0AE9A6 se_beq     cr0, 0x000ae9b4                            ; FUN_000ae958  -> LAB_000ae9b4
+0AE9A8 se_cmpli   r0, 0x3                                    ; FUN_000ae958
+0AE9AA se_blt     cr0, 0x000ae9ec                            ; FUN_000ae958  -> LAB_000ae9ec
+0AE9AC se_beq     cr0, 0x000aea16                            ; FUN_000ae958  -> FUN_000aea16
+0AE9AE se_cmpli   r0, 0x4                                    ; FUN_000ae958
+0AE9B0 se_beq     cr0, 0x000aea38                            ; FUN_000ae958  -> LAB_000aea38
+0AE9B2 se_b       0x000aea5e                                 ; FUN_000ae958  -> LAB_000aea5e
+0AE9B4 e_lbz      r0, 0x23a(r29)                             ; FUN_000ae958  -> RXsig_PwPck_D_Stat
+0AE9B8 se_cmpi    r0, 0x8                                    ; FUN_000ae958
+0AE9BA se_bne     cr0, 0x000ae9c4                            ; FUN_000ae958  -> LAB_000ae9c4
+0AE9BC e_lwz      r0, 0x94(r30)                              ; FUN_000ae958  -> DAT_40009680
+0AE9C0 se_btsti   r0, 0x8                                    ; FUN_000ae958
+0AE9C2 se_bne     cr0, 0x000aea44                            ; FUN_000ae958  -> LAB_000aea44
+0AE9C4 e_addi     r6, r30, 0x44                              ; FUN_000ae958
+0AE9C8 se_lwz     r7, 0x2c(r30)                              ; FUN_000ae958  -> DAT_40009618
+0AE9CA se_lwz     r0, 0x24(r6)                               ; FUN_000ae958  -> DAT_40009654
+0AE9CC se_cmpl    r0, r7                                     ; FUN_000ae958
+0AE9CE se_blt     cr0, 0x000ae9e6                            ; FUN_000ae958  -> LAB_000ae9e6
+0AE9D0 e_lwz      r7, 0x8c(r30)                              ; FUN_000ae958  -> DAT_40009678
+0AE9D4 se_li      r0, 0x3                                    ; FUN_000ae958
+0AE9D6 e_rlwimi   r7, r0, 0x1d, 0x0, 0x2                     ; FUN_000ae958
+0AE9DA e_lwz      r0, 0x94(r30)                              ; FUN_000ae958  -> DAT_40009680
+0AE9DE e_stw      r7, 0x8c(r30)                              ; FUN_000ae958  -> DAT_40009678
+0AE9E2 se_bseti   r0, 0xb                                    ; FUN_000ae958
+0AE9E4 se_b       0x000aea58                                 ; FUN_000ae958  -> LAB_000aea58
+0AE9E6 se_addi    r0, 0xa                                    ; FUN_000ae958
+0AE9E8 se_stw     r0, 0x24(r6)                               ; FUN_000ae958  -> DAT_40009654
+0AE9EA se_b       0x000aea6c                                 ; FUN_000ae958  -> LAB_000aea6c
+0AE9EC e_lbz      r0, 0x271(r29)                             ; FUN_000ae958  -> DAT_40002f91
+0AE9F0 se_cmpi    r0, 0x1                                    ; FUN_000ae958
+0AE9F2 se_bne     cr0, 0x000aea6c                            ; FUN_000ae958  -> LAB_000aea6c
+0AE9F4 e_lis      r7, 0x4000                                 ; FUN_000ae9f4
+0AE9F8 e_lwz      r7, 0x1e60(r7)                             ; FUN_000ae9f4  -> DAT_40001e60
+0AE9FC se_btsti   r7, 0x1                                    ; FUN_000ae9f4
+0AE9FE se_beq     cr0, 0x000aea6c                            ; FUN_000ae9f4  -> LAB_000aea6c
+
+===== 0x0AD888 .. 0x0AD960 =====
+0AD888 e_lis      r3, 0x4001                                 ; FUN_000ad888
+0AD88C e_add16i   r3, r3, -0x6a24                            ; FUN_000ad888
+0AD890 e_rlwinm   r0, r0, 0xc, 0x1e, 0x1f                    ; FUN_000ad888
+0AD894 se_cmpli   r0, 0x1                                    ; FUN_000ad888
+0AD896 e_blt      cr0, 0x000ada04                            ; FUN_000ad888  -> LAB_000ada04
+0AD89A se_beq     cr0, 0x000ad8a6                            ; FUN_000ad888  -> LAB_000ad8a6
+0AD89C se_cmpli   r0, 0x3                                    ; FUN_000ad888
+0AD89E se_blt     cr0, 0x000ad8d2                            ; FUN_000ad888  -> LAB_000ad8d2
+0AD8A0 se_beq     cr0, 0x000ad91c                            ; FUN_000ad888  -> LAB_000ad91c
+0AD8A2 e_b        0x000ada04                                 ; FUN_000ad888  -> LAB_000ada04
+0AD8A6 e_lbz      r0, 0xf3(r7)                               ; FUN_000ad888  -> DAT_000081f3
+0AD8AA se_cmpi    r0, 0x2                                    ; FUN_000ad888
+0AD8AC e_bne      cr0, 0x000ada12                            ; FUN_000ad888  -> LAB_000ada12
+0AD8B0 e_lbz      r0, 0x23a(r30)                             ; FUN_000ad888  -> RXsig_PwPck_D_Stat
+0AD8B4 se_cmpi    r0, 0x8                                    ; FUN_000ad888
+0AD8B6 e_beq      cr0, 0x000ada12                            ; FUN_000ad888  -> LAB_000ada12
+0AD8BA e_lbz      r0, 0x272(r30)                             ; FUN_000ad888  -> DAT_40002f92
+0AD8BE se_li      r6, 0x0                                    ; FUN_000ad888
+0AD8C0 se_stw     r6, 0x0(r31)                               ; FUN_000ad888  -> DAT_400095ec
+0AD8C2 se_andi    r0, 0xc                                    ; FUN_000ad888
+0AD8C4 e_rlwinm   r0, r0, 0x1e, 0x18, 0x1f                   ; FUN_000ad888
+0AD8C8 e_mulli    r0, r0, 0x5                                ; FUN_000ad888
+0AD8CC se_addi    r0, 0x5                                    ; FUN_000ad888
+0AD8CE se_stb     r0, 0x4(r3)                                ; FUN_000ad888  -> DAT_400095e0
+0AD8D0 se_b       0x000ad938                                 ; FUN_000ad888  -> LAB_000ad938
+0AD8D2 e_lbz      r0, 0x23a(r30)                             ; FUN_000ad888  -> RXsig_PwPck_D_Stat
+0AD8D6 se_cmpi    r0, 0x8                                    ; FUN_000ad888
+0AD8D8 e_bne      cr0, 0x000ada12                            ; FUN_000ad888  -> LAB_000ada12
+0AD8DC e_lwz      r0, 0x94(r31)                              ; FUN_000ad888  -> DAT_40009680
+0AD8E0 se_btsti   r0, 0x8                                    ; FUN_000ad888
+0AD8E2 e_beq      cr0, 0x000ada12                            ; FUN_000ad888  -> LAB_000ada12
+0AD8E6 e_lwz      r0, 0x94(r31)                              ; FUN_000ad888  -> DAT_40009680
+0AD8EA e_lbz      r6, 0x272(r30)                             ; FUN_000ad888  -> DAT_40002f92
+0AD8EE se_bseti   r0, 0xe                                    ; FUN_000ad888
+0AD8F0 e_stw      r0, 0x94(r31)                              ; FUN_000ad888  -> DAT_40009680
+0AD8F4 se_andi    r6, 0xc                                    ; FUN_000ad888
+0AD8F6 e_lwz      r0, 0x90(r31)                              ; FUN_000ad888  -> DAT_4000967c
+0AD8FA se_srwi    r6, 0x2                                    ; FUN_000ad888
+0AD8FC e_mulli    r6, r6, 0x5                                ; FUN_000ad888
+0AD900 e_or2is    r0, 0x30                                   ; FUN_000ad888
+0AD904 e_stw      r0, 0x90(r31)                              ; FUN_000ad888  -> DAT_4000967c
+0AD908 se_addi    r6, 0x5                                    ; FUN_000ad888
+0AD90A e_li       r0, 0xea60                                 ; FUN_000ad888
+0AD90E se_mullw   r0, r6                                     ; FUN_000ad888
+0AD910 se_stw     r0, 0x8(r31)                               ; FUN_000ad888  -> DAT_400095f4
+0AD912 se_li      r0, 0x0                                    ; FUN_000ad888
+0AD914 se_stw     r0, 0x34(r31)                              ; FUN_000ad888  -> DAT_40009620
+0AD916 se_lwz     r0, 0x0(r31)                               ; FUN_000ad888  -> DAT_400095ec
+0AD918 se_stw     r0, 0x0(r3)                                ; FUN_000ad888  -> DAT_400095dc
+0AD91A se_b       0x000ad9b6                                 ; FUN_000ad888  -> LAB_000ad9b6
+0AD91C e_lbz      r0, 0x23a(r30)                             ; FUN_000ad888  -> RXsig_PwPck_D_Stat
+0AD920 se_cmpi    r0, 0x8                                    ; FUN_000ad888
+0AD922 se_bne     cr0, 0x000ad930                            ; FUN_000ad888  -> LAB_000ad930
+0AD924 e_lis      r6, 0x4000                                 ; FUN_000ad924
+0AD928 e_lbz      r6, 0x3cb2(r6)                             ; FUN_000ad924  -> DAT_40003cb2
+0AD92C se_btsti   r6, 0x19                                   ; FUN_000ad924
+0AD92E se_beq     cr0, 0x000ad95a                            ; FUN_000ad924  -> LAB_000ad95a
+0AD930 se_li      r6, 0x0                                    ; FUN_000ad924
+0AD932 se_stw     r6, 0x0(r31)                               ; FUN_000ad924  -> DAT_400095ec
+0AD934 se_stw     r6, 0x0(r3)                                ; FUN_000ad924  -> DAT_400095dc
+0AD936 se_stb     r6, 0x4(r3)                                ; FUN_000ad924  -> DAT_400095e0
+0AD938 e_lwz      r4, 0x90(r31)                              ; FUN_000ad924  -> DAT_4000967c
+0AD93C se_li      r0, 0x2                                    ; FUN_000ad924
+0AD93E e_rlwimi   r4, r0, 0x14, 0xa, 0xb                     ; FUN_000ad924
+0AD942 e_lwz      r0, 0x94(r31)                              ; FUN_000ad924  -> DAT_40009680
+0AD946 e_stw      r6, 0x6c(r31)                              ; FUN_000ad924  -> DAT_40009658
+0AD94A e_stw      r4, 0x90(r31)                              ; FUN_000ad924  -> DAT_4000967c
+0AD94E se_stw     r6, 0x34(r31)                              ; FUN_000ad924  -> DAT_40009620
+0AD950 e_andi     r0, r0, -0x420001                          ; FUN_000ad924
+0AD954 e_stw      r0, 0x94(r31)                              ; FUN_000ad924  -> DAT_40009680
+0AD958 se_b       0x000ada12                                 ; FUN_000ad924  -> LAB_000ada12
+0AD95A se_lhz     r0, 0x0(r5)                                ; FUN_000ad924  -> DAT_40001e60
+0AD95C se_btsti   r0, 0x16                                   ; FUN_000ad924
+0AD95E se_beq     cr0, 0x000ad968                            ; FUN_000ad924  -> LAB_000ad968

@@ -2043,8 +2043,14 @@ Kept here only as the pointers into this document's evidence:
 28. **Explain the wide lock-command codes** (§39.4) — sharpened in §40.3: the enumeration is
     `0x02`, **`0x06`**, `0x1F`, `0x3F`, `(x<<1)|1`; the wire has only ever shown `0x01`/`0x02`, so
     d3 is a multi-code command byte of which captures have exercised two states.
-29. **Correlate `APP_power_mode` `0x40001D85` (codes `0..4`) with the wire power state**
-    (`ign_powermode_0x80.md`, MS `0x80` d2, codes `0..7`) from a capture — or demote the name.
+29. ~~**Correlate `APP_power_mode` `0x40001D85` (codes `0..4`) with the wire power state**
+    (`ign_powermode_0x80.md`, MS `0x80` d2, codes `0..7`) from a capture — or demote the name.~~
+    ✅ **RESOLVED — the name stands** (`docs/remote_start.md` §3). The two code sets were never
+    the same field: MS `0x80` d2 carries **two** signals, `mask 0x1F shift 0` ← `0x40002E3F`
+    (the ignition code, 6=on/7=run) and **`mask 0xE0 shift 5` ← `0x40001D85` = `APP_power_mode`**
+    (site `0x4C740`, MS image base `0x400009FD`). Decoding `(d2>>5)&7` against a **normal-key-start
+    control** gives `APP_power_mode` = **0** for a normal run, **2** key-off/accessory, and
+    **4 = remote start** (held for the whole remote run, 3 captures, absent from the control).
 30. **Test whether the ignition-on lock refusal is a missing code path rather than a gate**
     (§39.5, §40.5) — neither the execute strobe nor HS `0x030` d5 has any pack descriptor in this
     build, and §40.3 found every dispatcher arm *emits* a command rather than suppressing one.

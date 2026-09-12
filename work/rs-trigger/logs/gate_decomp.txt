@@ -1,0 +1,16 @@
+WARNING: Final field name in class ghidra.util.charset.CharsetInfo has been mutated reflectively by class com.google.gson.internal.bind.ReflectiveTypeAdapterFactory$2 in unnamed module @28b46423 (file:/opt/ghidra/Ghidra/Framework/Generic/lib/gson-2.13.2.jar)
+WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
+WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
+Traceback (most recent call last):
+  File "GhidraProject.java", line 96, in ghidra.base.project.GhidraProject.openProject
+Exception: Java Exception
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/gl/Projects/ford/BCM/Research/work/rs-trigger/322_pcode_and_decomp.py", line 76, in <module>
+    main()
+  File "/home/gl/Projects/ford/BCM/Research/work/rs-trigger/322_pcode_and_decomp.py", line 29, in main
+    project = GhidraProject.openProject(PROJ, NAME, True)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ghidra.framework.store.ghidra.framework.store.LockException: ghidra.framework.store.LockException: Unable to lock project! /home/gl/Projects/ford/BCM/Research/ghidra_proj_fullflash/BCM_OwnerFlash

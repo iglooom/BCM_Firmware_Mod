@@ -1,0 +1,101 @@
+WARNING: Final field name in class ghidra.util.charset.CharsetInfo has been mutated reflectively by class com.google.gson.internal.bind.ReflectiveTypeAdapterFactory$2 in unnamed module @28b46423 (file:/opt/ghidra/Ghidra/Framework/Generic/lib/gson-2.13.2.jar)
+WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
+WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
+==============================================================================
+E1. ALL references to each cell, CLASSIFIED
+==============================================================================
+
+---- 0x40002F3C (TARGET) ----
+   [ADDRESS-TAKEN / other: e_add16i]  n=1
+       0x1136D0 e_add16i r5,r30,0x21c      fn=FUN_0011367e
+   [WRITE]  n=2
+       0x1135AE e_stb r0,0x21c(r30)        fn=FUN_00113580
+       0x11378C se_stb r0,0xc(r31)         fn=FUN_0011367e
+   [read]  n=22
+       0x05A15E e_lbz r7,0x21c(r6)         fn=FUN_0005a0ee
+       0x05A232 e_lbz r7,0x21c(r6)         fn=FUN_0005a1e8
+       0x05A2C4 e_lbz r7,0x21c(r30)        fn=FUN_0005a252
+       0x0E2B56 se_lbz r0,0x0(r7)          fn=APP_did_did_EE8A_read
+       0x051264 se_lbz r0,0xc(r29)         fn=FUN_000511ac
+       0x06BE4E e_lbz r0,0x21c(r27)        fn=FUN_0006bdc4
+       0x1137AE se_lbz r6,0xc(r31)         fn=FUN_0011367e
+       0x1137C4 se_lbz r7,0xc(r31)         fn=FUN_0011367e
+       0x06C31C e_lbz r7,0x21c(r29)        fn=FUN_0006c2b8
+       0x05D014 e_lbz r7,0x2f3c(r7)        fn=FUN_0005d010
+       0x0ACB4C se_lbz r0,0xc(r27)         fn=FUN_000aca24
+       0x05D302 se_lbz r0,0xc(r7)          fn=FUN_0005d2f4
+       0x04E208 se_lbz r0,0xc(r7)          fn=FUN_0004e200
+       0x05CDAE se_lbz r0,0xc(r24)         fn=FUN_0005cd94
+       0x0AC7D6 e_lbz r0,0xc(r23)          fn=FUN_000ac6b6
+       0x0AD6D4 e_lbz r0,0x21c(r30)        fn=FUN_000ad6c6
+       0x04E110 se_lbz r0,0xc(r31)         fn=FUN_0004e108
+       0x077EFE e_lbz r7,0x21c(r31)        fn=FUN_00077e2c
+       0x077FB4 e_lbz r0,0x21c(r31)        fn=FUN_00077e2c
+       0x07829A e_lbz r0,0x21c(r28)        fn=FUN_0007827c
+       0x078234 e_lbz r7,0x21c(r28)        fn=FUN_00078212
+       0x0D518E se_lbz r0,0xc(r6)          fn=FUN_000d5182
+
+---- 0x40002F32 (sibling ch0) ----
+   [ADDRESS-TAKEN / other: e_add16i]  n=1
+       0x1136EE e_add16i r5,r30,0x212      fn=FUN_0011367e
+   [WRITE]  n=2
+       0x1135F4 e_stb r0,0x212(r30)        fn=FUN_00113580
+       0x11378A se_stb r0,0x2(r31)         fn=FUN_0011367e
+   [read]  n=14
+       0x0E2E12 se_lbz r0,0x2(r7)          fn=APP_did_did_EEC9_read
+       0x051280 se_lbz r0,0x2(r29)         fn=FUN_000511ac
+       0x1137D2 se_lbz r6,0x2(r31)         fn=FUN_0011367e
+       0x1137E6 se_lbz r7,0x2(r31)         fn=FUN_0011367e
+       0x0ACB46 se_lbz r0,0x2(r27)         fn=FUN_000aca24
+       0x05D2FE se_lbz r0,0x2(r7)          fn=FUN_0005d2f4
+       0x04E212 se_lbz r0,0x2(r7)          fn=FUN_0004e200
+       0x05CE80 se_lbz r0,0x2(r24)         fn=FUN_0005cd94
+       0x062410 e_lbz r0,0x212(r28)        fn=FUN_00062402
+       0x0AC7CE e_lbz r0,0x2(r23)          fn=FUN_000ac6b6
+       0x0596CA e_lbz r6,0x212(r7)         fn=FUN_00059682
+       0x04E128 se_lbz r0,0x2(r31)         fn=FUN_0004e108
+       0x05CFEC e_lbz r0,0x212(r7)         fn=FUN_0005cfe4
+       0x0D51AA se_lbz r0,0x2(r6)          fn=FUN_000d5190
+
+---- 0x40002F37 (sibling ch2) ----
+   [ADDRESS-TAKEN / other: e_addi]  n=1
+       0x113736 e_addi r5,r31,0x7          fn=FUN_0011367e
+   [WRITE]  n=2
+       0x11363A e_stb r0,0x217(r30)        fn=FUN_00113580
+       0x113788 se_stb r0,0x7(r31)         fn=FUN_0011367e
+   [read]  n=7
+       0x0E2E32 se_lbz r0,0x3(r7)          fn=APP_did_did_EECA_read
+       0x1137F4 se_lbz r6,0x7(r31)         fn=FUN_0011367e
+       0x113808 se_lbz r7,0x7(r31)         fn=FUN_0011367e
+       0x05D030 e_lbz r0,0x217(r7)         fn=FUN_0005d028
+       0x05D306 se_lbz r0,0x7(r7)          fn=FUN_0005d2f4
+       0x05CF1C se_lbz r0,0x7(r24)         fn=FUN_0005cd94
+       0x0D51BE se_lbz r0,0x7(r6)          fn=FUN_000d5190
+
+==============================================================================
+E2. FULL-IMAGE: where is the ADDRESS 0x40002F3C materialised
+    into a register?  (pointer escape -> possible hidden writer)
+==============================================================================
+   swept 352906 instructions
+   address-materialisation sites: 4
+     0x0E2B52  e_add16i r7,r7,0x2f3c          r7 = 0x40002F3C   fn=APP_did_did_EE8A_read
+     0x1136D0  e_add16i r5,r30,0x21c          r5 = 0x40002F3C   fn=FUN_0011367e
+     0x1136EE  e_add16i r5,r30,0x212          r5 = 0x40002F32   fn=FUN_0011367e
+     0x113736  e_addi r5,r31,0x7              r5 = 0x40002F37   fn=FUN_0011367e
+
+==============================================================================
+E3. The hidden writer: `*param_3 = bVar1 & 3` in FUN_00113ea8
+==============================================================================
+   0x113EA8  se_mflr r0
+   0x113EAA  se_stw r0,0x4(r1)
+
+==============================================================================
+E4. SOURCE TABLE (&DAT_4000B0BB)[idx*0xE] -- what can byte&3 be?
+==============================================================================
+   0x4000B0BB is SRAM (block SRAM 40000000..40017fff), i.e. a
+   RUNTIME structure, not flash constants -- so byte&3 is not
+   statically bounded below 3 by any table image.
+   Also check: the index table PTR_DAT_0011322E in FLASH
+   0x11322E: 00 01 02 00 00 00 40 00 b0 af 40 00 b0 d8 00 02 03 00 01 02 08 06 40 00 b0 80 40 00 b0 88 00 08
+   0x11323C = 0x00
+   0x11323D = 0x02

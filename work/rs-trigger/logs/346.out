@@ -1,0 +1,30 @@
+WARNING: Final field name in class ghidra.util.charset.CharsetInfo has been mutated reflectively by class com.google.gson.internal.bind.ReflectiveTypeAdapterFactory$2 in unnamed module @28b46423 (file:/opt/ghidra/Ghidra/Framework/Generic/lib/gson-2.13.2.jar)
+WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
+WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
+read 1572864 bytes of CFLASH from the loaded program
+SWEPT SCOPE: CFLASH 0x000000..0x17FFFF, 2-byte aligned
+
+  73c8e000   wanted e_lis r30,0x4000           | Ghidra @0x022F00 : e_lis r30,0x4000           MATCH  (3 hits)
+               also @0x023260 : e_lis r30,0x4000
+               also @0x023B80 : e_lis r30,0x4000
+  1fde3f02   wanted e_add16i r30,r30,0x3f02    | Ghidra @0x05854A : e_add16i r30,r30,0x3f02    MATCH  (3 hits)
+               also @0x058AEC : e_add16i r30,r30,0x3f02
+               also @0x05B22E : e_add16i r30,r30,0x3f02
+  2c80       wanted se_bmaski r0,0x8           | Ghidra @0x023646 : se_bmaski r0,0x8           MATCH  (3 hits)
+               also @0x023B62 : se_bmaski r0,0x8
+               also @0x023BC6 : se_bmaski r0,0x8
+  341e0051   wanted e_stb r0,0x51(r30)         | Ghidra @0x03E7E8 : e_stb r0,0x51(r30)         MATCH  (2 hits)
+               also @0x05856A : e_stb r0,0x51(r30)
+  7068e000   wanted e_lis r3,0x4000            | Ghidra @0x0231E0 : e_lis r3,0x4000            MATCH  (3 hits)
+               also @0x023250 : e_lis r3,0x4000
+               also @0x02329E : e_lis r3,0x4000
+  1c633f53   wanted e_add16i r3,r3,0x3f53      | Ghidra @0x099302 : e_add16i r3,r3,0x3f53      MATCH  (1 hits)
+  9003       wanted se_stb r0,0x0(r3)          | Ghidra @0x022E80 : se_stb r0,0x0(r3)          MATCH  (3 hits)
+               also @0x02EE70 : se_stb r0,0x0(r3)
+               also @0x0307F2 : se_stb r0,0x0(r3)
+  8003       wanted se_lbz r0,0x0(r3)          | Ghidra @0x030038 : se_lbz r0,0x0(r3)          MATCH  (3 hits)
+               also @0x03174E : se_lbz r0,0x0(r3)
+               also @0x0317C8 : se_lbz r0,0x0(r3)
+  1800d020   wanted e_ori r0,r0,0x20           | NOT FOUND in image (unconfirmed by this method, not a failure)
+
+CONTROL: '341e0051' must be found at 0x05856A -- see above.

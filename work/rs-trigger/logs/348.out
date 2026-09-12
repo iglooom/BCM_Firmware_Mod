@@ -1,0 +1,151 @@
+WARNING: Final field name in class ghidra.util.charset.CharsetInfo has been mutated reflectively by class com.google.gson.internal.bind.ReflectiveTypeAdapterFactory$2 in unnamed module @28b46423 (file:/opt/ghidra/Ghidra/Framework/Generic/lib/gson-2.13.2.jar)
+WARNING: Use --enable-final-field-mutation=ALL-UNNAMED to avoid a warning
+WARNING: Mutating final fields will be blocked in a future release unless final field mutation is enabled
+###### (a)/(b) DISASSEMBLY ######
+--- 058538..0585C0 ---
+  058538  se_mflr r0                         
+  05853A  e_bl 0x0010df6a                    0010df6a:UNCONDITIONAL_CALL
+  05853E  e_lis r31,0x4000                   
+  058542  e_lis r30,0x4000                   
+  058546  e_add16i r31,r31,0x2d20            
+  05854A  e_add16i r30,r30,0x3f02            
+  05854E  se_cmpli r3,0x1                    
+  058550  se_blt cr0,0x0005855c              0005855c:CONDITIONAL_JUMP
+  058552  se_beq cr0,0x00058574              00058574:CONDITIONAL_JUMP
+  058554  se_cmpli r3,0x3                    
+  058556  se_blt cr0,0x0005858c              0005858c:CONDITIONAL_JUMP
+  058558  se_beq cr0,0x000585a4              000585a4:CONDITIONAL_JUMP
+  05855A  se_b 0x000585b4                    000585b4:UNCONDITIONAL_JUMP
+  05855C  e_lis r3,0x14                      
+  058560  e_add16i r3,r3,0x2fd4              00142fd4:PARAM
+  058564  e_bl 0x000fbb38                    000fbb38:UNCONDITIONAL_CALL
+  058568  se_bmaski r0,0x8                   
+  05856A  e_stb r0,0x51(r30)                 40003f53:WRITE
+  05856E  e_sth r3,0x82(r31)                 40002da2:WRITE
+  058572  se_b 0x000585b4                    000585b4:UNCONDITIONAL_JUMP
+  058574  e_lis r3,0x14                      
+  058578  e_add16i r3,r3,0x322c              0014322c:PARAM
+  05857C  e_bl 0x000fbb62                    000fbb62:UNCONDITIONAL_CALL
+  058580  se_bmaski r0,0x8                   
+  058582  e_stb r0,0x48(r30)                 40003f4a:WRITE
+  058586  e_stb r3,0x54(r31)                 40002d74:WRITE
+  05858A  se_b 0x000585b4                    000585b4:UNCONDITIONAL_JUMP
+  05858C  e_lis r3,0x14                      
+  058590  e_add16i r3,r3,0x2d54              00142d54:PARAM
+  058594  e_bl 0x000fbb62                    000fbb62:UNCONDITIONAL_CALL
+  058598  se_bmaski r0,0x8                   
+  05859A  e_stb r0,0x127(r30)                40004029:WRITE
+  05859E  e_stb r3,0x32e(r31)                4000304e:WRITE
+  0585A2  se_b 0x000585b4                    000585b4:UNCONDITIONAL_JUMP
+  0585A4  e_lis r3,0x14                      
+  0585A8  e_add16i r3,r3,0x2b24              00142b24:PARAM
+  0585AC  e_bl 0x000fbb62                    000fbb62:UNCONDITIONAL_CALL
+  0585B0  e_stb r3,0x322(r31)                40003042:WRITE
+  0585B4  e_b 0x0010df78                     0010df78:UNCONDITIONAL_JUMP
+  0585B8  se_mflr r0                         
+  0585BA  e_bl 0x0010df50                    0010df50:UNCONDITIONAL_CALL
+  0585BE  se_mr r31,r3                       
+--- 0ADA00..0ADA98 ---
+  0ADA00  se_stb r0,0x4(r3)                  400095e0:WRITE
+  0ADA02  se_b 0x000ada12                    000ada12:UNCONDITIONAL_JUMP
+  0ADA04  e_lwz r6,0x90(r31)                 4000967c:READ
+  0ADA08  se_li r0,0x1                       
+  0ADA0A  e_rlwimi r6,r0,0x14,0xa,0xb        
+  0ADA0E  e_stw r6,0x90(r31)                 4000967c:WRITE
+  0ADA12  e_lwz r0,0x90(r31)                 4000967c:READ
+  0ADA16  e_rlwinm r0,r0,0x6,0x1e,0x1f       
+  0ADA1A  se_cmpli r0,0x1                    
+  0ADA1C  se_beq cr0,0x000ada24              000ada24:CONDITIONAL_JUMP
+  0ADA1E  se_cmpli r0,0x2                    
+  0ADA20  se_beq cr0,0x000ada44              000ada44:CONDITIONAL_JUMP
+  0ADA22  se_b 0x000ada64                    000ada64:UNCONDITIONAL_JUMP
+  0ADA24  se_lbz r0,0x5(r3)                  400095e1:READ
+  0ADA26  se_cmpi r0,0x1                     
+  0ADA28  se_bne cr0,0x000ada86              000ada86:CONDITIONAL_JUMP
+  0ADA2A  e_lwz r6,0x90(r31)                 4000967c:READ
+  0ADA2E  se_li r0,0x2                       
+  0ADA30  e_rlwimi r6,r0,0x1a,0x4,0x5        
+  0ADA34  e_lwz r0,0x94(r31)                 40009680:READ
+  0ADA38  e_stw r6,0x90(r31)                 4000967c:WRITE
+  0ADA3C  se_bseti r0,0x4                    
+  0ADA3E  e_stw r0,0x94(r31)                 40009680:WRITE
+  0ADA42  se_b 0x000ada4e                    000ada4e:UNCONDITIONAL_JUMP
+  0ADA44  e_lbz r0,0x86(r31)                 40009672:READ
+  0ADA48  e_cmpli cr0,r0,0xc8                
+  0ADA4C  se_bge cr0,0x000ada64              000ada64:CONDITIONAL_JUMP
+  0ADA4E  se_lbz r0,0x5(r3)                  400095e1:READ
+  0ADA50  se_cmpi r0,0x1                     
+  0ADA52  se_bne cr0,0x000ada58              000ada58:CONDITIONAL_JUMP
+  0ADA54  se_li r0,0x0                       
+  0ADA56  se_b 0x000ada5e                    000ada5e:UNCONDITIONAL_JUMP
+  0ADA58  e_lbz r0,0x86(r31)                 40009672:READ
+  0ADA5C  se_addi r0,0xa                     
+  0ADA5E  e_stb r0,0x86(r31)                 40009672:WRITE
+  0ADA62  se_b 0x000ada86                    000ada86:UNCONDITIONAL_JUMP
+  0ADA64  e_lwz r6,0x90(r31)                 4000967c:READ
+  0ADA68  se_li r0,0x1                       
+  0ADA6A  e_rlwimi r6,r0,0x1a,0x4,0x5        
+  0ADA6E  e_lwz r0,0x94(r31)                 40009680:READ
+  0ADA72  e_stw r6,0x90(r31)                 4000967c:WRITE
+  0ADA76  se_bclri r0,0x4                    
+  0ADA78  e_stw r0,0x94(r31)                 40009680:WRITE
+  0ADA7C  se_li r0,0x0                       
+  0ADA7E  e_stw r0,0x5c(r31)                 40009648:WRITE
+  0ADA82  e_stb r0,0x86(r31)                 40009672:WRITE
+  0ADA86  e_lwz r0,0x90(r31)                 4000967c:READ
+  0ADA8A  e_lis r4,0x4000                    
+  0ADA8E  e_add16i r4,r4,0x3cb0              
+  0ADA92  e_rlwinm r0,r0,0xa,0x1e,0x1f       
+  0ADA96  se_cmpli r0,0x1                    
+--- 0584A4..0584D0 ---
+  0584A4  se_mflr r0                         
+  0584A6  e_bl 0x0010df6a                    0010df6a:UNCONDITIONAL_CALL
+  0584AA  se_li r31,0x0                      
+  0584AC  se_cmpli r3,0x1                    
+  0584AE  se_blt cr0,0x000584ba              000584ba:CONDITIONAL_JUMP
+  0584B0  se_beq cr0,0x000584d0              000584d0:CONDITIONAL_JUMP
+  0584B2  se_cmpli r3,0x3                    
+  0584B4  se_blt cr0,0x0005850a              0005850a:CONDITIONAL_JUMP
+  0584B6  se_beq cr0,0x0005851c              0005851c:CONDITIONAL_JUMP
+  0584B8  se_b 0x00058532                    00058532:UNCONDITIONAL_JUMP
+  0584BA  e_lis r3,0x14                      
+  0584BE  e_add16i r3,r3,0x2fd4              00142fd4:PARAM
+  0584C2  e_bl 0x000fbb38                    000fbb38:UNCONDITIONAL_CALL
+  0584C6  se_andi r3,0xf                     
+  0584C8  se_subi r3,0x2                     
+  0584CA  se_cmpli r3,0x1                    
+  0584CC  se_ble cr0,0x00058530              00058530:CONDITIONAL_JUMP
+  0584CE  se_b 0x00058532                    00058532:UNCONDITIONAL_JUMP
+
+###### (c) CALLER CLIMB (CALL+JUMP+fallthrough) ######
+0x058538 : 6 CALL/JUMP refs, fallthrough=None
+    <- 00058800 UNCONDITIONAL_CALL  FUN_0005878c@0005878c
+    <- 00058812 UNCONDITIONAL_CALL  FUN_0005878c@0005878c
+    <- 00058818 UNCONDITIONAL_CALL  FUN_0005878c@0005878c
+    <- 0005882a UNCONDITIONAL_CALL  FUN_0005878c@0005878c
+    <- 00058692 UNCONDITIONAL_CALL  None@None
+    <- 000586c6 UNCONDITIONAL_CALL  FUN_000586b6@000586b6
+0x0584A4 : 1 CALL/JUMP refs, fallthrough=None
+    <- 000585c4 UNCONDITIONAL_CALL  FUN_000585b8@000585b8
+0x0AEEC6 : 1 CALL/JUMP refs, fallthrough=None
+    <- 000628fc UNCONDITIONAL_CALL  APP_feature_periodic@00062848
+0x0AD97C : 0 CALL/JUMP refs, fallthrough=000ad97a
+    <- 000ad97a FALLTHROUGH  FUN_000ad970@000ad970
+0x0ADADA : 0 CALL/JUMP refs, fallthrough=000adad8
+    <- 000adad8 FALLTHROUGH  FUN_000ad97c@000ad97c
+
+CONTROL (0x0AEEC6 called from APP_feature_periodic 0x062848): PASS
+
+###### (d) WRITE refs to the path's RAM cells ######
+0x40003F53 :  1 writes ['0005856a'] | 0 reads
+0x40002DA2 :  1 writes ['0005856e'] | 16 reads
+0x400095E1 :  1 writes ['000aef14'] | 11 reads
+0x4000968B :  1 writes ['000aeee6'] | 1 reads
+0x4000967C : 65 writes ['000ac43c', '000ac54a', '000ac5b8', '000ac5e0', '000ac602', '000ac624', '000ac636', '000ac84e'] | 93 reads
+0x40009680 : 44 writes ['000ac500', '000ac51c', '000ac52a', '000ac87e', '000ac8bc', '000acbec', '000acbfe', '000acc16'] | 76 reads
+0x40009672 :  4 writes ['000ada5e', '000ada82', '000ae8ba', '000aec90'] | 2 reads
+0x400004FE :  0 writes [] | 0 reads
+0x4000091E :  0 writes [] | 0 reads
+0x4000091F :  0 writes [] | 0 reads
+
+WROTE 348_path.json
