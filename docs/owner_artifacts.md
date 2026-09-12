@@ -5,7 +5,7 @@ in [`owner_flash_layers.md`](owner_flash_layers.md). Everything here is regenera
 document for the command sequence.
 
 - **Image:** `backups/owner-backup-20260911T090300Z/cflash.bin` (verified against `SHA256SUMS`)
-- **Ghidra project:** `ghidra_proj_owner/` · `BCM_OwnerFlash` · program `cflash.bin`
+- **Ghidra project:** `ghidra_proj_fullflash/` · `BCM_OwnerFlash` · program `cflash.bin`
 - **Scripts:** `work/owner/` (numbered in execution order)
 
 ---
@@ -91,18 +91,41 @@ must never enter repo **text**.
 > hardcodes no name and writes its join to `/tmp`. `leak_check.py` enforces the text side.
 
 `99_project_audit.py` reports the analysed flag, symbol counts by prefix, bookmark categories, and
-checks that 20 key addresses spanning all 16 layers still carry user symbols.
+checks that 20 key addresses spanning all layers still carry user symbols.
 
-Current state: **1,092 user-defined symbols**, 629 `Note` bookmarks, `Analyzed=True`, 0 key addresses
-missing, leak check clean.
+Current state: **1,116 user-defined symbols**, `Analyzed=True`, 0 key addresses missing, leak check
+clean (2,294 identifiers × 281 files). Layers 29–30 add the `OwnerFlash-TXPACK` (16) and
+`OwnerFlash-REQBUS` (9) bookmark categories, read back by `184_verify_l29.py`.
+
+### 3.1 Layer 29–30 artifacts
+
+| File | Contents | Script |
+|---|---|---|
+| `tx_signal_dict.json` | 405 TX pack sites: `(source cell, dest image byte, mask, shift, function)`; 384 injective | `245` |
+| `tx_setters.json` | destination-only first pass, kept as an independent cross-check | `242` |
+| `lock_module_reads.json` | per-writer SRAM read sets for the lock-command writers | `244` |
+| `lock_request_block.json` | body-state struct base + the 73 request-word writers | `185` |
+| `request_word_bits.json` | per-bit producer/consumer map for all four request words | `186` |
 
 ---
 
 ## 4. Open items
 
-Tracked in `owner_flash_layers.md` §26. The two that gate further progress:
+Tracked in `owner_flash_layers.md` §26 (items 1–32). Status of the ones that used to gate progress:
 
-1. **The unpack stage** — packed RX images → app signal planes. Measured as unreachable by static
-   analysis (§20.2); needs bench instrumentation.
-2. **Which paired configuration is live** — each bus has two control blocks, selected at bring-up in
-   RAM (§19.4). Required before any record-level patch.
+1. ~~**The unpack stage**~~ — **RESOLVED (§33).** `APP_rx_unpack_main` `0x048C6C`, found by
+   descending the call graph. The "unreachable by static analysis" verdict was true of *reference
+   scanning* only.
+2. ~~**The TX pack stage**~~ — **RESOLVED (§39).** `VOL_sig_set8` `0x0FBDD4` / `APP_tx_compose`
+   `0x04B7AA`; both ends of the codec are now closed.
+3. **Which paired configuration is live** — each bus has two control blocks, selected at bring-up in
+   RAM (§19.4). Still required before any record-level patch.
+4. **Is the ignition-on lock refusal a gate or a missing code path?** (§40.5, open item 30) — the
+   intersection is located (`APP_lock_request_dispatch` `0x087A0E`) but no suppressing comparison
+   was found, and the execute strobe has no pack descriptor at all. **Needs a capture, not more
+   static work.**
+
+> ⚠ **Cross-cutting (open item 26):** every reachability measurement taken before layer 29 is a
+> *lower bound*. `getCalledFunctions()` truncates at linear-sweep block boundaries, so any
+> "unreachable / no callers" conclusion in this repo should be re-tested with the forwards
+> fallthrough walk (§39.3) before being trusted.

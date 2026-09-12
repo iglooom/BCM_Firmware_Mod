@@ -54,18 +54,25 @@ cannot be moved earlier. See §7 of this file if the target maps buttons differe
    Ghidra assembler needs the **VLE context** fully specified (`contextreg = 0x20000000`) or it
    errors "Incompatible context". See §4 + `work/acc-fix/build_caves.py`.
 4. **Deliver the app block byte-exact** (no re-alignment/re-padding) or `sum8` drifts.
-5. **Read-only Ghidra, single holder.** Open the project read-only for analysis; only the annotate
+5. **Four Ghidra projects — never mix them.** `ghidra_proj/` (`BCM_C1MCA`, `work/flash_merged.bin`,
+   OEM VBF set) is what the shipped `acc-fix`/`rke-lock` VBFs are **built and verified against** —
+   `work/acc-fix/{build_caves,annotate_ghidra,verify}.py` all open it, so it must not be deleted or
+   repointed. `ghidra_proj_fullflash/` (`BCM_OwnerFlash`, `cflash.bin`) is the **primary analysis**
+   project and the only one containing anything below `0xC000` (the 48 KB PBL), the shadow array and
+   DFlash. Also present: `ghidra_proj_accfix_rkelock/` (built mod image) and `ghidra_proj_sbl/`
+   (`SBL`). Addresses are **not** interchangeable between them.
+6. **Read-only Ghidra, single holder.** Open the project read-only for analysis; only the annotate
    step opens writable. Always `project.close()` in `finally`. One process at a time.
-6. **The final proof is a candump on the car.** Static analysis cannot fully close the
+7. **The final proof is a candump on the car.** Static analysis cannot fully close the
    frame→mailbox binding; confirm on the bus. Worst realistic failure is a no-op (gate never fires),
    not a brick — provided integrity is repaired.
-7. **A scan whose result is *constant* across every input is as suspect as one returning zero.**
+8. **A scan whose result is *constant* across every input is as suspect as one returning zero.**
    Both usually mean the scan is broken, not that the target is empty/uniform. Before reporting
    "X is 0 everywhere", check that the field you are reading *can vary at all* — the SIUL `PA`
    fiasco (`owner_flash_layers.md` §28.1) reported `PA = 0` on 48 values from a bit position that
    was identically zero for every value the firmware writes, and that tautology was then re-measured
    and written up as two independent negative results.
-8. **Coverage is not agreement.** A cross-check that asks "does *some* entry overlap this bit?"
+9. **Coverage is not agreement.** A cross-check that asks "does *some* entry overlap this bit?"
    will answer yes for almost any input and proves nothing. Compare the *meanings*, not the
    presence: the `0x3A`/`0x100` database check reported a clean "6/6 covered", but reading the
    actual signal names showed only 3 exact matches, 1 partial and **1 outright contradiction**
@@ -73,17 +80,100 @@ cannot be moved earlier. See §7 of this file if the target maps buttons differe
    vehicle databases are a generic platform export, not this part number. Where a database and an
    on-vehicle capture disagree, **the capture wins**, and the conflict gets written into the
    listing so nobody later trusts the label. (`docs/owner_flash_layers.md` §36.5.)
-9. **Make injectivity the acceptance test for any map that must be one-to-one.** If two sources
+10. **Make injectivity the acceptance test for any map that must be one-to-one.** If two sources
    claim the same destination, the *extraction* is broken — drop the clashing pairs rather than
    picking one. `148`'s pad→bit map was non-injective and had to be discarded entirely; the redo
    (`171`) kept only unambiguous pairs (37 of 60), reproduced both capture-verified pads as a
    regression, and independently agreed with the rejected map on 31 of 33 shared pads. Report the
    dropped entries explicitly; a map with honest holes beats a complete one with invented cells.
-10. **Validate a bitfield decode with a falsifiable prediction against independent evidence.**
+11. **Validate a bitfield decode with a falsifiable prediction against independent evidence.**
    Not "the datasheet says so" — derive a consequence the decode does not know about and test it.
    For `PA` it was *a pad muxed to a peripheral must never be written via GPDO*: 9/0 vs 0/11,
    perfect separation (§28.3). When a cross-check contradicts you on the one case you understand
    best, suspect the instrument before rationalising the data.
+12. **A descriptor scan must model the PRIMITIVE'S WIDTH, or it will report a read byte as unread.**
+   The Volcano codec's `VOL_sig_get16`/`set16` read **the descriptor's byte AND THE NEXT ONE**
+   (`CONCAT11(mask & *d[0], *(d[0]+1))`), so a 16-bit signal spanning `d6:d7` is anchored on **d6**
+   and `d7` never appears in any descriptor, pointer table, or xref. A raw-flash scan for pointers to
+   MS `0x100` d7 returned **zero with a passing positive control** — a correct measurement and a
+   wrong inference, which had stood as a documented "provably not findable statically" negative
+   (`docs/rke_0x100_lock.md` §3, now corrected). Before reporting a byte as unconsumed, ask whether a
+   **wider primitive anchored on a lower byte** consumes it. Same family as rule 8: the scan worked,
+   the assumption behind it didn't.
+13. **Match the firmware's representation, not the wire's.** A signal decoded from captures as
+   *bit flags* (`d7 bit0 = LOCK`, `bit1 = UNLOCK`) is consumed in code as a **command enum**
+   (`(code & 0xF) == 1`). A classifier looking for a `0x01`/`0x02` bitmask reported "no button decode
+   exists" while the decoders sat in plain sight. Wire semantics and internal representation are
+   independent; derive the second from the code, never from the first.
+14. **"No writer found" is only as strong as the ANALYSER'S COVERAGE — check for unswept blocks.**
+   Before concluding a cell is never written, call `getFunctionContaining()` on the neighbourhood of
+   its *readers*. If that returns `None`, the region was never swept: Ghidra created no function,
+   therefore no references, and **every** reference-based method (xrefs, base-register walks,
+   indexed-store scans) is structurally blind there. `0x40008D2C` was declared "no writer, path
+   inert" on four independently-controlled negatives; the writer was `se_stb r0,0xc(r29)` at
+   `0x9749A`, in an unswept block, found immediately by decompiler **p-code** (which resolves the
+   address itself). The measurements were all correct — the *inference* was not.
+   Corollary: in this language memory access is modelled as **`CALLOTHER` userops**, not `STORE`
+   ops — `0x10000002` = store, `0x10000001` = load, and they are disjoint (a clean way to prove a
+   p-code ram operand is a write). A `STORE`-only p-code walk finds **nothing** here.
+   (`docs/tx_pack_stage.md` §10, `docs/owner_flash_layers.md` §43.)
+
+15. **`os._exit(0)` in a `finally` block hides tracebacks — a crashing script exits 0 silently.**
+   If an exception escapes the body, the `finally`'s `os._exit(0)` terminates the process before
+   Python prints it. Always wrap the body in `except Exception: traceback.print_exc()` followed by a
+   flush, so a crash is distinguishable from a clean run producing no output.
+
+16. **Parse signed displacements correctly, and never swallow the parse error.**
+   `int(d, 16) if d.startswith("0x") else int(d)` raises on `"-0xbc"`, and a bare
+   `except ValueError: pass` turns that into a silent omission — **361 stores** vanished from one
+   scan this way, including the form the search actually needed (the target sat at `-0xBC` from the
+   block base). Strip the sign, parse the magnitude, re-apply the sign; count and report anything
+   you skip.
+
+17. **Two controlled scans that DISAGREE is itself the finding — adjudicate, never pick a favourite.**
+   Three full-image methods gave three different writer counts for one cell: the p-code `CALLOTHER`
+   scan found 1 (blind when the decompiler routes accesses through a **pointer parameter** — a
+   658-byte function yielded only 4 ram-resolved ops), a raw base+disp sweep found 3 (right answer,
+   **broken instrument**: its register tracker leaked across a function boundary), and Ghidra's
+   reference manager found 3 correctly. In the *previous* layer the reference manager was the blind
+   one (unswept blocks) and p-code was right — **exactly reversed**. Neither dominates. Reconcile
+   them; a method that finds what another cannot must *explain the other's blindness*. Stopping at
+   the passing-control p-code scan would have reproduced the "no writer ⇒ path dead" error one level
+   deeper. Corollary: **a correct output does not validate a method** — verify the derivation, not
+   just the answer. Scope register tracking **per function**, always.
+   (`docs/tx_pack_stage.md` §11, `docs/owner_flash_layers.md` §44.)
+
+18. **When a scan's result is suspicious, check its SCOPE before its logic.**
+   A writer scan over `0x030000..0x0B0000` found one initialiser and implied a dead path; the same
+   scan over the full image plus the reference manager found the live logic writer. State the scope
+   in the script's own output so a null result is explicitly a claim about that scope only.
+
+19. **Follow JUMP and FALLTHROUGH edges, not just CALL edges — and never use
+   `getCallingFunctions()` to prove "no callers".** That API enumerates calling *functions*, so a
+   call site inside an unswept block is silently skipped; it produced a false "0 callers" that became
+   a documented open item. The **reference manager** had the caller all along. Likewise, this
+   firmware's linear sweep splits one routine into dozens of zero-caller blocks: a CALL-only climb
+   from `0x97382` stalled instantly, while a JUMP+CALL+fallthrough climb reached
+   `APP_feature_periodic` in 14 hops through 15 such blocks. Use `ReferenceManager.getReferencesTo()`
+   and accept any `CALL`/`JUMP` reference, then fall back to byte-adjacency.
+   (`docs/tx_pack_stage.md` §12, `docs/owner_flash_layers.md` §45.)
+
+20. **A literal-pointer scan in this image is UNINFORMATIVE unless its control finds one.**
+   Addresses are synthesised with `e_lis`+`e_add16i`, so code and data pointers rarely appear as
+   4-byte literals: a scan for pointers to `APP_main` and `APP_feature_periodic` returns **zero**.
+   Always run that control before reading "no pointer found" as "not in a dispatch table".
+
+21. **Decode `rlwinm`/`rlwimi` with the ROTATE AMOUNT, not just `mb`/`me`.** The rotate is what
+   distinguishes an extract from an insert; ignoring it produced impossible field ranges
+   ("bits 17..13") and a "3 write, **0 read**" verdict on a live bus field. Per rule 8, a write-only
+   field is as suspect as a zero — treat it as a decoder bug until proven otherwise.
+   Correct extract: `value = (x >> (32-sh)) & mask(mb,me)`.
+
+22. **When the user supplies a domain constraint, treat it as a falsifier and re-examine your
+   method — not just your conclusion.** "The lock button can only arrive on MS-CAN, because the RFA is
+   the radio receiver" killed a hypothesis (that the HS-CAN copy of `0x100` held the extraction) and
+   forced the search back into the MS path, which is where rules 12 and 13 were both found. Domain
+   knowledge outranks a clean-looking scan.
 
 ---
 

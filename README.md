@@ -17,7 +17,7 @@ The technical work focuses on its role as a **CAN gateway** between HS-CAN (500k
 
 **Status (high-level):**
 - ✅ VBF files parsed & verified; raw binaries extracted; merged flash image built.
-- ✅ **Owner full-flash dump analysed layer-by-layer** — `ghidra_proj_owner`, **938 verified symbols**
+- ✅ **Owner full-flash dump analysed layer-by-layer** — `ghidra_proj_fullflash`, **1,161 verified symbols**
   across 16 layers, incl. the 48 KB PBL that no OEM VBF contains. This is the **primary** project.
   See **`docs/owner_flash_layers.md`** (analysis) and **`docs/owner_artifacts.md`** (outputs).
 - ✅ **Full code sweep done** — 2,403 → **13,588 functions** (483k code units) by linear-sweeping the
@@ -160,7 +160,9 @@ Two projects exist. **Use the right one for the question:**
 | Project | Program | Covers | Use for |
 |---|---|---|---|
 | `ghidra_proj/` · `BCM_C1MCA` | `flash_merged.bin` | app + both cals, re-assembled from OEM VBFs | the historical `acc-fix` / `rke-lock` builds (their addresses are quoted against this image) |
-| **`ghidra_proj_owner/` · `BCM_OwnerFlash`** | `cflash.bin` | the module's **real** nonvolatile memory — **incl. the 48 KB PBL**, shadow array and DFlash | **everything else — now the primary project** |
+| **`ghidra_proj_fullflash/` · `BCM_OwnerFlash`** | `cflash.bin` | the module's **real** nonvolatile memory — **incl. the 48 KB PBL**, shadow array and DFlash | **everything else — now the primary project** |
+| `ghidra_proj_accfix_rkelock/` | patched image | the modified app block as built by the mod pipeline | inspecting a built mod |
+| `ghidra_proj_sbl/` · `SBL` | `work/sbl_merged.bin` | the secondary bootloader | `docs/sbl-*.md` |
 
 The owner project is built straight from `backups/owner-backup-20260911T090300Z/` and carries
 **938 verified user-defined symbols** across 16 analysed layers. Because no OEM VBF ships the primary
@@ -379,8 +381,10 @@ Full method: **`docs/rke-lock.md`**.
 
 | Document | What it is |
 |---|---|
-| **`owner_flash_layers.md`** | **Primary RE reference.** Layer-by-layer analysis of the real full-flash dump (16 layers, PBL boot path → CAN codec), plus the derivation of every correction. Start here for how the module works. |
+| **`central_locking_chain.md`** | **Consolidated findings (layers 29–35): the two lock-request paths.** Path A (periodic, feature unknown) and Path B (RKE) end to end, every address, what is proven vs open, and the method traps that produced two retractions. Start here for locking. |
+| **`owner_flash_layers.md`** | **Primary RE reference.** Layer-by-layer analysis of the real full-flash dump (35 layers, PBL boot path → CAN codec → TX pack stage → request bus → the RKE→lock join), plus the derivation of every correction. Start here for how the module works. |
 | **`gateway_map.md`** | **Condensed CAN reference.** Table stack, per-bus ID inventory, RX/TX frame maps, routing model, retracted readings, open items. |
+| **`tx_pack_stage.md`** | **Layers 29–30.** The transmit half of the codec (`VOL_sig_set8`, `APP_tx_compose`, 384 source→image pairs), the two-phase periodic task (a correction to §32), the central-lock command chain, and the body-control request/event bus that drives it. |
 | `owner_artifacts.md` | Index of the machine-readable outputs (`work/owner/*.json`) and their validation status. |
 | `owner_backup_analysis.md` | Backup verification + memory-map recon (how the dump was proven genuine). |
 
@@ -401,7 +405,7 @@ Full method: **`docs/rke-lock.md`**.
 | `rke_0x100_lock.md` | rke-lock — RKE button decode on MS `0x100` |
 | `key_outside_gate.md` | rke-lock — key-outside gate + full v1→v5 capture-driven debug history |
 | `clockcmd_0x3a.md` | rke-lock — `0x3A` d3 lock command + RKE→lock chain |
-| `ign_powermode_0x80.md` | rke-lock — ignition/power state (`0x80` d2; the shipped gate uses `0x3A0`) |
+| `ign_powermode_0x80.md` | rke-lock — ignition/power state (`0x80` d2; the shipped gate uses `0x3A0`). ⚠ Its §2 "signal-accessor route" is now partly answered: the intersection is `APP_lock_request_dispatch` `0x87A0E` (`tx_pack_stage.md` §7.5), but **whether a gate exists at all** is open — see `owner_flash_layers.md` open item 30. |
 
 **Hardware / recovery**
 
@@ -456,24 +460,29 @@ derivation of all of them is in `docs/owner_flash_layers.md` §26.
 
 ## 8. Recommended next steps (resume here)
 
-> The `frameObj → CAN-ID` binding — for a long time the project's blocking item — is **resolved**
-> (`docs/gateway_map.md` §3): RX and TX record layouts were decoded from the consumer code, giving
-> 279 RX / 15 HS TX / 43 MS TX frames with per-byte addresses. `0x060` and `0x0C0` fall out of the
-> general formula instead of needing individual traces.
+> **Both ends of the CAN codec are now closed.** RX: `APP_rx_unpack_main` `0x048C6C` (§33). TX:
+> `VOL_sig_set8` `0x0FBDD4` / `APP_tx_compose` `0x04B7AA` (`docs/tx_pack_stage.md`), with
+> `tx_signal_dict.json` giving 384 injective `(signal cell → frame-image byte, mask, shift)` pairs.
+> The `frameObj → CAN-ID` binding is resolved (`docs/gateway_map.md` §3). Items 1 and 2 of the old
+> list are **done**; what follows is the current list.
 
-1. **Find the unpack stage** — packed RX images (`0x40000600…`) and the app signal planes
-   (`0x40001E00`/`0x40002800`/`0x40003C00`) are disjoint memory, and **zero** app functions touch
-   image bytes by absolute address (§20.2). Static scanning is proven ineffective; use bench
-   instrumentation or trace from an arrival-flag byte (§17.4).
-2. **Decode the pack-spec** into (start_bit, length, byte_order, scaling) — ground truth is the
-   24-byte descriptor table at `0x15A920` plus the codec bit-loops. ⚠ Read §16.1 first: three models
-   have been refuted, and the inherited 20-byte parse is misaligned (§7.6).
-3. **Determine which paired control block is live** per bus (§19.4) — selected at bring-up in RAM.
-   **Required before any record-level patch**; frame-image addresses are shared and safe.
-4. **Rebuild the true forwarding map** by intersecting shared signal-RAM between RX-path and TX-path
-   frameObjs per ID (extend `work/gw_shared.py`); confirm/deny each same-ID pair.
-5. **Locate MSX's control block** (§20.3) — its 23 RX records are scattered, not arrayed.
-6. **Optional:** frame periods / TX cycle times (0x90-stride records near `0x146060`); signal
+1. **Settle the ignition-lock question with a capture** (`owner_flash_layers.md` open item 30).
+   The intersection is `APP_lock_request_dispatch` `0x087A0E`, but every arm *emits* a command and
+   the `0x3A` d1 bit6 execute strobe has **no pack descriptor in the image**. At the refusal
+   condition, does `APP_lock_command` change at all (⇒ a gate to patch) or does d3 reach `0x01`
+   while d1 bit6 never strobes (⇒ the path does not exist, and injection is *necessary*)?
+2. **Re-audit "unreachable / no callers" findings** (open item 26) with the forwards fallthrough
+   walk (`tx_pack_stage.md` §3.1). `getCalledFunctions()` truncates at sweep block boundaries, so
+   every reachability measurement taken before layer 29 is a lower bound.
+3. **Determine which paired control block is live** per bus (§19.4) — still **required before any
+   record-level patch**; frame-image addresses are shared and safe.
+4. **Decode the remaining request words** (open item 32) — `APP_req_word_68`/`6C`/`74` are mapped
+   per bit but unnamed; `68`'s value bits 5/7/8 are the most contended in the image and are the
+   natural handle on the body-feature layer.
+5. **Decode the pack-spec** into `(start_bit, length, byte_order, scaling)` — ⚠ read §16.1 first:
+   three models have been refuted and the inherited 20-byte parse is misaligned (§7.6).
+6. **Locate MSX's control block** (§20.3) — its 23 RX records are scattered, not arrayed.
+7. **Optional:** frame periods / TX cycle times (0x90-stride records near `0x146060`); signal
    defaults and timeout values (F124 @`0xC000`).
 
 ---
@@ -507,12 +516,15 @@ rke-lock in one VBF). RE helper scripts used while deriving the mod (all read-on
 `flash_merged.bin` / candump logs): `rke_field.py`, `rke_rxdesc.py`, `rke_coderefs.py`,
 `rke_bandrefs.py`, `rke_txwalk.py`, `rke_3a.py`, `rke_cavespace.py`. See §5.5 / `docs/rke-lock.md`.
 
-**Owner full-flash analysis (`work/owner/`, ~60 numbered scripts + helpers):** operate on
-`backups/owner-backup-20260911T090300Z/cflash.bin` and the `ghidra_proj_owner` project. Numbered in
+**Owner full-flash analysis (`work/owner/`, ~120 numbered scripts + helpers):** operate on
+`backups/owner-backup-20260911T090300Z/cflash.bin` and the `ghidra_proj_fullflash` project. Numbered in
 execution order — `00`–`07` project setup and analysis, `09`–`24` signal planes, `25`–`27` CAN/DB
 cross-reference, `28`–`40` dispatch tables and the diagnostic layer, `41`–`46` memory architecture,
 `47`–`53` the validity layer, `54`–`61` the CAN codec, `62`–`72` the descriptor chain, `73`–`79`
-routing records, `80`–`88` the RX/TX frame maps, `89`–`98` per-net binding and MSX.
+routing records, `80`–`88` the RX/TX frame maps, `89`–`98` per-net binding and MSX,
+`110`–`171` coverage sweep / pads / discrete inputs / signal dictionaries,
+**`241`–`245`, `177`–`187` the TX pack stage and the body-control request bus** (layers 29–30, see
+`docs/tx_pack_stage.md`).
 
 Key reusable helpers, not tied to one pass:
 
@@ -532,7 +544,7 @@ Full index of outputs: `docs/owner_artifacts.md`. Reproduce sequence: `docs/owne
 ## 10. Environment quick-reference
 - Repo: `/home/gl/Projects/ford/BCM/Research`
 - Ghidra: `/opt/ghidra` (12.1.2); pyghidra venv: `./.venv` (`. .venv/bin/activate`)
-- Owner project (**primary**): `ghidra_proj_owner/BCM_OwnerFlash` on `cflash.bin`
+- Owner project (**primary**): `ghidra_proj_fullflash/BCM_OwnerFlash` on `cflash.bin`
 - Mod-build project: `ghidra_proj/BCM_C1MCA` on `work/flash_merged.bin`
 - Never mix the two: the owner image contains everything below `0xC000` (incl. the PBL); the merged
   VBF image does not.

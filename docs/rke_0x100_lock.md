@@ -40,7 +40,32 @@ The trailing field is a **13-bit command code + 1 valid/"update" bit**, spanning
   ⇒ **d6 image = `0x4000091E`, d7 image = `0x4000091F`** (LOCK/UNLOCK byte).
 - (HS-CAN 0x100 = MB34, separate image; the lock press was seen on MS.)
 
-## 3. Handling path — NOT LOCATED, and provably not findable statically (CLOSED)
+## 3. Handling path — ⚠ RESOLVED (see the correction below)
+
+> ## ⚠ CORRECTION (layer 31, `docs/tx_pack_stage.md` §8) — d7 **IS** extracted
+>
+> Everything in this section is **literally true and was mis-interpreted**. d7 really has no
+> pointer anywhere in the image (re-verified by raw flash scan with a passing positive control,
+> script `191`). But that does **not** mean the byte is unread:
+>
+> **`VOL_sig_get16` @ `0x0FBB38` reads the descriptor's byte AND THE NEXT ONE** —
+> `CONCAT11(mask & *d[0], *(d[0]+1))`. So a 16-bit signal spanning `d6:d7` is anchored on **d6**
+> and d7 is never addressed directly. Descriptor **`0x142FD4`** (src d6 `0x4000091E`, mask `0x1F`)
+> is consumed by `get16`, yielding **exactly the 13-bit field §1 decoded from the captures**.
+>
+> The chain, now named in the project:
+> ```
+> image d6:d7 --get16 desc 0x142FD4--> APP_rke_command_code 0x40002DA2  (+ valid 0x40003F53)
+>             --APP_rke_command_demux 0x992B2--> one-hot bits 0x40009034/38
+> ```
+> committed by **`APP_rke_code_commit` `0x058538`** (with validator `0x0584A4`), and the low nibble
+> is a command **ENUM** — `(code & 0xF) == 1` is the LOCK test, not a `0x01` bitmask.
+>
+> **Lesson:** a per-byte descriptor scan cannot see a byte consumed by a wider primitive. Before
+> reporting a byte as unread, model the primitive's width. One hop (one-hot bits → the lock
+> module's request bus) is still open — see `tx_pack_stage.md` §8.3.
+
+The original (superseded) reasoning is kept below for provenance.
 
 - The Volcano routing records for the `0x100` image only shuffle **d0–d6** among themselves
   (self/adjacent-byte normalisation). **d7 (`0x4000091F`) has ZERO references** anywhere: no

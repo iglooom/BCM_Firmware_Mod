@@ -45,6 +45,24 @@ gate is NOT a simple `lbz <cell>; cmpwi 6` we can grep for.
 
 ## Consequences for the goal (RKE lock with ignition on)
 
+> **⚠ UPDATE (layers 29–30, `docs/tx_pack_stage.md`).** Strategy 1 below is no longer a blind alley —
+> and the question it was trying to answer may have been the wrong one.
+>
+> - **The signal accessor was found.** There is no "generated getter": the codec packs TX signals
+>   through `VOL_sig_set8` `0x0FBDD4` from a descriptor whose destination lives in *data*, which is
+>   why five reference scans missed it. The lock command is `APP_lock_command` `0x40002E70` →
+>   MS `0x3A` d3 image `0x40000A12`.
+> - **The ignition intersection is `APP_lock_request_dispatch` `0x087A0E`** — the only function that
+>   both tests `APP_power_mode` `0x40001D85` and writes the lock command. The lock module is driven
+>   by a **request/event bus** (`0x40008E68..74`), not by calls.
+> - **But no suppressing comparison was found.** Every dispatcher arm *emits* a command. And the
+>   execute strobe `0x3A` d1 bit 6 has **no pack descriptor anywhere in the image**, so the
+>   ignition-on refusal may be a **command path this build does not contain** rather than a gate to
+>   patch out. See `owner_flash_layers.md` open item 30 for the capture that discriminates.
+>
+> Strategy 2 (injection) shipped and remains correct. If item 30 resolves to "missing path", it was
+> not merely the more surgical choice — it was the only one.
+
 Two viable strategies (neither is a trivial byte-flip):
 1. **Signal-accessor route:** find the generated getter (takes signal handle → loads value), identify
    the door-lock consumer that calls it for the ignition-state input AND the RKE-lock input, and patch

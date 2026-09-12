@@ -11,7 +11,7 @@ recorded in §7 instead of being repeated).
 - **MCU:** SPC560B64L7 (MPC5607B family), PowerPC e200z0h, **big-endian**, VLE. Flash base `0x0`.
 - **Images:** `backups/owner-backup-20260911T090300Z/cflash.bin` (owner full flash — primary) and
   `work/flash_merged.bin` (OEM VBFs re-assembled — the image the shipped mods are built against).
-- **Ghidra:** `ghidra_proj_owner/BCM_OwnerFlash` (primary), `ghidra_proj/BCM_C1MCA` (mod builds).
+- **Ghidra:** `ghidra_proj_fullflash/BCM_OwnerFlash` (primary), `ghidra_proj/BCM_C1MCA` (mod builds).
 - **Deeper analysis:** `owner_flash_layers.md` — this doc is the condensed, stable result; that doc
   is the derivation and the per-layer evidence.
 
@@ -122,7 +122,7 @@ data d0..d7 = CS + 0x8 .. CS + 0xF
 Worked examples used by the shipped mods: `0x030` = CAN0 MB0 → CS `0xFFFC0080`;
 `0x3A` = CAN1 MB1 → CS `0xFFFC4090`; `0x0C0` = CAN0 MB30 → CS `0xFFFC0260`, d0 `0xFFFC0268`.
 
-All 140 mailboxes across the three controllers are labelled in `ghidra_proj_owner` with their
+All 140 mailboxes across the three controllers are labelled in `ghidra_proj_fullflash` with their
 computed addresses, direction, domain and cycle time (`work/owner/27_annotate_mailboxes.py`).
 
 ### 2.1 Per-bus CAN-ID inventory (authoritative) (b)

@@ -5,7 +5,7 @@ module's *real* nonvolatile memory rather than from merged OEM VBF blocks.
 
 | | |
 |---|---|
-| Project | `ghidra_proj_owner/` · `BCM_OwnerFlash` · program `cflash.bin` |
+| Project | `ghidra_proj_fullflash/` · `BCM_OwnerFlash` · program `cflash.bin` |
 | Language | `PowerPC:BE:64:VLE-32addr` (e200z0h, big-endian, VLE-only) |
 | Build script | `work/owner/00_create_project.py` |
 | Analysis | `work/owner/01_analyze.py` → **116 073 instructions / 2 398 functions** |
@@ -2016,80 +2016,109 @@ Kept here only as the pointers into this document's evidence:
     is a **lower bound** until this region is modelled.
 23. **`tx_frame_map.json` is partial** (§36.2) — it models one controller's 15 mailboxes and does
     not include the record set owning the MS `0x3A` image at `0x40000A0F` that `rke-lock` drives.
-    Find and decode that second TX record set.
+    Find and decode that second TX record set. **Partly mooted by §39.2**: `tx_signal_dict.json` now
+    covers 249 destination bytes across `0x40000748..0x40000C97` including the `0x3A` image, derived
+    from the pack descriptors rather than the record set. The record set itself is still unlocated.
 22. ~~**Build the full RX signal dictionary**~~ — **DONE in §34**: 346 descriptors decoded, 102 bound
     to 29 frames, 184 with signal-plane destinations (`rx_signal_dict.json`/`.md`). Still a lower
     bound — see §34.4 for what remains unbound.
 
-*Resolved since earlier drafts: the three "unattributed" MS TX IDs (§18.4), the feature→CAN link
-question (§14.4), the `0x28xx` as-built patchability question (§12.2), and the full-sweep item
-("sweep unresolved table targets" — done in §23, which added 11,185 functions and made items 6 and 8
-tractable for the first time).*
+**Raised by §39 (layer 29)**
 
-### Corrections made to earlier working assumptions in this pass
+24. ~~**Find the TX pack stage**~~ — **DONE in §39.1/39.2**: `VOL_sig_set8` `0x0FBDD4` and
+    `APP_tx_compose` `0x04B7AA`, 384 injective source→destination pairs.
+25. ~~**Close the central-lock module's ingress**~~ — **DONE in §40.3.** The entries are not reached
+    by calls at all: the module is driven by a **request/event bus** (`0x40008E68..74`), and
+    `APP_lock_request_dispatch` `0x87A0E` consumes bits 2/3/4/10 of `APP_req_word_70`. "0 callers"
+    was the wrong question.
+26. **Re-audit every "unreachable / no references" conclusion with the forwards fallthrough walk**
+    (§39.3). `getCalledFunctions()` truncates at swept block boundaries, so *every* reachability
+    measurement taken before layer 29 is a lower bound — including those that concluded static
+    analysis was exhausted. This is the same error class as §33.3, one level up.
+27. ~~**Read `FUN_00087A0E`'s branch conditions**~~ — **DONE in §40.1/40.3.** The blocker was a
+    decompiler artifact, not a missing fact: the *disassembly* already carries resolved references
+    (base `0x40008DE8`). It branches on bits 2/3/4/10 of `APP_req_word_70`. Now named
+    `APP_lock_request_dispatch` and confirmed as **the** ignition intersection — though *which*
+    branch (if any) is the RKE refusal is still open, see item 30.
+28. **Explain the wide lock-command codes** (§39.4) — sharpened in §40.3: the enumeration is
+    `0x02`, **`0x06`**, `0x1F`, `0x3F`, `(x<<1)|1`; the wire has only ever shown `0x01`/`0x02`, so
+    d3 is a multi-code command byte of which captures have exercised two states.
+29. **Correlate `APP_power_mode` `0x40001D85` (codes `0..4`) with the wire power state**
+    (`ign_powermode_0x80.md`, MS `0x80` d2, codes `0..7`) from a capture — or demote the name.
+30. **Test whether the ignition-on lock refusal is a missing code path rather than a gate**
+    (§39.5, §40.5) — neither the execute strobe nor HS `0x030` d5 has any pack descriptor in this
+    build, and §40.3 found every dispatcher arm *emits* a command rather than suppressing one.
+    The decisive experiment is a **capture**, not more static work: at the refusal condition, does
+    `APP_lock_command` change at all (a gate) or does d3 go to `0x01` with d1 bit 6 never strobing
+    (a missing path)? The latter would make bus injection *necessary*, not merely convenient.
+31. **Name the conditioned automatic-lock gate `APP_lock_condition_gate` `0x08A096`** (§40.4) —
+    shape established (gear-lever + threshold + status), identity not; 3 of 4 inputs unknown.
+32. **Decode the other three request words** (§40.2) — `APP_req_word_68`/`6C`/`74` are mapped per
+    bit but unnamed. `req_word_68`'s value bits 5/7/8 are the most contended in the image
+    (15/15/13 consumers) and are the natural next handle on the body-feature layer.
 
-- **The SIUL `PA` field was read at the wrong bit position, inverting two sections' conclusions**
-  (§28.1). `PA` is PCR bits **11:10**, not `(v >> 5) & 7`. Because every PCR value this firmware
-  writes has a zero low byte, the old expression was identically zero on all of them — §24.6's
-  "PA = 0 on all 33 pads" and §24.7's "48 values, zero exceptions" were the *same tautology*
-  re-measured, not two independent negatives. 15 of 33 pads are in fact muxed to peripherals.
-- **"The pad-mux path does not exist" is withdrawn** (§24.7 → §28). `PBL_pads_init` @ `0x0072FC`
-  muxes the CAN pads exactly where that section concluded nothing did. None of its three "remaining
-  candidates" was needed.
-- **`PA` muxes outputs only; peripheral inputs are selected in `PSMI`** (§28.5) — which is why CAN/LIN
-  RX pins appeared to be plain GPIO inputs. `PSMI` *is* written (4 sites); §24.7 listed it as an
-  untested candidate.
-- **§23.4's function count is inflated by ~8,200 block-starts** (§29.2). 91.7 % of callerless
-  "functions" are `FALLTHROUGH` continuations or `BRANCH_INTO` basic blocks created by the linear
-  sweep's signature-based entry placement. The code the sweep uncovered is real and §23.5 is
-  unaffected, but the unexplored surface is **720 blocks, not 11,185**.
+**Raised by §41 (layer 31 — the RKE receive chain)**
 
-- **`FUN_0010DAB8` is `memset`, not a signal-access API** (§14.6). §8.4 flagged it as the shared
-  accessor lead because 79 of 83 modules call it — they call it to zero their state blocks. **No
-  signal-access API exists**; features do not reach CAN through a call at all.
-- **The app↔CAN decoupling is structural, not a search failure** (§14.4). Exactly one function
-  references frame images or Volcano signal RAM absolutely (`VOL_network_bringup`, to zero them), and
-  zero functions reference FlexCAN registers. All runtime access is pointer-based through descriptors,
-  so no reference scan can ever bridge features to CAN.
-- **The `rke-lock` sticky write is explained again — by a different mechanism** (§14.5). The packer's
-  post-TX `*img &= desc[k]` loop, not a delta-driven flag bus.
-- **`ctrlDesc+0x44` points *into* the descriptor array, not at a header** (§14.3) — assuming a header
-  yielded zero records on the first parse.
-- **`0x40006400–0x400064FF` is the signal validity / error-substitution layer, not a CAN TX
-  change-flag bus** (§13.1). §8.3's conclusion is withdrawn: no clearing function reaches a FlexCAN
-  register, there are zero pure consumers, and the two hottest cells are never cleared.
-- **`0x40006404` is a calibration-record pointer, not a flag byte** (§13.3) — 32-bit slot selecting
-  one of six records; the stale plate comment on `APP_can_tx_state_update` has been corrected.
-- **The `0x28xx` as-built DIDs are retained-RAM values, not flash constants.** §11.4 proposed them as
-  the starting point for variant coding on the assumption they were calibration-backed; all 85 cells
-  are in retained RAM (§12.2), so they are runtime-accumulated and cannot be patched in the image.
-- **Five of those "config" DIDs are one rolling event buffer** (§12.3), not five configuration items.
-- **A table target that "isn't a function" usually means Ghidra never discovered it** (§11.1) — applied
-  three times now (DID dispatcher, then all three CAN codec functions), each time exposing a whole
-  subsystem that was invisible to auto-analysis.
-- **`APP_vehicle_mode_state` is now proven rather than inferred** (§11.3) — the earlier note called its
-  meaning "inferred from fan-out shape".
-- **The application signal plane is `0x40001E00`/`0x40002800`/`0x40003C00`, not `0x4000_06xx`.**
-  Three scans searched the Volcano cell band because older gateway notes pointed there; feature code
-  does not use it. Corrected in §8.1 by mapping all of SRAM from evidence rather than assumption.
-- **`init(1)` is a constructor, not the feature.** The 83 modules called from `APP_feature_init` only
-  zero their state and register; the periodic logic lives in separate, caller-less functions.
-- The TX per-signal descriptor's `+0x08` field is **not** a FlexCAN IFLAG mailbox bit. Only 8 distinct
-  values occur (`0x01000000`..`0x80000000`), evenly spread across 45 descriptors each — it is a
-  **bit-position mask**, consistent with `gateway_map.md`'s note that the routing record's
-  mask appears redundantly. Do not use it to identify a mailbox.
-- **The net-table record layout was off by four bytes** (§15.1). The controller descriptor is at
-  `+0x08`, not `+0x04`; `+0x04` is the per-net **RAM** state block `S`. This is what made the previous
-  `+0x44` test misfire — `+0x44` is a real pointer field, but on `S`, not on the ctrlDesc. The
-  descriptor-array anchor is built in RAM at bring-up, which is why no flash pointer to it exists.
-- **`ctrlDesc+0x44` is NOT a descriptor-table pointer** (§14.3 correction). CAN_0's value lands mid-array,
-  CAN_2's points into PBL code, CAN_1's is zero on a demonstrably-transmitting bus, and nothing points
-  at the array start.
-- ~~CAN1's controller descriptor has `+0x44 = 0x000000` (no reception-descriptor table): MS-CAN is
-  **TX-only** in the filter list dump.~~ **Retracted** — this rested on the `+0x44` reading above.
-  MS-CAN has **63 mailboxes configured** in its filter list, and §9's database cross-check found
-  16 RX / 47 TX frames on it, so MS-CAN is *not* TX-only. The `0x3A` frame being BCM→door output
-  stands on its own evidence (`docs/rke-lock.md`, on-vehicle).
+33. ~~**Close the last hop of the RKE→lock chain**~~ — **CLOSED in §43.** The writer of
+    `APP_lock_request_input` is `0x9749A` (unswept block, found via p-code); its source
+    `APP_lock_src_level` `0x40008EF7` is written by `APP_lock_src_producer` `0x978D2`. §42's "inert"
+    conclusion is retracted. ~~One unknown remains: what sets `r6`~~ — **resolved in §44**:
+    `r6` ← `APP_lock_src_origin` `0x40008D6B`, written by the state machine
+    `APP_lock_src_state_machine` `0x95770`. The chain is **live end to end**. Two narrower unknowns
+    replace it (both now open items 36 & 37): how that state machine is *scheduled*, and whether its
+    input is the RKE path at all.
+
+    <details><summary>Superseded text (kept for the record — its conclusion is <b>retracted</b>)</summary>
+
+    > ~~**BOUNDED TO ONE BYTE in §42**~~
+    > (`docs/tx_pack_stage.md` §9). Downstream is now fully proven from
+    > `APP_lock_request_input` `0x40008D2C` → edge detector → `req_word_74` bit 10 → gate → producer →
+    > `req_word_70` bit 3 → dispatch → `0x3A` d3 → DDM/PDM. **But that byte has no writer**, by four
+    > controlled methods, and sits in `.bss` (zeroed every reset) → the path is *inert in this build*
+    > (level b). Remaining static hypothesis: a write through a pointer held in a struct field, which
+    > needs p-code dataflow. Cheaper: the on-vehicle correlation in §42.5.
+
+    </details>
+34. **Explore `0x099000..0x09C000` as its own layer** — the subsystem holding ~116 consumers of the
+    RKE one-hot bits, with exactly **one** user symbol in the whole `0x095000..0x0B0000` span. It is
+    on the runtime spine (`0x0992B2` ← `0x99A60` ← `0x9B41C` ← `0x9BA92` ← `APP_feature_periodic`),
+    so it is reachable and unread. §42 narrowed what to look for: **which request bit this build
+    actually uses for an RKE lock**. ⚠ That framing assumed §42's "inert" conclusion, now
+    **retracted in §43** — the path IS live, so the real question is narrower: **what sets `r6` in
+    `APP_lock_src_producer` `0x978D2`**, which is the last unknown in the chain. Also note `0x096E5E`/
+    `0x097382` (a per-field latch-copy stage) sit just above it and are likewise unexplored.
+35. **Identify the `0x0AC000..0x0AF000` RKE-code readers** — five functions decode
+    `(code & 0xF) == {1,8,...}` but their true entries have no incoming edge of any kind
+    (`196`), i.e. they sit in §29.1's ISOLATED class. Determine whether they are a dispatch-table
+    target set or genuinely dead code from a different vehicle variant.
+
+**Raised by §44 (layer 34 — the lock-request origin)**
+
+36. ~~**How is `APP_lock_src_state_machine` scheduled?**~~ — **CLOSED in §45.1.** It *is* periodic:
+    `APP_feature_periodic` `0x62848` → `0x96B9C` → … → `APP_lock_periodic_chain` `0x97382` →
+    `0x95716` → the state machine (one routine split into 15 zero-caller blocks). The premise
+    "0 callers" was **my own script's bug** — `getCallingFunctions()` skips call sites in unswept
+    blocks; the reference manager had the caller (`0x97540`) all along.
+37. ~~**Is `APP_lock_src_state_machine` actually the RKE path?**~~ — **ANSWERED: NO, in §45.2.**
+    Two agreeing instruments (reference manager + flow-edge reachability), both controls passing,
+    show the RKE demux outputs and the layer-33/34 lock-request input live in **disjoint code**. That
+    chain is a *different* lock actuator. The real RKE join is **`APP_rke_to_body_cmd` `0x8D522`**,
+    which reads `APP_rke_command_code` and writes a 3-bit command enum into `APP_body_cmd_bus`
+    `0x40008E58` value bits 11..13 (§45.3).
+
+**Raised by §45 (layer 35)**
+
+38. **Decode `APP_body_cmd_bus` `0x40008E58` field consumers with a CORRECT rlwinm decoder.**
+    Script `235`'s decoder ignored the **rotate amount** — which is what separates an `rlwinm`
+    extract from an `rlwimi` insert — and emitted impossible ranges ("bits 17..13") plus a
+    write-only verdict for bits 11..13. Per rule 8 that is a decoder bug, not a finding. Implement
+    `value = (x >> (32-sh)) & mask(mb,me)` and re-run; this is the last hop between the RKE command
+    enum and `APP_lock_command`.
+39. **Identify which feature owns the layer-33/34 lock-request chain.** Now known *not* to be RKE.
+    Candidates: door-ajar/door-switch lock, interior lock button, autolock-on-drive-away. Its input
+    struct is `APP_lock_sm_input_struct` `0x40008CEC` (132 writer blocks); start there.
+40. **Schedule of `APP_rke_to_body_cmd` `0x8D522`.** The flow-edge climb reached `0x93890` /
+    `0x8F8F2` and stopped without touching a spine symbol — unresolved, not "unscheduled".
 
 ---
 
@@ -2129,9 +2158,17 @@ cd BCM/Research && . .venv/bin/activate
 | Mod-critical images | `168`–`170` (3) | 0x3A/0x100 images annotated, db-vs-vehicle comparison, precedence notes | 36.5 |
 | Discrete-input bit map | `171`–`173` (3) | 37 pads resolved to state bits by disassembly, annotated, read back | 37 |
 | Combination gate | `174`–`176` (3) | the 5 combo-gate inputs resolved to pins, annotated, read back | 38 |
+| TX pack stage | `241`–`245`, `177`–`184` (13) | pack primitives, 384-entry signal map, two-phase spine correction | 39 |
+| Request bus | `185`–`187` (3) | four request words decoded per bit, lock ingress | 40 |
+| RKE receive chain | `188`–`198` (11) | MS `0x100` d6:d7 → 13-bit code → demux; the `get16` correction | 41 |
+| Lock request hop | `199`–`209` (11) | edge detector, gates, producers; the (retracted) inert claim | 42 |
+| The writer, by p-code | `210`–`220` (11) | `CALLOTHER` userop method; retraction of §42 | 43 |
+| The origin | `221`–`226` (6) | copy network (4,292 edges), the state-machine writer | 44 |
+| Scheduling + RKE join | `227`–`236` (10) | periodic proof, Path A ≠ Path B, `APP_rke_to_body_cmd` | 45 |
+| Consolidation | `237`–`240` (4) | docs↔Ghidra audit, 15-block chain named, doc numbers verified | — |
 | Audit | `99_project_audit`, `verify_pass.sh` | DB read-back + proprietary-identifier leak check | 25 |
 
-177 numbered scripts in total (`00`–`176`). Ignore `fix_doc_heading*.py` / `fix_open_items.py` — one-off
+246 numbered scripts in total (`00`–`245`). Ignore `fix_doc_heading*.py` / `fix_open_items.py` — one-off
 editing helpers for this document, not part of the analysis.
 
 > **The `163`–`170` passes need the vehicle CAN databases** at
@@ -2609,6 +2646,14 @@ APP_reset_entry 0x10F4A0
 **`APP_periodic_dispatch` @ `0x02F20A`** is the hinge of the whole application — where the RTOS meets
 the feature code. It is mode-switched on `APP_periodic_mode`:
 
+> ⚠ **INCOMPLETE — corrected in §39.3.** What follows is only the **first of two phases**. The
+> routine continues by *fallthrough* at `0x2F262` into a **second** switch on the same mode cell,
+> dispatching an **egress twin** of each layer below (`0x449F2`/`0x579D6`/`0x62914` + per-mode
+> variants). The acquire half feeds the RX unpack stage; the egress half feeds the **TX pack stage**
+> (`APP_tx_compose` `0x4B7AA`, §39.2), which was entirely unknown when this section was written. The
+> real tick is *read inputs → unpack RX → run features → **pack TX***. The function is now named
+> `APP_periodic_task`. Nothing in the table below is wrong; it is half the picture.
+
 | mode | dispatched |
 |---|---|
 | 0 | input_acquire, signal_process, `0xD472A`, `0x2EA2A`, **feature_periodic** |
@@ -2620,6 +2665,9 @@ the feature code. It is mode-switched on `APP_periodic_mode`:
 It has **no caller**: it is reached from one of the ten OS tasks, consistent with §7.3's RTOS model.
 
 ### 32.3 The three periodic layers
+
+The spine is three periodic layers (§32.3) — but see **§39.3**: each has an *egress* twin, so the
+complete list is six, and the missing three are the transmit path.
 
 | Layer | Entry | Callees | Character |
 |---|---|---|---|
@@ -2814,7 +2862,7 @@ Recorded because each produced a confident, wrong number:
 
 1. **0 joins out of 414 addresses.** The loader looked for a flat `can_id` key; the real schema puts
    the id in **`can_id_by_bus`**. A join returning exactly zero against an overlapping key space is a
-   bug in the join (AGENTS.md rule 7) — not a finding about the firmware.
+   bug in the join (AGENTS.md rule 8) — not a finding about the firmware.
 2. **`dest` = 0 for all 346 descriptors.** The decompiler routes the result through a temporary
    (`uVar5 = get8(...); DAT_x = uVar5;`), so a single-line regex matched nothing. Fixed by tracking
    temp→descriptor then temp→destination: 184 destinations.
@@ -2850,7 +2898,7 @@ from `/home/gl/Projects/ford/CANBus/` via `163_dbc_join.py`, whose output is wri
 deliberately outside the repo. Verified both directions:
 
 ```
-names present in ghidra_proj_owner/...db.51.gbf        -> yes (as intended)
+names present in ghidra_proj_fullflash/...db.51.gbf        -> yes (as intended)
 names in *.py / *.md / *.json under the repo           -> none
 leak_check.py: 2,294 identifiers x 246 files           -> clean
 ```
@@ -3106,3 +3154,532 @@ guessing from pin numbers is exactly the error class this project keeps catching
 The gate is annotated in the listing with all five pins, so it reads as a named combination rather
 than a magic constant, and each contributing pad's `PCR` is cross-referenced back to it.
 
+---
+
+## 39. Layer 29 — the TX pack stage, and a two-phase correction to §32 (a)
+
+Full evidence: **`docs/tx_pack_stage.md`**. Scripts `241`–`245`, `177`–`184`. This is the summary.
+
+Started from "find where central locking lives and where it meets ignition"; following the
+*aggregators* instead of the feature produced the entire transmit half of the codec, which had been
+missing from this project since the start. The lock command then fell out as one row of a 384-entry
+table.
+
+### 39.1 The missing codec half (a)
+
+§33 closed the receive path and left the transmit path unlocated. It sits `0x272` bytes from
+`VOL_sig_get8`:
+
+| Primitive | Address | Refs |
+|---|---|---|
+| **`VOL_sig_set8`** | `0x0FBDD4` | **351** — the busiest primitive in the image |
+| `VOL_sig_set16` / `VOL_sig_setN` | `0x0FBD80` / `0x0FBE20` | 27 / 27 |
+| `VOL_sig_getN` | `0x0FBB88` | 37 — completes §33's RX set |
+| `VOL_test_and_clear_dirty` | `0x031360` | the change-driven transmit gate |
+
+Same 32-byte descriptor as RX, read the other way: `+0x00` = **destination** byte in the TX frame
+image, `+0x0C` mask, `+0x0D` left shift, plus two dirty-flag pointers at `+0x04`/`+0x08`.
+
+Invisible for the same tier-0 reason as §33: the destination address lives **in data**.
+
+### 39.2 `APP_tx_compose` @ `0x04B7AA` (a)
+
+One straight-line routine packing every signal the BCM transmits (sweep-split into `0x4B7B0`,
+`0x4C0EA` and ~14 tails). **405** pack sites, **404** destinations and **384** sources resolved,
+spanning images `0x40000748..0x40000C97`; sources cluster in `0x40002E00`/`0x40002F00`.
+
+**Injectivity acceptance test passed: 0 of 384 `(dest,mask)` pairs has more than one source.**
+Output `work/owner/tx_signal_dict.json` — the transmit counterpart of §34's RX dictionary.
+
+~¼ of the sites are wrapped in `if (test_and_clear(&flag,bit))`, so a signal is re-packed only after
+its producer marks it changed. **This completes §14.5**: the `rke-lock` sticky write survives for two
+compounding reasons — the packer's post-TX AND-mask clears command bits *after* transmit, and the
+dirty gate means nothing re-packs them *before* the next one.
+
+### 39.3 ⚠ Correction to §32 — the periodic task has TWO phases
+
+§32 reported `0x2F20A` as the whole periodic body. **It is the first half.** The routine continues by
+**fallthrough** at `0x2F262` with a *second* switch on the same `APP_periodic_mode`, dispatching an
+**egress twin** of each layer — and every twin is the byte-adjacent sibling of its acquire entry:
+
+| Layer | Acquire | ends | Egress twin |
+|---|---|---|---|
+| input | `0x449C4` | `0x449F1` | **`0x449F2`** (+ `0x44A04`, `0x44A20`) |
+| signal | `0x5799C` | `0x579D5` | **`0x579D6`** (+ `0x57A02`, `0x57A34`) |
+| feature | `0x62848` | `0x62913` | **`0x62914`** |
+
+The halves reach **disjoint** codec stages (acquire → `APP_rx_unpack_main`/`VOL_sig_get8`;
+egress → `APP_tx_compose`/`VOL_sig_set8`), so one tick is:
+
+> **read inputs → unpack RX → run features → pack TX**
+
+`APP_tx_egress` `0x449F2` is the only path into the pack stage.
+
+> **⚠ Method bug worth propagating.** `179` first reported *empty* callee sets and "no crossover" —
+> `getCalledFunctions()` truncates at every swept block boundary. §32.1's **backwards** walk recovers a
+> function's *entry*; a **forwards fallthrough** walk is needed to recover its *body* for reachability.
+> **Every reachability measurement in this project taken before this layer is a lower bound**,
+> including those that motivated "static analysis is exhausted" (new open item 26).
+
+### 39.4 The central-lock command, end to end (level 5)
+
+```c
+if (test_and_clear(&APP_lock_command_dirty /*0x40003FC0*/, 4))
+    VOL_sig_set8(desc 0x1439D4, APP_lock_command /*0x40002E70*/);   /* -> MS 0x3A d3 */
+```
+
+`0x40002E70` → image `0x40000A12`, mask `0xFF`; wire meaning `0x01`=LOCK / `0x02`=UNLOCK proven on
+the vehicle (`docs/rke-lock.md` §3). The firmware also writes `0x1F`, `0x3F`, `(x<<1)|1` — wider
+codes than the wire shows (open item 28).
+
+26 blocks in `0x087000..0x08F000` write it → **24 true entries**, 10 converging on the state machine
+`0x93CC6`; 10 remain 0-caller (open item 25).
+
+**The ignition intersection is `FUN_00087A0E`** — the one function that both tests `APP_power_mode`
+`0x40001D85` (`==1`, `==3`) and writes the lock command + dirty flag. `181` verified the mode cell is
+genuinely multi-valued (constants `0,1,2,3,4` over 102 readers), not a constant (rule 8).
+
+**Deliberately NOT concluded:** that `APP_power_mode`'s `0..4` codes equal the wire power state of
+`ign_powermode_0x80.md` (`0..7`), and that any branch in `0x87A0E` is the RKE-with-ignition refusal —
+no such comparison was isolated. The intersection is *located*, not yet *read*. (`ign_powermode_0x80.md`
+§2 already carries a standing retraction on this exact subject.)
+
+### 39.5 Both shipped mods write signal slots this build never packs (a)
+
+`177` regressed the map against facts proven on the car: **4 of 5** mod-critical image bytes
+reproduce, including acc-fix's exact masks (`0x40000761` `0x20>>5`, `0x40>>6`; `0x40000766` `0x60>>5`)
+— an independent re-derivation of the bit map §36.1 validated against the vehicle database.
+
+The exceptions carry the finding. The scan sees **7 of 8** bytes of the `0x030` image, so it is
+populated and an absence is meaningful:
+
+| Image byte | Pack setters |
+|---|---|
+| **HS `0x030` d5** (`0x40000765`) — acc-fix's target | **none** |
+| **MS `0x3A` d1 bit 6** — rke-lock's proven execute strobe | **none** |
+
+This is the transmit twin of §33.4 (acc-fix's two RX bytes are received but never unpacked), and it
+explains why both mods are safe: they occupy slots this build does not produce, so nothing upstream
+competes and nothing downstream clears them. It also sharpens §39.4 — if the strobe is never packed
+from a signal cell, the ignition-on refusal may not be a suppressing comparison at all, but a command
+path that **does not exist** in this build's generated codec. Testable, not concluded.
+
+### 39.6 Annotation
+
+`183_annotate_l29_txpack.py` names 9 functions and 7 data cells with plate comments and 16
+`OwnerFlash-TXPACK` bookmarks. `184_verify_l29.py` reopens **read-only** and asserts all 16 items,
+**11 anchors from earlier layers** (catching a rolled-back transaction), that the
+`OwnerFlash-TXPACK` count is exactly 16, and that three **caveat strings** survive in the plate
+comments so §39.4's uncertainty cannot evaporate from a later summary. **All checks passed**;
+project now at 1,107 user-defined symbols.
+
+---
+
+## 40. Layer 30 — the body-control request bus, and the lock ingress (a)
+
+Full evidence: **`docs/tx_pack_stage.md` §7**. Scripts `185`–`187`; read-back by the extended `184`.
+Resolves open items 25 and 27, sharpens 28, adds 31/32.
+
+### 40.1 §39.4's blocker was a decompiler artifact (a)
+
+§39.4 recorded `FUN_00087A0E`'s branch conditions as unreadable because the decompiler renders its
+base as `&UNK_FFFF8E70 + param_4`. **The disassembly already had it** — Ghidra attaches the absolute
+reference to every access (`e_lwz r3,0x88(r6)` → `40008e70`). `185` harvests those resolved
+references and **checks self-consistency**: every `(register, displacement)` pair must imply one
+base. `r6` → **`0x40008DE8`**, single-valued. (`r4`/`r5` came back *inconsistent* and were reported
+as such — they are reloaded mid-function. Flagging that beats averaging it.)
+
+> **Method note.** A `UNK_`/negative-offset base in decompiler output does not mean the structure is
+> unreachable. Read the disassembly, harvest the resolved references, verify the implied base is
+> consistent. This reopened an item that had been written up as needing fresh work.
+
+### 40.2 `0x40008E70` is an event bus, not a lock variable (a)
+
+It is one of **four** 32-bit request/event words at `0x40008E68`/`6C`/`70`/`74` (struct `+0x80`…`+0x8C`),
+written by **73 functions** across `0x086000..0x095000` — how the body features signal each other.
+
+| Word | Ref sites | Bit ops matched | Value bits | True REQUEST bits |
+|---|---|---|---|---|
+| `APP_req_word_68` | 467 | 257 | 31 | 17 |
+| `APP_req_word_74` | 406 | 232 | 32 | 24 |
+| **`APP_req_word_70`** | **373** | **211** | **31** | **21** |
+| `APP_req_word_6C` | 336 | 249 | 32 | 24 |
+
+Idiom: `se_bseti` raise, `se_bclri` consume/ack, `se_btsti` test. Map in
+`work/owner/request_word_bits.json`.
+
+> ⚠ **`se_btsti`/`bseti`/`bclri` number bits MSB-first**: operand `N` = value bit `31-N`.
+> `se_btsti r3,0x1B` tests value bit **4**. Getting this backwards yields a plausible but wholly
+> wrong bit map — the §28.1 error class. Controls passed: 31–32 distinct bits per word (populated and
+> varied), and test-only bits are reported as a *measurement limit*, not as a finding.
+
+### 40.3 The lock ingress — "0 callers" was the wrong question (a)
+
+§39.4 left 10 of 24 lock entries caller-less. They are not called: they are **bus consumers**.
+`APP_lock_request_dispatch` @ `0x087A0E` branches on four bits of `APP_req_word_70`, each arm
+emitting a command plus `APP_lock_command_dirty = 0xFF`:
+
+| Value bit | Producers | Command |
+|---|---|---|
+| 4 | set elsewhere | `0x1F`; also sets `APP_power_mode = 1` |
+| 3 | `0x894FE`, `0x897DE` | `0x02` (UNLOCK) or `(x<<1)\|1` |
+| 2 | `0x91070` | `0x1F`/`0x3F` via `Ram4000247C` bit 25 |
+| 10 | `0x9309C`, `0x93556`, `0x9389C`, `0x93C7C` (+12 clearers) | `0x1F`/`0x3F` |
+
+**Item 28 sharpened:** producers `0x894FE`/`0x897DE` write `APP_lock_command = 6` — a sixth code.
+The enumeration is `0x02`, `0x06`, `0x1F`, `0x3F`, `(x<<1)|1`, while the wire has only ever shown
+`0x01`/`0x02`. d3 is a **multi-code command byte** of which captures have exercised two states.
+
+### 40.4 A conditioned automatic-lock gate (b shape / c identity)
+
+`APP_lock_condition_gate` @ `0x08A096` fires on `trigger && mode==1 && pending && (status < 7 ||
+(gear-lever test && value < threshold && value2 > 1))`. A gear-lever test ANDed with a threshold is
+the signature of a **speed/gear-conditioned auto-lock** — but three of four inputs have no
+established meaning, so the feature stays **unnamed** (open item 31), caveat asserted in the listing.
+
+### 40.5 The ignition gate: confirmed intersection, unconfirmed mechanism
+
+`APP_lock_request_dispatch` is **the** intersection — the only function that both tests
+`APP_power_mode` (`==1`, `==3`) and writes the lock command (and writes `APP_power_mode = 1`).
+
+**Not established, with a stronger reason to doubt the original framing:** every arm *emits* a
+command; none was seen *suppressing* one. Combined with §39.5 (the execute strobe has no pack
+descriptor anywhere), the ignition-on refusal may well be a **command path absent from this build**
+rather than a comparison to patch out. The decisive test is a **capture**, not more static work —
+see open item 30 for the exact discriminator. If it is a missing path, bus injection is *necessary*,
+which retroactively validates the shipped `rke-lock` design on stronger grounds than convenience.
+
+### 40.6 Annotation
+
+`187` names 4 functions and 5 data cells (9 `OwnerFlash-REQBUS` bookmarks). The extended `184`
+re-opens **read-only** and asserts **25 items**, **11 anchors from earlier layers**, **7 caveat
+strings**, and both bookmark counts. **All checks passed**; 1,116 user-defined symbols.
+
+---
+
+## 41. Layer 31 — the RKE receive chain: 7 of 8 links proven (a)
+
+Full evidence: **`docs/tx_pack_stage.md` §8**. Scripts `188`–`198`; read-back by `184`.
+Answers the question "is there a full path from an RFA fob press to the lock command for DDM/PDM?"
+
+### 41.1 The chain
+
+| # | Link | Status |
+|---|---|---|
+| 1 | RFA radio → MS-CAN `0x100` (the RFA *is* the receiver, so MS is the only route) | **PROVEN** (capture) |
+| 2 | mailbox 53 → RX image `0x40000918..1F` | **PROVEN** (copier `0x1520F8`) |
+| 3 | `d6:d7` → 13-bit code → `APP_rke_command_code` `0x40002DA2` + valid `0x40003F53` | **PROVEN** (`get16` desc `0x142FD4`) |
+| 4 | code → one-hot per-command bits `0x40009034`/`38` | **PROVEN** (`APP_rke_command_demux` `0x0992B2`) |
+| **5** | **one-hot bits → `APP_req_word_70` bit 3** | **⚠ OPEN** (item 33) |
+| 6–8 | request bit → dispatch → `APP_lock_command` → `0x3A` d3 → walker → DDM/PDM | **PROVEN** (§40, §39) |
+
+`APP_rke_code_commit` @ `0x058538` is the RX-side entry, paired with validator `0x0584A4`; both
+switch on `FUN_0010DF6A()` (a 0..3 variant selector, item 36). The demux is on the spine:
+`APP_feature_periodic` → `0x9BA92` → `0x9B41C` → `0x99A60` → `0x0992B2`.
+
+### 41.2 ⚠ Two method bugs of mine, and the retraction they force
+
+**`docs/rke_0x100_lock.md` §3's negative result is RETRACTED.** It recorded MS `0x100` d7 as having
+"ZERO references … provably not findable statically". Re-verified: d7 genuinely has **no pointer
+anywhere in the image** (raw-flash scan, positive control on d1 passing). Correct measurement,
+**wrong inference** — `VOL_sig_get16` reads *the descriptor's byte and the next one*, so a 16-bit
+signal on `d6:d7` is anchored on **d6** and d7 is never addressed directly. Descriptor `0x142FD4`
+(src d6, mask `0x1F`) yields exactly the capture-decoded 13-bit field. → **new golden rule 12**.
+
+Second bug: script `194` searched for a `0x01`/`0x02` **bitmask** because that is the *wire* decode,
+and reported "no per-button decode exists". The firmware uses a command **ENUM**:
+`(code & 0xF) == 1`. → **new golden rule 13**.
+
+> **What caught both:** the user's domain constraint that the lock button can only arrive on MS-CAN
+> because the RFA is the radio receiver. It refuted my HS-CAN hypothesis and forced me to look for a
+> fault in my *method* rather than my conclusion. → **new golden rule 14**.
+
+### 41.3 The open hop is an unexplored layer, not missing evidence
+
+`0x40009034`/`38` are read/written by **~56 and ~60** functions in `0x099000..0x09C000` — a subsystem
+with exactly **one** user symbol across `0x095000..0x0B0000`. None of them, with the forwards
+fallthrough walk applied, touches the lock module or the request bus. Since the behaviour
+demonstrably works, the hop exists and is simply **unread**: items 33/34. This is now the
+highest-value unexplored region in the image.
+
+### 41.4 Annotation
+
+`198` names 3 functions and 4 data cells (7 `OwnerFlash-RKE` bookmarks). `184` now spans layers
+29–31: **32 items, 11 prior anchors, 10 caveat strings, 3 bookmark counts — all passed**;
+1,123 user-defined symbols.
+
+---
+
+## 42. Layer 32 — the RKE→lock hop bounded to one byte ~~which nothing writes~~
+
+> ### ⚠⚠ RETRACTED IN §43 — the byte **is** written
+> §42.2's "no writer" and the "path is inert" conclusion are **wrong**. The writer is `0x9749A`, in an
+> **unswept block** where no reference-based method can see it. The four measurements were correct;
+> the inference was not. Kept verbatim as the record. See §43.
+
+
+Full evidence: **`docs/tx_pack_stage.md` §9**. Scripts `199`–`209`; read-back by `184`.
+
+### 42.1 Downstream of the request input: fully proven (a)
+
+Working **backwards** from `req_word_70` bit 3 was what unstuck it. Its two producers are
+*fallthrough tails*, and their parents test a bit of a **different** request word:
+
+```
+APP_lock_request_input 0x40008D2C (level)
+ └ APP_lock_req_edge_detect_A/B 0x86F90 / 0x8A812
+     if (b==1 && !(req74&bit9)) req74 |= bit10;     // rising edge -> event
+     if (b==0 &&  (req74&bit9)) req74 &= ~bit10;
+     req74 = (b&1)<<9 | (req74 & ~bit9);            // bit9 = level memory
+ └ APP_lock_req_gate_A/B 0x894D2 / 0x897B2   (also tests 0x40008D2D == 1)
+ └ APP_lock_req_producer_A/B 0x894FE / 0x897DE  -> req70 bit3, cmd=6, dirty=0xFF
+ └ APP_lock_request_dispatch -> APP_lock_command -> MS 0x3A d3 -> DDM/PDM
+```
+
+**`APP_req_word_74` bit 9 = previous level, bit 10 = edge event.** The bus is a multi-hop event
+chain — which is why every single-hop search failed.
+
+### 42.2 The byte has no writer — four controlled methods (b)
+
+| Method | Result | Control |
+|---|---|---|
+| resolved xrefs (`203`) | 11 READ, **0 WRITE** | `req_word_74`: 246 R / 160 W |
+| base-resolved stores (`204`) | 136 into the page, **none** to the cell | 136 real stores found |
+| **indexed** `stbx/sthx/stwx` (`207`) | 241 sites, 146 resolved, **0** in `0x40008C00..0x40009100` | 146/241 |
+| flash literal pointers (`203`) | 0 | **uninformative** — control also 0 |
+
+It is in **`.bss`**, zeroed every reset (§12.1), and the controls are in the *same region* with
+160/151 writers. ⇒ **permanently 0, the edge detectors never fire, this path is inert in this
+build** — the §39.5 pattern again (present but not wired for this part number).
+
+> Level **(b)**, not (a): one hypothesis is untested — a write through a pointer held in a struct
+> field, invisible to every address-based method. `184` asserts that caveat in the listing.
+
+### 42.3 Refutations recorded
+
+HS-CAN copy carries the button (`190` + domain constraint) · d7 never extracted (`191`) · demux
+output reaches the lock module (`197`) · producers' inputs come from the RKE subsystem (`200`) ·
+the latch stage feeds `0x40008D2C` (`205` — **12 deltas, extrapolation refused**) · an indexed
+store writes it (`207`).
+
+### 42.4 Two method notes
+
+**A crash was the evidence.** `203` died silently on `region(None)` — a write whose instruction has
+no containing function. The bug *was* the finding; such writes exist (unswept blocks) and are now
+reported as a `NO-FUNC` class.
+
+**Rank by specificity, not fan-out.** `199` ranked a generic error latch (`0x40006408`, 115 readers)
+top at score 158 — rule 9 exactly. The useful constraint was the narrow end: two producers reading
+~6 cells each.
+
+### 42.5 How to actually close it
+
+1. **p-code dataflow** for `obj->field` writes resolving to `0x40008D2C` (the only untested static route).
+2. **On-vehicle correlation (cheaper):** press lock with ignition off — which works today — and watch
+   whether `req_word_74` bit 10 ever toggles via a DID exposing the body-state block
+   (`did_readers.json`). If it never does, §42.2 is confirmed on the car and the same capture
+   identifies which request bit *is* live.
+
+### 42.6 Annotation
+
+`209` names 4 functions and 3 data cells (7 `OwnerFlash-LOCKREQ` bookmarks). `184` now spans layers
+29–32: **39 items, 11 prior anchors, 13 caveat strings, 4 bookmark counts — all passed**; 1,130
+user-defined symbols. It caught a real mismatch on first run (asserted caveat text vs the comment's
+markup), which is the verifier doing its job.
+
+---
+
+## 43. Layer 33 — the writer found by p-code, and §42 retracted (a)
+
+Full evidence: **`docs/tx_pack_stage.md` §10**. Scripts `210`–`220`; read-back by `184`.
+
+### 43.1 The retraction
+
+§42.2 concluded `0x40008D2C` has **no writer** and the lock-request path is **inert**. Both are
+**wrong**:
+
+```
+00097496  e_lbz  r0,0xf(r21)   ; 0x40008EF7
+0009749a  se_stb r0,0xc(r29)   ; -> 0x40008D2C   APP_lock_request_input
+0009749e  se_stb r0,0xd(r29)   ; -> 0x40008D2D
+```
+
+`getFunctionContaining(0x9749A)` is **`None`** — an **unswept block**. Ghidra never analysed it, so it
+never created references, so *every* reference-based method (xrefs, base-register walk, indexed-store
+scan) is structurally blind there. The four §42.2 measurements were each correct; the **inference**
+was not.
+
+### 43.2 The control that makes it a fact
+
+The language models memory access as `CALLOTHER` userops, and they are **disjoint** (`217`):
+`0x10000002` = STORE (199 sites, all `e_stb`/`se_stb`) vs `0x10000001` = LOAD (285 sites, all
+`e_lbz`/`se_lbz`). The op at `0x9749A` carries the STORE userop identically in **four** independently
+decompiled hosts.
+
+⚠ Honest limit: the register walk could **not** resolve `r29` (established upstream, in unswept code).
+P-code is the primary evidence, corroborated by the neighbours landing on a contiguous run
+`0x40008D29..0x40008D33` matching their loads.
+
+### 43.3 Three instrument bugs worth remembering
+
+1. **Signed displacements (`210`)** — `int(d,16) if d.startswith("0x") else int(d)` raises on `-0xbc`,
+   and a bare `except ValueError: pass` swallowed it: **361 stores silently dropped**, and the target
+   is at `-0xBC` from the base. Re-measured correctly, the answer held — a fixed instrument agreeing
+   with the broken one is the good case.
+2. **p-code `STORE` walk (`211`)** — returned 0 on a 160-writer control. Rule 7 caught it; `212`
+   found the real shape.
+3. **`os._exit(0)` in `finally` (`214`)** — a raised exception is killed before the traceback prints:
+   **a crashing script exits 0 and prints nothing**. Wrap the body in
+   `except Exception: traceback.print_exc()`.
+
+### 43.4 The chain now
+
+```
+APP_lock_src_producer 0x978D2  -> APP_lock_src_level 0x40008EF7 / _2 0x40008EF8
+  -> [unswept latch copy 0x9749A/0x9749E] -> APP_lock_request_input(_2)
+  -> edge detect -> req74 bit10 -> gate -> producer -> req70 bit3
+  -> APP_lock_request_dispatch -> APP_lock_command -> MS 0x3A d3 -> DDM/PDM
+```
+
+**Exactly one unknown remains: what sets `r6` in `APP_lock_src_producer`.**
+
+### 43.5 A refusal vindicated
+
+`205` refused to extrapolate the latch mapping (12 distinct deltas). `218` shows why: the block
+interleaves **two** copy streams (`r21`/`r28`→`r29` and `r23`→`r20`). Extrapolating would have named
+the wrong source cell confidently.
+
+### 43.6 Verification
+
+`220` annotates 1 function, 4 cells, 4 sites; the retraction is written into
+`APP_lock_request_input`'s plate comment (opening `*** RETRACTED CLAIM — READ THIS FIRST ***`) and
+asserted by `184`. The two stale layer-32 caveat assertions were **removed** — asserting them would
+now assert a falsehood. `184` spans layers 29–33: **ALL CHECKS PASSED**, 1,133 symbols.
+
+---
+
+## 44. Layer 34 — the origin resolved; three scans, three blind spots (a / b)
+
+Full evidence: **`docs/tx_pack_stage.md` §11**. Scripts `221`–`226`; read-back by `184`.
+
+### 44.1 The last §43 unknown, resolved
+
+`221` resolved the whole copy network of `0x096000..0x098000` by p-code (**4,292 edges**, controls
+against §43's two known edges). `r6` at `0x97990` loads **`0x40008D6B`**, which has **no copy edge** —
+it is produced by code, at `0x959C2`, by a 658-byte state machine that *selects* the value:
+
+```
+000959ae  se_lwz r6,0x18(r3) ; se_li r0,0x1 ; e_rlwimi    <- state 1
+000959b8  se_lwz r6,0x18(r3) ; se_li r0,0x2 ; e_rlwimi    <- state 2
+000959c0  se_li r0,0x0
+000959c2  se_stb r0,0x3(r7)                               <- stores the selection
+```
+
+**The chain is LIVE end to end:**
+
+```
+APP_lock_src_state_machine 0x95770 -> APP_lock_src_origin 0x40008D6B
+  -> APP_lock_src_level 0x40008EF7 -> APP_lock_request_input 0x40008D2C
+  -> edge -> req74 b10 -> gate -> producer -> req70 b3
+  -> APP_lock_request_dispatch -> APP_lock_command -> MS 0x3A d3 -> DDM/PDM
+```
+
+### 44.2 Three methods, three answers — the important part
+
+| Method | Answer | Blind spot |
+|---|---|---|
+| p-code `CALLOTHER`, full image, controls passed | **1** writer | `FUN_00095770` yields only 4 ram-resolved ops in 658 bytes — accesses go through a **pointer parameter**, so no `ram` varnode exists |
+| raw signed base+disp sweep | **3** writers | right answer, **broken instrument** (r7 leaked across a function boundary) |
+| **Ghidra reference manager** | **3**, correct | blind in *unswept* blocks — where it failed in §43 |
+
+§43: refs blind, p-code right. §44: **exactly reversed.** Neither dominates — **reconcile, and treat
+disagreement as the finding**. Stopping at the p-code scan (passing controls, full-image scope) would
+have given "one writer, an initialiser ⇒ cell constant 0 ⇒ path dead" — **the §42 error one level
+deeper**.
+
+### 44.3 A right answer from a broken instrument
+
+At `0x95758` the sweep said `0x40008D6B`; a careful per-function re-derivation said `0x40008DE7`;
+Ghidra says `0x40008D6B`. The sweep was right **by accident** — it carried `r7` across a function
+boundary and never saw `e_addi r7,r4,0x7c` at `0x9573E`. Per-function scoping is mandatory, and **a
+correct output does not validate a method**.
+
+### 44.4 What is NOT established (asserted as caveats in the listing)
+
+1. **Scheduling of `APP_lock_src_state_machine`** — 0 callers, true entry `0x95716` also has none.
+   Do not assume it runs every tick.
+2. **That this is the RKE path** — it is the origin of the *lock-request level*; whether its input is
+   the RKE demux output, a door switch, or something else is **not traced**. §41 proved links 1–4,
+   §§43–44 prove links 5–9; **the join between them is exactly this unknown.**
+
+### 44.5 Verification
+
+`226` annotates 3 functions, 2 cells, 3 sites. `184` spans layers 29–34: **ALL CHECKS PASSED**,
+1,138 symbols, `OwnerFlash-LOCKPROD` = 8.
+
+---
+
+> **Consolidated view of layers 29–35:** `docs/central_locking_chain.md` states the whole
+> locking picture (both paths, all addresses, open items) in one place.
+
+## 45. Layer 35 — scheduling closed, and the RKE path relocated (a)
+
+Full evidence: **`docs/tx_pack_stage.md` §12**. Scripts `227`–`236`; read-back by `184`.
+
+### 45.1 Item 36 closed — the chain is periodic
+
+Open item 36's premise was **my own script's bug**: `225` used `Function.getCallingFunctions()`,
+which skips call sites inside unswept blocks. The reference manager showed the caller at once
+(`0x97540`, "in -"). Climbing with **JUMP + CALL + fallthrough** (CALL-only stalls immediately):
+
+```
+APP_feature_periodic 0x62848 --CALL--> 0x96B9C -> ... -> APP_lock_periodic_chain 0x97382
+  -> 0x95716 -> APP_lock_src_state_machine
+```
+
+One routine split by the sweep into **15 zero-caller blocks**. The chain is periodic.
+
+### 45.2 Item 37 answered — in the negative
+
+SM input struct derived by control (`0x9576A` + `0x95764` ⇒ `r4 = 0x40008CEC`), then:
+
+| Test | Result |
+|---|---|
+| RKE-cell readers ∩ SM-struct writers | **EMPTY** |
+| RKE-cell readers ∩ lock-source-cell writers | **EMPTY** |
+| flow reachability from demux (10 blocks) ∩ struct writers | **NONE** |
+| control: 5/5 known latch writer sites | **PASS** |
+
+⇒ **disjoint code.** The §43–44 chain is a *different* lock actuator, not the fob path — exactly the
+caveat §44.4 refused to assume away.
+
+### 45.3 Where RKE really joins
+
+```
+0008d54a  e_lhz  r0,0x82(r5)           ; APP_rke_command_code 0x40002DA2
+0008d562  se_li  r7,0x3                ; command 3
+0008d56a  se_li  r7,0x1                ; command 1
+0008d56c  e_rlwimi r0,r7,0xb,0x12,0x14 ; -> APP_body_cmd_bus value bits 11..13
+```
+
+`APP_rke_to_body_cmd` `0x8D522` (and sibling `0x88504`) write a **3-bit command enum** — rule 13's
+pattern for the third time — into `APP_body_cmd_bus` `0x40008E58`, inside the lock module.
+
+### 45.4 A decoder reported as broken, not as a result
+
+`235` claimed bits 11..13 are "3 write, **0 read**". Rule 7: a write-only field is as suspect as a
+zero. The decoder ignored the **rotate amount** and emitted impossible ranges ("bits 17..13"). The
+warning lives in `APP_body_cmd_bus`'s plate comment; open item 38 is the fix.
+
+### 45.5 The whole RKE question, honestly
+
+**RFA → MS `0x100` d6:d7 → 13-bit code → demux → command enum on the body bus → [one unresolved
+hop] → lock module → `APP_lock_command` → MS `0x3A` d3 → DDM/PDM.**
+
+Every arrow but one is proven — and the section previously believed to be the middle of this chain
+belongs to a different feature.
+
+### 45.6 Verification
+
+`236` annotates 3 functions, 2 cells, 3 sites. `184` spans layers 29–35: **ALL CHECKS PASSED**,
+1,143 symbols, `OwnerFlash-RKEJOIN` = 8.
