@@ -24,3 +24,6 @@ work/backups/
 # Ghidra project lock files (runtime artifacts, never commit)
 *.lock
 *.lock~
+
+# Bench capture logs (may contain vehicle frame data)
+work/bench/logs/
