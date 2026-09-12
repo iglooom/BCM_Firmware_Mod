@@ -248,6 +248,112 @@ more than 3× as many loud events as strobes, is **rejected outright** rather th
 
 ---
 
+## 5.5 🆕 `d3 = 06` is a NON-ACTUATING command (a) — and a fixed-threshold bug
+
+Two short quiet trials (`work/bench/quiet_trial.py`, user kept the room silent on request).
+
+**Trial A — nibble 3 (`d3 = 06`):**
+
+```
+CAN  : 206 0x3A frames, 10 execute strobes, all d3 = 06
+AUDIO: clean (degenerate=False, median 2.8e-4, mad 4.0e-5), 0 actuation clicks
+```
+
+**Trial B — nibble 1, same session, as the positive control** (proving the mic still hears relays):
+
+```
+CAN  : 8 execute strobes (5x d3=01, 3x d3=02)
+AUDIO: 8 clicks, every one within +-35 ms of a strobe
+```
+
+⇒ **The third command strobes on CAN but actuates no lock relay.** The control rules out a broken
+audio path, and the audio in trial A was measurably clean rather than silent, so this is a **valid
+negative**, not a failed take.
+
+That is a genuinely new fact about the firmware: `APP_lock_command` carries at least one value that
+is *not* a door-lock actuation. It also explains why `0x6` never appeared in any vehicle capture
+while being written by **six** static sites — the feature it belongs to does not move the locks. The
+six `0x6` writers include `APP_lock_req_producer_A`/`_B` (Path A), so **Path A's mystery feature is
+non-actuating on this bench configuration** — a real constraint on open item 39.
+
+⚠ Still open: what `06` *does* actuate (if anything) — it may drive an output the bench cannot
+express (no DDM/PDM, no ignition), or be a pure status/request code.
+
+### The instrument bug this nearly caused (rules 8 / 23)
+
+Trial B first reported **3 clicks for 8 strobes**, split perfectly along `d3`: all 3 unlock strobes
+clicked, all 5 lock strobes appeared silent. That looked like a *finding* — "lock strobes don't
+actuate" — and it was **entirely an artifact**.
+
+Cause: a hardcoded `snr >= 100` cut. `snr` is normalised by each recording's own noise floor, so the
+same physical relay scores **~410 in a quiet take and ~77 in a slightly noisier one**. Five real lock
+clicks (peak 0.039–0.044, indistinguishable in amplitude from the unlock clicks at 0.052) fell below
+the fixed cut.
+
+Fix: split the classes **adaptively** at the largest *ratio gap* in peak amplitude — a property of
+the signal, not of the noise floor. The observed gap is **22×** (quiet class 0.0017 vs actuations
+0.039+), so the split is unambiguous. Plus an `edge_guard`: `parecord` emits a start-up transient at
+t ≈ 0.009 s that survives any threshold but precedes every stimulus.
+
+**Regression (all pass):** nib1-quiet 8/8, nib3-quiet 0/0, nib1-ab 9/9.
+
+> The lesson generalises beyond audio: **never threshold on a quantity normalised by the noise
+> floor when comparing across recordings.** Compare on the physical quantity (peak amplitude) and
+> let the data define the boundary.
+
+---
+
+## 5.6 🔬 Item 42 — the static prediction FAILED, and that is a real result
+
+`item42_timed.sh` + `item42_report.py`, CAN-only (both buses, 4 s baseline, one nibble-3 press,
+12 s observation).
+
+**Prediction under test** (from layer-36 script `250`): `FUN_0008D4DA` case 3 sets
+`DAT_40002E44 |= 0x40`, which `250` resolved through the decoded TX tables to five frame bytes —
+HS `0x380` d4, MS `0x1A8` d0, `0x1B0` d2, `0x290` d0, `0x370` d4 — so a nibble-3 press should change
+those bytes, for a duration of `DAT_4000588F × 50` ticks.
+
+**Result: 0 of 5 predicted bytes changed.** What did change:
+
+| frame | byte | change | duration | reading |
+|---|---|---|---|---|
+| MS `0x03A` | d1 | `00` → `40` | 0.25 s | the execute strobe — expected, not evidence |
+| MS `0x03A` | d3 | `02` → `06` | held | the command itself — expected |
+| MS `0x1E0` | d0 | `42` → `62` | 0.30 s | **bit 5 set, transient** |
+| MS `0x1E0` | d1 | `A0` → `C0` | 0.10 s | **bit 6 set, transient** |
+| MS `0x230` | d6 | `26` → `27` | 2.70 s | delayed (starts t+8.2 s) |
+| MS `0x250` | d6 | `26` → `27` | 2.60 s | delayed (starts t+8.2 s) |
+
+⇒ **Script `250`'s cell→frame mapping for `0x40002E44` is wrong, or that cell is not written on this
+path.** Either way the static resolution cannot stand as-is, and this is exactly the falsifiable
+test rule 11 asks for — it was designed so it *could* fail, and it did.
+
+`0x1E0` d0/d1 are the interesting find: two transient bit-sets, ~0.1–0.3 s, coincident with the
+press. That is the signature of the timed feature the static analysis was hunting — on a frame
+nobody predicted. **Next step: re-derive what writes `0x1E0` d0 bit5 / d1 bit6 and work back to the
+feature**, rather than trusting the `0x40002E44` route.
+
+### ⚠ The diff itself was broken first — three artifacts, 25 false positives
+
+The first run of this analysis reported **25 changed bytes** and a confident "prediction failed".
+Most of those were artifacts of my own diff:
+
+1. **Self-transmitted frames.** `0x100` is *our* stimulus; of course its bytes "changed".
+2. **Counters / free-running values.** Baselines like `['0x2f','0x30','0x31','0x32','0x33']` →
+   `['0x34'…'0x3b']` are rolling counters: a 4 s baseline cannot observe every value, so any later
+   value looks new. This produced most of the noise (`0x400`, `0x405`, `0x40A`, `0x230` d7, `0x250` d7).
+3. **Non-reverting changes.** A byte that differs for the entire 10.9 s post-window is free-running,
+   not a timed feature.
+
+Fixed by excluding self-TX ids, requiring a **stable** baseline (≤3 distinct values over ≥5 frames),
+and reporting whether the value **returns** to baseline. 360 byte-channels seen → 311 testable → **6**
+real changes. The conclusion survived the fix, but the evidence for it is now honest.
+
+> Same lesson as §5.5 and as `AGENTS.md` rules 8/9: **when a diff returns a large answer, suspect the
+> diff.** A stimulus/response experiment needs a stability model for every channel it compares.
+
+---
+
 ## 5x. 🔑 Why the relay channel matters
 
 **User observation, mid-session: the BCM's lock relays click audibly during these trials.** With no
@@ -272,16 +378,19 @@ into a *logged* signal with timestamps, correlatable against the candump — tur
 
 ## 6. Revised priorities for session 2
 
-0. **Re-run the `d3=06` acoustic trial in a quiet room** — the one measurement that was lost to
-   contamination, and the question the acoustic channel was built to answer: *does the third command
-   actuate a relay at all, and which one?* Please keep the room quiet for ~15 s per trial.
+0. ~~Re-run the `d3=06` acoustic trial~~ — **done (§5.5): `06` strobes but actuates nothing.**
 1. ~~Instrument the relay~~ — **done**, via the laptop mic (§5). No hardware needed.
-2. **Command-enum sweep** — done for `d3`; re-run with audio to get the actuator for each enum.
-3. **The timed feature (item 42)** — predict and measure: enum 3 should produce a timed change in
-   HS `0x380` d4 / MS `0x1A8` d0 / `0x1B0` d2 / `0x290` d0 / `0x370` d4, of duration
-   `DAT_4000588F × 50` ticks. A falsifiable prediction the decode does not already know.
-4. **Item 30 (ignition gate)** — blocked until an ignition input can be asserted; see §2.
-5. **Item 41 (which consumer actuates)** — the patch-probe, now with a **relay-discriminating**
+2. ~~Command-enum sweep~~ — **done** for `d3`; the actuating set is `{01 lock, 02 unlock}` and
+   `06` is non-actuating.
+3. **The triplet's cause (§5.3)** — each LOCK press drives LOCK, LOCK, UNLOCK on two relays. Vary
+   press duration / inter-press gap, and test whether an intervening UNLOCK suppresses it.
+   Directly relevant to `rke-lock`'s `L3` suppression window. ~15 s of quiet per trial.
+4. ~~The timed feature (item 42)~~ — **done (§5.6): the prediction FAILED.** Script `250`'s
+   `0x40002E44` → frame-byte mapping does not hold on the wire. **New lead:** MS `0x1E0` d0 bit5 and
+   d1 bit6 set transiently (0.1–0.3 s) on a nibble-3 press. Re-derive what writes those, statically,
+   and work back to the feature.
+5. **Item 30 (ignition gate)** — blocked until an ignition input can be asserted; see §2.
+6. **Item 41 (which consumer actuates)** — the patch-probe, now with a **relay-discriminating**
    observable: the acoustic signature identifies *which* relay fired, so a probe no longer needs to
    encode its marker into a CAN byte at all.
 
