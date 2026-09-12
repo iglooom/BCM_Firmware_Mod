@@ -20,3 +20,7 @@ work/sbl-upload/owner-backup-*/
 work/owner/
 work/bins/
 work/backups/
+
+# Ghidra project lock files (runtime artifacts, never commit)
+*.lock
+*.lock~

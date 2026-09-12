@@ -175,6 +175,40 @@ cannot be moved earlier. See §7 of this file if the target maps buttons differe
    forced the search back into the MS path, which is where rules 12 and 13 were both found. Domain
    knowledge outranks a clean-looking scan.
 
+23. **A REACHABILITY result means nothing until you measure the reachability of UNRELATED code.**
+   Before reporting "site X flows to target Y", run the *identical* walker from a handful of sites
+   with no relationship to the question, and compare **which targets** they reach. Layer 36 produced
+   a beautiful candidate — a tight, complete, 7-instruction path from `0x8B3D6` into
+   `APP_lock_command = 3` — and then found that `FUN_00087486` and `FUN_0008B382`, neither of which
+   has anything to do with RKE, reach **the same write site**. Reaching it was a generic property of
+   the code region, not evidence. Two corollaries, both of which nearly slipped through:
+   - **Compare target SETS, not counts.** The hit's score (1) *tied* the worst unrelated control (1),
+     and the first verdict logic printed "SIGNAL" on that tie. A target also reachable from unrelated
+     code has **zero** discriminating power regardless of how the counts land.
+   - **A walk that hits its bound is not a result.** The sibling hit reached 10 of 32 targets after
+     exploring 1201 blocks — the shape of an unbounded sweep of the layer, not of a path. Print the
+     bound and mark such walks PARTIAL; a PARTIAL null is a lower bound, and a PARTIAL hit is noise.
+   Same family as rules 8 and 9: the instrument worked, the inference didn't.
+   (`docs/rke_lock_join.md` §5, `docs/owner_flash_layers.md` §46.3.)
+
+24. **Decode a bitfield with the ROTATE, the WRAP, and the PRIMITIVE'S SHAPE — all three.**
+   Rule 21 covered the rotate. Layer 36 found two more failure modes in the same decoder, each of
+   which independently corrupts the output: (a) PowerPC allows **`mb > me`**, so the mask *wraps* —
+   with `sh=0` the idiom `e_rlwinm r0,r0,0x0,0x12,0xe` is a masked **clear** (a WRITE), not a read of
+   an impossible field "bits 17..13"; (b) `e_lwz`/`e_rlwimi`/`e_stw` is **one logical access across
+   three reference sites**, and `rlwimi`'s operand[1] is the *source*, not the loaded register, so
+   keying events by reference site both double-counts and loses the load. Also: never credit a bulk
+   reset (`x &= ~big_mask`) to the write-set — claiming ~28 bits makes the set uninformative and will
+   trip your own non-degeneracy control. Acceptance test: a complementary insert/extract pair on one
+   field (`sh` and `32-sh`) must land in the **same bucket**.
+
+25. **`project.close()` already releases the program, and `setBookmark` overwrites.** Two
+   annotation-path quirks that each look like a failure but are not: calling `program.release(project)`
+   *and then* `project.close()` raises `IllegalArgumentException: unknown consumer` **after** a
+   successful save; and `setBookmark(addr, type, category)` replaces any existing bookmark at the same
+   address+category, so an address given both a label bookmark and a plate bookmark yields **one**.
+   Verify annotations by asserting the bookmark **address set**, never a count.
+
 ---
 
 ## 2. Environment

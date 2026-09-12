@@ -90,9 +90,20 @@ RFA (radio receiver)  ──▶ MS-CAN 0x100 d6:d7
         0008d56a  se_li  r7,0x1                   ; command 1
         0008d56c  e_rlwimi r0,r7,0xb,0x12,0x14    ; → APP_body_cmd_bus bits 11..13
   └ APP_body_cmd_bus 0x40008E58, value bits 11..13 = 3-bit command enum
-  └ ??? ────────────────────────────── ONE UNRESOLVED HOP (open item 38)
+  │     └ sole reader 0x8D500 -> APP_body_cmd_timed_feature 0x8D4DA
+  │           = a TIMED body feature, NOT the lock actuator  (layer 36, a)
+  └ APP_req_word_74 0x40008E74 bits 15..20  <-- the real handoff  (layer 36, a)
+  └ ??? one of 9 consumer sites ───────────── UNRESOLVED (open item 41)
   └ lock module ──▶ APP_lock_command ──▶ MS 0x3A d3 ──▶ DDM / PDM
 ```
+
+⚠ **Layer 36 relocated this hop.** The chain above used to route through
+`APP_body_cmd_bus` bits 11..13; that is refuted. See `docs/rke_lock_join.md`:
+the field's sole reader emits nothing reaching `APP_lock_command`, and at bit
+resolution the RKE chain and the 32 lock-command writers share **no bits**.
+The 9 consumers of `req_word_74` bits 15..20 are enumerated there — but
+control-flow reachability is **saturated** in this code region, so picking the
+right one needs a measurement, not another scan.
 
 Gate byte `APP_rke_join_gate` `0x40008D3A` selects which arm runs; **its meaning is open**.
 
@@ -153,11 +164,13 @@ The fob command is decoded from captures as *bit flags* but consumed in code as 
 
 | # | Question | Status |
 |---|---|---|
-| 38 | `APP_body_cmd_bus` bits 11..13 → `APP_lock_command`: the last RKE hop | **blocked on a broken decoder** — `235` ignored the *rotate amount*, producing impossible ranges ("bits 17..13") and a "3 write, **0 read**" verdict. Per rule 8 that is a decoder bug, not evidence the field is unread. Fix: `value = (x >> (32-sh)) & mask(mb,me)` |
+| 38 | ~~`APP_body_cmd_bus` bits 11..13 → `APP_lock_command`: the last RKE hop~~ | **CLOSED IN LAYER 36 — BY REFUTATION.** The fixed decoder shows the field has 4 writes and **1 read** (not "0 read"), and its sole reader `FUN_0008D4DA` `0x8D4DA` is a *timed* body feature that writes nothing reaching the lock command. At bit resolution the RKE chain and all 32 lock-command writers share **no bits at all**. The real handoff is **`APP_req_word_74` bits 15..20**. See `docs/rke_lock_join.md` |
+| 41 | **Which of the 9 `req_word_74` bit-15..20 consumers actuates the lock** | **open — and not answerable statically.** Control-flow reachability is *saturated* in this region: unrelated control sites (RX copier, acc-fix hook sites, DID readers) reach the same lock writes. Two candidate answers were generated and both destroyed by their own controls (`rke_lock_join.md` §5). Needs a bench/vehicle measurement |
+| 42 | What `FUN_0008D4DA` actuates | open (c) — timed, duration `DAT_4000588F × 50`; writes `0x40002E44`, which packs into HS `0x380` d4 and MS `0x1A8`/`0x1B0`/`0x290`/`0x370` |
 | 39 | Which feature owns Path A | open — start from `APP_lock_sm_input_struct` `0x40008CEC` (132 writer blocks) |
 | 40 | Scheduling of `APP_rke_to_body_cmd` | open — flow-edge climb stalled at `0x93890` / `0x8F8F2` without reaching a spine symbol |
 | — | Meaning of `APP_rke_join_gate` `0x40008D3A` | open — only its *role* as an arm selector is known |
-| — | Ignition interaction | **untouched by layers 29–35.** The refusal mechanism remains as layer 30 left it: `APP_lock_request_dispatch` is the only function that both tests `APP_power_mode` and writes `APP_lock_command`, but no branch was observed suppressing a command |
+| — | Ignition interaction | **untouched by layers 29–36.** The refusal mechanism remains as layer 30 left it: `APP_lock_request_dispatch` is the only function that both tests `APP_power_mode` and writes `APP_lock_command`, but no branch was observed suppressing a command |
 
 ---
 
@@ -185,6 +198,7 @@ That is a strictly better mod if and only if the ignition gate (§5, last row) i
 | `OwnerFlash-LOCKSRC` | 9 | 33 — the found writer |
 | `OwnerFlash-LOCKPROD` | 8 | 34 — the origin |
 | `OwnerFlash-RKEJOIN` | 8 | 35 — RKE join site |
+| `OwnerFlash-RKEJOIN2` | 7 | **36 — item 38 refuted; the hop relocated** |
 | `OwnerFlash-LOCKCHAIN` | 28 | consolidation — the 15-block periodic chain |
 
 Read-back verifier: `work/owner/184_verify_l29.py` — spans layers 29–35, asserts every symbol,
@@ -201,5 +215,7 @@ python3 work/owner/229_climb_allflow.py      # scheduling proof
 python3 work/owner/233_join_by_refs.py       # Path A ≠ Path B
 python3 work/owner/234_rke_lock_join_site.py # the RKE join
 python3 work/owner/237_consolidation_audit.py # docs ↔ Ghidra sync check
-python3 work/owner/184_verify_l29.py         # full read-back
+python3 work/owner/184_verify_l29.py         # full read-back (layers 29–35)
+python3 work/owner/256_flow_saturation_and_path.py # layer 36 adjudicator
+python3 work/owner/258_verify_l36.py         # layer 36 read-back
 ```

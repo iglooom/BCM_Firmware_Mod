@@ -47,6 +47,11 @@ The technical work focuses on its role as a **CAN gateway** between HS-CAN (500k
 - ⚠️ **Key open item:** the **unpack stage** (packed RX frame images → the app signal planes) is not
   located. Measured: zero app functions touch image bytes by absolute address, so static analysis
   cannot find it — needs bench instrumentation (`owner_flash_layers.md` §20.2).
+- ⚠️ **RKE→lock: 1 hop still open, and it is NOT statically answerable.** Layer 36 **refuted** the
+  long-standing open item 38: `APP_body_cmd_bus` bits 11..13 do *not* reach `APP_lock_command` (its
+  sole reader is a timed body feature). The real handoff is **`APP_req_word_74` bits 15..20**, with
+  9 consumers — but control-flow reachability is *saturated* in that region (unrelated code reaches
+  the same lock writes), so the last hop needs a **measurement**. **`docs/rke_lock_join.md`**.
 - ❗ **12 retracted assumptions — read §7 before building on anything.**
 
 ---
@@ -381,7 +386,8 @@ Full method: **`docs/rke-lock.md`**.
 
 | Document | What it is |
 |---|---|
-| **`central_locking_chain.md`** | **Consolidated findings (layers 29–35): the two lock-request paths.** Path A (periodic, feature unknown) and Path B (RKE) end to end, every address, what is proven vs open, and the method traps that produced two retractions. Start here for locking. |
+| **`central_locking_chain.md`** | **Consolidated findings (layers 29–36): the two lock-request paths.** Path A (periodic, feature unknown) and Path B (RKE) end to end, every address, what is proven vs open, and the method traps that produced two retractions. Start here for locking. |
+| **`rke_lock_join.md`** | **Layer 36 — the RKE→lock join.** Open item 38 refuted with a fixed rotate-aware bitfield decoder; the hop relocated to `APP_req_word_74` bits 15..20; and **two candidate answers destroyed by their own saturation controls** (§5 — read this before trusting any reachability result in the body layer). |
 | **`owner_flash_layers.md`** | **Primary RE reference.** Layer-by-layer analysis of the real full-flash dump (35 layers, PBL boot path → CAN codec → TX pack stage → request bus → the RKE→lock join), plus the derivation of every correction. Start here for how the module works. |
 | **`gateway_map.md`** | **Condensed CAN reference.** Table stack, per-bus ID inventory, RX/TX frame maps, routing model, retracted readings, open items. |
 | **`tx_pack_stage.md`** | **Layers 29–30.** The transmit half of the codec (`VOL_sig_set8`, `APP_tx_compose`, 384 source→image pairs), the two-phase periodic task (a correction to §32), the central-lock command chain, and the body-control request/event bus that drives it. |

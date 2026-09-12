@@ -3683,3 +3683,59 @@ belongs to a different feature.
 
 `236` annotates 3 functions, 2 cells, 3 sites. `184` spans layers 29–35: **ALL CHECKS PASSED**,
 1,143 symbols, `OwnerFlash-RKEJOIN` = 8.
+
+---
+
+## 46. Layer 36 — open item 38 refuted, and the RKE hop relocated (a)
+
+Full evidence: **`docs/rke_lock_join.md`**. Scripts `247`–`256`; annotation `257`; read-back `258`
+(**ALL CHECKS PASSED**, `OwnerFlash-RKEJOIN2` = 7 bookmarks at 7 distinct addresses).
+
+### 46.1 The decoder fixed — and item 38's premise destroyed
+
+§45.4 left item 38 as "a decoder reported as broken, not as a result". Fixing it (rotate-aware,
+wrapping-mask-aware, RMW-triple-deduped) turns `235`'s "3 write, **0 read**" into **4 write, 1
+read** — and the read kills the item's premise. `APP_body_cmd_bus` bits 11..13 has exactly one
+reader, `0x8D500`, confirmed by two structurally independent instruments with passing positive
+controls (reference manager `248`; a 352,906-instruction linear sweep for the extract idiom that
+uses no references, functions or symbols, `249`).
+
+That reader is **`APP_body_cmd_timed_feature` `0x8D4DA`**, a timed body feature
+(duration `DAT_4000588F × 50`). `250` resolved every cell it writes through the decoded TX tables —
+with a positive control that `APP_lock_command` must resolve to MS `0x3A` d3, which it does, giving
+a **third independent confirmation** of `rke-lock`'s injection byte. **Nothing it writes reaches the
+lock command.**
+
+### 46.2 The real handoff: `APP_req_word_74` bits 15..20
+
+At **word** level the RKE chain and the 32 lock-command writers share 5 cells — all buses of
+172–467 references, i.e. rule 9 coverage, not agreement. At **bit** level (`253`) the overlap is
+**empty on all five**, a clean controlled negative. `254` then found the 17 sites image-wide that
+consume the bits the RKE chain *does* write; 9 of them are on `req_word_74` bits 15..20.
+
+### 46.3 Two answers generated, two destroyed by their own controls
+
+The transferable part. `251`'s backward climb first reported **27 of 32** lock writers as "RKE" —
+every hit via the 226-reference `APP_body_cmd_bus`. Excluding it and adding a negative control gave
+0/32, but 29/32 climbs hit the bound, so that zero is a **lower bound, not a negative**.
+
+Then `255` (three passing controls, 15/17 walks complete) produced a beautiful candidate: a tight,
+complete, 7-instruction path from `0x8B3D6` (`req_word_74` bit 17) into `APP_lock_command = 3`.
+`256` ran the identical walker from **ten sites with no RKE relationship** — and three of them reach
+a lock write, two of them reaching **`0x8756A`, the very same site**. Reaching it is a generic
+property of the region. Counting alone would have missed this: the hit's score (1) *ties* the worst
+unrelated control (1), and the first version of the verdict logic printed "SIGNAL" on that tie.
+**Compare which targets are reached, never how many.**
+
+⇒ Both candidates withdrawn before publication. Open item 41 (which consumer actuates the lock) is
+**not answerable by static reachability** — control flow is saturated here and bit-level data flow
+is empty. Per rule 7 the next instrument is a bench/vehicle measurement.
+
+### 46.4 Two tooling notes
+
+- `project.close()` already releases the program; calling `program.release(project)` *and* then
+  `close()` raises `IllegalArgumentException: unknown consumer` **after** a successful save — which
+  looks like a failed write and is not.
+- `setBookmark(addr, type, category)` **overwrites** at the same address+category, so an address
+  that receives both a label bookmark and a plate bookmark yields **one**. Assert the bookmark
+  **address set**, not a count — a count expectation of 8 failed against a correct annotation.
