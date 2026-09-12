@@ -319,8 +319,8 @@ those bytes, for a duration of `DAT_4000588F × 50` ticks.
 |---|---|---|---|---|
 | MS `0x03A` | d1 | `00` → `40` | 0.25 s | the execute strobe — expected, not evidence |
 | MS `0x03A` | d3 | `02` → `06` | held | the command itself — expected |
-| MS `0x1E0` | d0 | `42` → `62` | 0.30 s | **bit 5 set, transient** |
-| MS `0x1E0` | d1 | `A0` → `C0` | 0.10 s | **bit 6 set, transient** |
+| MS `0x1E0` | d0 | `42` → `62` | 0.30 s | **bit 5 set** — no packer claims it (§5.7) |
+| MS `0x1E0` | d1 | `A0` → `C0` | 0.10 s | **2-bit field `0x60`, value 1 → 2** (§5.7) |
 | MS `0x230` | d6 | `26` → `27` | 2.70 s | delayed (starts t+8.2 s) |
 | MS `0x250` | d6 | `26` → `27` | 2.60 s | delayed (starts t+8.2 s) |
 
@@ -351,6 +351,133 @@ real changes. The conclusion survived the fix, but the evidence for it is now ho
 
 > Same lesson as §5.5 and as `AGENTS.md` rules 8/9: **when a diff returns a large answer, suspect the
 > diff.** A stimulus/response experiment needs a stability model for every channel it compares.
+
+---
+
+## 5.7 🔗 Following the `0x1E0` lead back into the firmware (a/b)
+
+Script `261`. MS `0x1E0` is a **BCM TX** frame (CAN1 MB13, image base `0x40000A57`), so both changed
+bytes are things the BCM *emits* — the right place to look for the feature's output.
+
+### ⚠ First, a correction to my own reading (rule 13, again)
+
+I initially recorded the d1 change as "bit 6 set". **Wrong.** `0xA0 → 0xC0` flips bits 5 *and* 6
+together:
+
+```
+d1 0xA0 = 1010_0000   field 0x60 = 0b01 = 1
+d1 0xC0 = 1100_0000   field 0x60 = 0b10 = 2
+```
+
+It is a **2-bit field taking an enum value 1 → 2**, not a bit being set — the same wire-vs-
+representation trap as `AGENTS.md` rule 13, now caught in my own notes rather than in someone
+else's. The corrected reading matches a real packer *exactly*, which the wrong one did not.
+
+### The d1 enum is fully resolved (a)
+
+`tx_signal_dict.json`: image `0x40000A58` mask `0x60` shift 5 ← src **`0x40002EEC`** (site `0x4CA94`).
+That cell has **7 writers**, and the constant each stores gives the enum's whole vocabulary:
+
+| value | writer sites |
+|---|---|
+| **1** | `0x99612`, `0x996BC`, `0x9A0B8` |
+| **2** | `0x9A428`, `0x9A398`, `0x9B0DE` |
+| 3 | `0x9B10C` (unswept block) |
+
+The bench transition **1 → 2** therefore runs through statically-known writers — a clean
+static↔dynamic agreement, and the first time this project has tied a `0x99xxx`–`0x9Bxxx` routine to
+an observable bus event. Value **3 exists in flash but was never reached** by the nibble-3 path:
+untested, *not* absent.
+
+⚠ The writers are one-line setter stubs (`DAT_40002EEC = r0; DAT_40003FD7 = 0xFF`) and the reference
+manager resolves **no callers** for them — the familiar unswept-block blindness (rule 19). The
+feature that *decides* the value is one climb further up and is **not yet identified**.
+
+### The d0 bit-5 gap is a real hole in the extraction (b)
+
+| image byte | packer mask coverage | uncovered |
+|---|---|---|
+| d0 `0x40000A57` | `0x81` (two packers: `0x80`, `0x01`) | **`0x7E`** — includes the observed bit 5 |
+| d1 `0x40000A58` | `0x7F` (three packers) | `0x80` |
+
+So **no packer in the 384-entry extraction writes d0 bit 5**, yet the bench shows it being set and
+cleared. Rule 12's escape hatch (a 16-bit primitive anchored on the previous byte also writing this
+one) does **not** apply: `0x40000A56` has no packer either.
+
+⇒ Either `tx_signal_dict.json` is incomplete for this frame, or d0 bit 5 is written by a path
+outside the pack stage entirely. Both are findings; neither is yet resolved.
+
+---
+
+## 5.8 🎯 The climb succeeded: the `0x99xxx–0x9Bxxx` region is the RKE subsystem (a)
+
+Script `262`. The reference manager found **0 callers** for the setter stubs; the rule-19 walk
+(JUMP + CALL + byte-adjacency fallthrough, refs taken against *every* address in the block) found
+them immediately. Controls: C1 reproduced layer 35's known 14-hop climb; C2 confirmed an unrelated
+leaf (the RX copier) does **not** wander into this region.
+
+**All 7 writers of `0x40002EEC` reach `APP_feature_periodic`**, converging on a shared spine:
+
+```
+APP_feature_periodic 0x62848
+  -> FUN_0009BAD0 -> FUN_0009B41C / FUN_0009B456
+     -> FUN_00099ED0 / FUN_00099A60 / FUN_0009A2EC ...
+        -> the 7 setter stubs -> 0x40002EEC -> MS 0x1E0 d1 field 0x60
+```
+
+⚠ Reaching a spine symbol proves **scheduling, not identity** — `APP_feature_periodic` is an
+ancestor of most of the body layer. The identification below rests on the *content* of the blocks,
+not on the climb.
+
+### `FUN_0009B41C` is the RKE feature dispatcher (a)
+
+The decompilation is decisive — it calls the RKE demux by name and manipulates the RKE command bits:
+
+```c
+FUN_0009B41C:
+    ...
+    APP_rke_cmd_bits_38 &= 0xfff7ffff;
+    FUN_0009AC0C(); FUN_0009AE2C();
+    APP_rke_command_demux();          // <-- the layer-31 RKE decoder
+    FUN_00099ED0(); FUN_0009AF2C(); FUN_0009A44E();
+    FUN_0009B15C(); FUN_0009A84C();
+    uVar6 = APP_rke_cmd_bits_34 >> 0x16 & 3;   // 2-bit mode switch
+    ...
+```
+
+⇒ **The whole `0x99xxx–0x9Bxxx` region is the RKE subsystem**, dispatched once per periodic tick,
+and our `0x1E0` enum is one of its outputs. This is the first time this project has attributed that
+address range to a function.
+
+### The enum's decision rule (a)
+
+Both enum writes are guarded by the **same predicate**, confirmed in the raw listing and by the
+decompiler independently:
+
+```
+0x9a0ae  se_lbz r0,0x0(r29)      ; load a mode/state byte
+0x9a0b0  se_cmpi r0,0x3          ; == 3 ?
+0x9a0b2  e_bne  cr0,0x0009a30e   ; skip unless it is
+0x9a0b6  se_li  r0,0x1           ; the enum value
+0x9a0b8  se_stb r0,0x0(r27)      ; -> 0x40002EEC
+```
+
+decompiled as `if (*unaff_r29 == 3) { *unaff_r27 = 2; DAT_40003FD7 = 0xFF; }`, with
+`r27 → 0x40002EEC` and `DAT_40003FD7` the pack-stage dirty flag.
+
+`FUN_0009A2EC` carries the timing: `if (*(p+0x40) < *(p+0x14)) *(p+0x40) += 10;` — a **counter vs
+limit incremented by 10 per tick**, exactly the idiom of the `0x8D4DA` timer
+(`DAT_40008DF0 += 10`, limit `DAT_40008E46`). So the ~0.10–0.30 s pulses the bench measured are this
+counter expiring.
+
+### What is NOT established
+
+- **The meaning of `[r29] == 3`** — the mode byte that enables the enum. Its address is not resolved
+  (it arrives in a register from a caller frame).
+- **Which physical feature** the `0x1E0` field drives. "RKE subsystem output" is as far as the
+  evidence goes; the frame is a BCM TX, so the consumer is another module.
+- **`0x1E0` d0 bit 5** — still unexplained (§5.7); no packer claims it.
+- **Why value 3** (`0x9B10C`) was never reached on the bench.
 
 ---
 
@@ -386,9 +513,10 @@ into a *logged* signal with timestamps, correlatable against the candump — tur
    press duration / inter-press gap, and test whether an intervening UNLOCK suppresses it.
    Directly relevant to `rke-lock`'s `L3` suppression window. ~15 s of quiet per trial.
 4. ~~The timed feature (item 42)~~ — **done (§5.6): the prediction FAILED.** Script `250`'s
-   `0x40002E44` → frame-byte mapping does not hold on the wire. **New lead:** MS `0x1E0` d0 bit5 and
-   d1 bit6 set transiently (0.1–0.3 s) on a nibble-3 press. Re-derive what writes those, statically,
-   and work back to the feature.
+   `0x40002E44` → frame-byte mapping does not hold on the wire. Followed up in §5.7: the MS `0x1E0`
+   d1 change is a **2-bit enum 1→2** whose source `0x40002EEC` has 7 known writers (values 1/2/3).
+   **Still open:** who *calls* those setter stubs (unswept blocks — rule 19), and what writes
+   `0x1E0` d0 bit 5, which **no packer in the extraction claims**.
 5. **Item 30 (ignition gate)** — blocked until an ignition input can be asserted; see §2.
 6. **Item 41 (which consumer actuates)** — the patch-probe, now with a **relay-discriminating**
    observable: the acoustic signature identifies *which* relay fired, so a probe no longer needs to

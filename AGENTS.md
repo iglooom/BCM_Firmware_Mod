@@ -209,6 +209,206 @@ cannot be moved earlier. See §7 of this file if the target maps buttons differe
    address+category, so an address given both a label bookmark and a plate bookmark yields **one**.
    Verify annotations by asserting the bookmark **address set**, never a count.
 
+26. **A constant offset between two signals locked to the same stimulus cadence is NOT a lag —
+   vary the stimulus timing before calling it causal.** Two press-locked square waves sharing a
+   period show a *constant* offset at any arbitrary phase, so "+1040 ms, twice" looks exactly like a
+   pipeline delay and means nothing. Re-running at a different inter-press gap is the falsifier: a
+   real lag survives, a phase coincidence moves. Worse, the same trace exposed a second, independent
+   error — **pairing each event with the next RISING transition instead of its NEAREST neighbour**.
+   `lock_command 01`'s partner is `body_cmd_bus 0A`, not the following `0C`; corrected, the two cells
+   are simultaneous to **±10 ms** (the round-robin poll interval) at all six transitions, i.e. one
+   event, not two stages. Both the "ordering resolved" claim and its 1-second pipeline were wrong.
+   Corollary: **state your pairing rule explicitly and test it against the alternative**, and treat
+   a suspiciously round, repeated delta as a signature of shared cadence until proven otherwise.
+   (`docs/bench_session_2.md` §6.1–6.2.)
+
+27. **An empty instrument reading is INCONCLUSIVE, never a negative verdict about the subject.**
+   The probe-bank acceptance test printed `✗ CONTROL FAILS` when the probe side was perfect and the
+   *bus observer* had captured nothing: `candump -L` emits `03A#A040...` but `candump -ta` emits
+   spaced columns `can1  03A   [8]  A0 40 ...`, so a `03A#` regex matched zero frames and
+   `probe ∩ bus = ∅` was rendered as disagreement. A verified-good 1.2 MiB flash was one careless
+   reading from being condemned. Any comparison against a reference channel must **assert the
+   reference is alive first** and report INCONCLUSIVE when it is not. Same family as rule 8.
+
+28. **Gate a flash on the DID that actually carries the software part number.** `F111` is the ECU
+   hardware/assembly part (`DV6T-14C245-FF`) and never equals an EXE VBF's `sw_part_number`; the
+   application part is **`F188`**, the calibration is **`F124`**. A safety check keyed on `F111`
+   refuses every legitimate application flash — and a check that only ever false-positives is worse
+   than none, because the habit it teaches is `--force`. Derive erase regions and block addresses
+   from the **VBF header**, never from a capture: the reference log
+   (`hscan_bcm_flash.log`) is a `JV6T-14C095-AB` **DATA/calibration** flash — 1 erase region of
+   16 KiB at `0xC000` — while the application needs **11** regions spanning `0x10000..0x140000` and
+   1.2 MiB. Also: the erase routine answers `7F 31 78` (responsePending) *first* and only then
+   `71 01 FF 00`, so a tool that aborts on the first negative stops **after erase, before write**.
+   (`docs/bcmflash_tool.md`.)
+
+29. **A repeated-trial sweep must reset state between conditions, and must verify its edges are
+   STIMULUS-LOCKED before any verdict.** A hypothesis sweep over `req_word_74` b2 printed a clean
+   "consistent with H3 (needs ≥3 presses)" that its own raw data refutes, via three independent
+   defects: (a) trials ran back-to-back and the change-trace records the **first sample as a change**
+   (no previous value exists), so a cell still holding the target value from the *previous* condition
+   was counted as a fresh firing at t≈0.006 — inflating every count; (b) the edge times were **not
+   stimulus-locked** and nobody checked — `3.510` appeared at `gap=0.6` *and* `gap=2.5`, while press
+   times move as `settle + k·(hold+gap)`; (c) the free-running control was **blind by construction**
+   — 10 s, run *first*, before any press, so a press-armed-then-free-running mechanism could not
+   appear in it. Fixes: record the initial value **separately** from edges; assert that edge times
+   **move when the stimulus timing moves**; and run the null control **both before and after** a
+   confirmed stimulus, for a duration comparable to the real trials.
+   (`docs/bench_session_2.md` §8.1–8.3.)
+
+30. **If every access to a "global" has the form `disp(rX)`, it is a STRUCT FIELD — and treating it
+   as a global is what manufactures saturation.** All 33 reads covering `0x40008E76` are
+   `e_lwz rX,0x8c(r4/r5/r6/r7/r31)`, never an absolute load, and four sampled sites in different
+   functions all build the base identically (`e_lis rX,0x4001` + `e_add16i rX,rX,-0x7218` =
+   `0x40008DE8`). So `APP_req_word_74` is **field +0x8C of one global body-control struct**, and the
+   project's other named cells are its neighbours: `APP_body_cmd_bus` = base+0x70,
+   `APP_req_word_70` = base+0x88, `APP_lock_request_input` = base−0xBC. That last offset is the very
+   `-0xBC` recorded in rule 16 — **the same struct was implicated long before it was recognised.**
+   `APP_body_cmd_bus`'s notorious **226 references** are therefore not 226 uses of one variable but
+   accesses to a struct the whole subsystem shares; every reference-based join on it looked
+   saturated for a structural reason. Before declaring a cell "a shared bus with too many refs to
+   discriminate", **check whether its accesses are field offsets off a common base, and enumerate
+   the struct instead.** Corollary: a constant base at every site means ONE instance — do not assume
+   multiple instances without checking, and do not treat field reads as ambiguous when they are not.
+   (`docs/bench_session_2.md` §9.2–9.4.)
+
+31. **A DEBUG TOOL IS AN INSTRUMENT — validate it against known-truth bytes before believing one
+   word of its output, and never attach an unvalidated one to a live ECU.** The calandoa `xpc56`
+   OpenOCD fork connected, matched the IDCODE, printed `=== DBG ENTER ===`, tracked OnCE OSR across
+   debug entry/exit (`0x221` ↔ `0x201`), and then returned `0x00000000` from `mdw` at **every**
+   address — including `0x000DE278`, where the VBF we had just flashed guarantees
+   `70e8e000 30e719c4`. `reg` showed PC, MSR and all 32 GPRs as zero marked `(dirty)`: the cache was
+   never populated. It would have been easy to write that up as "flash reads as erased" or "debug is
+   censored"; both would have been fiction. Three things this cost, each generalisable:
+   - **Ground truth must be external and independent.** The acceptance test is `mdw 0x000DE278` ==
+     `70e8e000 …`, taken from the image we flashed — not "the value looks plausible".
+   - **Bisect the stack with a check the silicon defines, and change ONE variable at a time.**
+     Reading IDCODE at 32…256-bit scan lengths has a ground truth no reasoning can distort: it
+     passed 10/10, proving the transport healthy. ⚠ An earlier bisect using a BYPASS shift blamed the
+     fork's CMSIS-DAP driver — **wrong**, because it swapped host driver *and* probe firmware at
+     once; holding firmware fixed showed stock OpenOCD failing identically. See rule 34.
+   - **Working subsystems do not vouch for the broken one.** TAP addressing, OnCE status reads and
+     scan integrity were all genuinely fine; the core still never entered debug mode.
+   ☠ **Operational corollary, learned repeatedly on hardware:** `xpc56_examine()` calls
+   `debug_enter()` during `init`, so *merely connecting halts the CPU*; its broken state tracking
+   then makes `resume` a silent no-op (`Already running`) and `exit` leaves the core stopped. The BCM
+   goes silent on CAN, and `-c 'init; resume; exit'` cannot help because `init` re-halts first. A
+   **50 ms nRESET pulse recovers a shallow halt** (one caused by a bare `init`), but **not** a deep
+   one — after any CPUSCR/GPR-sweep session, 250 ms / 1 s / 3 s pulses all failed and a **physical
+   power cycle was required**. Before attaching any debugger to a live module: **prove you can get
+   out before you go in, and keep power access available regardless.**
+   (`docs/jtag_bringup.md` §5, §7.)
+
+32. **Two devices of the same model are not the same device — read the identity, do not infer it.**
+   Bench #2 was assumed to be the probe-bank unit because it answered on the same bus. `bcmflash.py
+   ident` showed a completely different module: `GV6T-14C094-AJ` / PBL V014 / serial `007670223726`,
+   every identifier differing from bench #1's `JV6T-14C094-AD`. Had the assumption stood, Ghidra
+   addresses from one image would have been applied to different firmware. **Rule 5's "never mix
+   projects" applies to hardware too.** Corollary: after reflashing one block, the unit is a
+   *hybrid* — bench #2 now runs the JV6T application over a GV6T calibration and GV6T hardware, so
+   **code addresses are valid while behaviour is not comparable**. State which layer a claim rests
+   on. And record physical condition with the identity: this unit has **no relays fitted**, so an
+   absent actuation there is not evidence of anything.
+
+33. **A "no effect" result from a GPIO/pin operation is meaningless until you prove the pin MOVED —
+   and a pin driven high to "release" is reading your own output.** Five nRESET pulse experiments
+   (100 ms → 5 s, plus stock OpenOCD `jtag_reset 1 1`) all reported failure, and that was written up
+   as "nRESET cannot clear OnCE debug state; only a power cycle recovers". **Every one was a no-op**,
+   for four stacked reasons, each of which independently nullified the test:
+   - **The command never reached the pin.** `DAP_SWJ_Pins` in the probe firmware indexed `select`/
+     `value` by **RP2350 GPIO number** (14–21) instead of the CMSIS-DAP **protocol bit** (0–7); the
+     fields are single bytes, so `select & (1U<<16)` never matches and `PIN_nRESET_OUT` was
+     **unreachable dead code**. Caught by a diagnostic worth reusing: patching the function produced
+     a **byte-identical binary even after `make clean`** — only dead code does that.
+   - **The same bug inverted the readback**, making all six pins read `0x00`, which nearly became the
+     conclusion "nRESET is not wired".
+   - **"High-Z" was not high-Z.** RP2350 pads reset with `PDE=1` (pull-down **on**) and `gpio_init()`
+     never touches pulls, so the probe kept pulling the line down against the target's *weak*
+     pull-up — potentially holding the ECU in reset for the whole session.
+   - **The test's own release selected nothing** (`pins(0, 0)` ⇒ `select=0`), so the pad stayed
+     driven low from the previous assert.
+   The earlier "wired and controllable ✓" was equally worthless: it drove the pin **actively high**
+   and read it back — the probe measuring its own output, a textbook rule-9 self-confirming control.
+   The valid test is to **stop driving** and ask the *board* to hold the line, and the decisive one
+   is **functional**: after the fixes a **50 ms** pulse took the BCM from 0 → 14/14 UDS responses.
+   ⇒ For any pin-level claim: prove the pin changes state with the drive removed, state the pull
+   configuration explicitly, and prefer a functional outcome over a readback. Corollary: on an
+   open-drain/bidirectional reset (MPC560x `RESET` is **bidirectional**, so the MCU drives it low
+   itself) **never drive high** — assert low, release to high-Z.
+   (`docs/jtag_bringup.md` §3–§4.)
+
+34. **Verify a bit index against the reference manual BEFORE building a mechanism on it — and check
+   a register's CONSTANT bits to prove you are decoding the right register at all.** The JTAG
+   investigation produced **four** confidently-reasoned, fully-written-up, wrong mechanisms, every
+   one rooted in an unchecked bit position or arithmetic prediction:
+   - `DAP_SWJ_Pins` indexed by GPIO number (14–21) instead of CMSIS-DAP protocol bit (0–7), making
+     `PIN_nRESET_OUT` unreachable **dead code** — so five "nRESET does nothing" experiments were all
+     no-ops. *(Tell: patching the function produced a byte-identical binary even after `make clean`.
+     Only dead code does that.)*
+   - Polling OSR `BIT(5)` and calling it DEBUG; `BIT(5)` is **STOP**, DEBUG is `BIT(6)`. The
+     "core enters debug then falls out after one scan" story was the core stopping and un-stopping.
+   - Decoding `0x001D` as an OnCE status register. The RM fixes OSR `b8=0, b9=1`; `0x001D` has
+     **b9=0**, so it cannot be an OSR — a **one-line constant-bit check** that invalidates the whole
+     decode, available the moment the RM was in hand.
+   - Retracting a **correct** BYPASS prediction (`out == in << 1`) as "invented arithmetic" because
+     the *inference* drawn from it was wrong. Withdrawing a true result to protect a false conclusion
+     is its own failure mode — separate the measurement from the interpretation.
+   ⇒ Practice: get the actual RM before decoding (`docs/refs/e200z0.pdf` was downloaded far too
+   late); **print every field BY NAME** in instrumentation rather than a single derived verdict, so
+   the raw evidence is visible; and where a register has documented constant bits, assert them first
+   — it is the cheapest possible proof that you are even talking to the right register.
+   Corollary: **change ONE variable at a time.** "The fork's driver corrupts scans" came from
+   swapping host driver *and* probe firmware together; holding firmware fixed showed stock OpenOCD
+   failing byte-for-byte identically. (`docs/jtag_bringup.md` §8.)
+
+35. **Falsify a WIRE FORMAT against the stock target before you build anything for it.** The peek
+   service's original envelope — `22 <DID> <addr32>`, "the handler ignores trailing bytes" — was
+   assumed from a decompile and looked obviously fine. Two minutes of `0x22` requests on **stock**
+   firmware refuted it **5/5**, and the *NRC identified the mechanism*: `0x31 requestOutOfRange`, not
+   `0x13 incorrectMessageLength`, because the handler **loops** over DID pairs, so trailing bytes are
+   parsed as bogus DIDs. The replacement (address carried **as two synthetic DIDs**) was then
+   confirmed the same way — `22 0631 401B 4099` → `total=10`. Building first would have cost a full
+   assemble → integrity-repair → 1.2 MiB flash cycle to learn the same fact. ⇒ Any protocol
+   assumption that can be tested on the unmodified target **must** be, before a line of VLE is
+   written. Corollary: **read the NRC, don't just note the failure** — it tells you *why*, and here
+   it pointed straight at the correct carrier.
+
+36. **A constant reading proves nothing about liveness — find a SELF-REFERENTIAL control.** After the
+   peek service passed two known-truth checks, four SRAM cells sampled 12× over 3 s returned **one
+   distinct value each**. "The cells are idle" is the tempting write-up and is indistinguishable from
+   a frozen snapshot, a cached read, or a decode that ignores its address argument (rule 8 again).
+   The decisive control needs no stimulus at all: **peek the UDS request buffer**, whose contents are
+   *the very request performing the peek*. `peek 0x4000A9E5 → 4000A9E5` — the returned value **is**
+   the address asked for, and the window slides byte-for-byte at ±1. No snapshot can manufacture
+   that. ⇒ When you need to prove an instrument reads *current* state and the subject won't move,
+   look for a cell whose content is **a function of the measurement itself**.
+
+37. **Assembler rejections are free evidence — mine them instead of guessing.** Three encoding facts
+   were settled by the assembler and the OEM's own bytes rather than by reasoning: `e_cmpli` takes a
+   **scaled IMM8** and cannot encode `0xDEAD`; Ghidra spells the arbitrary 16-bit compare
+   **`e_cmpl16i.` with the trailing dot**; and the correct spelling was proven by **reproducing an
+   OEM instruction byte-for-byte** (`e_cmpl16i. r26,0xf3ff` == `73DAABFF` at `0x10B7CC`) before being
+   used. Guessing a third spelling would have been another full build cycle. ⇒ When an assembler
+   refuses a line, find an instruction of that form **already in the image** and make the assembler
+   reproduce it; that is a ground truth no reasoning can distort. Same discipline as rule 3, applied
+   to mnemonics rather than to whole caves.
+
+38. **Before clobbering a register in a cave, COUNT its references in the enclosing function.** The
+   peek cave needed a scratch register across several `e_bl` calls. Rather than assume the PPC EABI
+   volatiles were free, a scan of all 391 instructions of the host function showed `r9`/`r10`/`r11`/
+   `r12` with **zero references** and `r8` with two. `r9` was chosen on measurement, not convention.
+   Cheap, and the failure mode it avoids (silent corruption of a live value) is one of the hardest
+   classes of bug to diagnose over CAN.
+
+39. **A verifier's own string matching is part of the instrument — a formatting mismatch reads as a
+   missing feature.** The peek verifier reported two FAILs, "calls the request-byte accessor" and
+   "calls the response-append accessor", while the listing it was searching plainly contained
+   `e_bl 0x001098de`. Cause: Ghidra prints addresses **zero-padded to 8 digits**, and the needle was
+   `0x1098de`. The right fix was to match the real format *and make the check stricter* (assert the
+   exact **call counts** the design implies: 4 request reads, 10 response appends), not to loosen it
+   until it passed. ⇒ When a verification step fails, establish whether the **artifact** or the
+   **checker** is wrong before changing either — and prefer fixing a checker *upward* in strictness.
+
 ---
 
 ## 2. Environment

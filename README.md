@@ -39,6 +39,10 @@ The technical work focuses on its role as a **CAN gateway** between HS-CAN (500k
 - ✅ **Shipped modification `rke-lock`** (on-vehicle proven): lets the remote key **lock the car with
   the ignition ON** (stock BCM blocks it), gated on **key-outside**. TX-mailbox injection on MS-CAN
   `0x3A`, layered into the same caves as acc-fix → **one combined VBF**. **§5.5**, `docs/rke-lock.md`.
+- ✅ **Bench tool `peek`** (hardware proven): **arbitrary memory read over UDS** while the app runs —
+  `22 DE AD <addr32>` → 4 bytes from any CFlash/SRAM address, default session, no JTAG. One hook +
+  438-byte cave riding the app's own UDS message objects. Retires the "we cannot see this cell
+  live" blocker on several open items. **§5.6**, `docs/peek_tool.md`.
 - ⚠️ **Module identity lives in the BOOTLOADER block** — `F111`/`F113`/`F180`/`F18C` are served by app
   readers from literals at `0x006B10..0x006BA8`, and the **VIN** sits at `0x008000`. No OEM VBF
   contains any of it, so it is **restorable only from the owner backup**. This module also reports
@@ -380,6 +384,43 @@ python3 work/rke-lock/verify.py          # CRCs + sum8 + cave byte-exactness + d
 ```
 Full method: **`docs/rke-lock.md`**.
 
+### 5.6 PEEK — arbitrary memory read over UDS (a) — BENCH PROVEN
+
+A **live debugger for the running application**: read any address while the BCM operates normally,
+over ordinary UDS, no JTAG. One hook + one 438-byte cave.
+
+```
+22 DE AD <A3> <A2> <A1> <A0>   ->   62 DE AD <4 bytes from 0xA3A2A1A0>
+```
+
+`work/peek/JV6T-14C094-AD_peek.VBF`, sha256
+`7b9ff1add5ba7250c58a330aee8ca8a5df35a43d4f91acda5a74a2adff1994fe`.
+
+| item | value |
+|---|---|
+| hook | `0x10B764` (`e_cmpli cr0,r26,0xee00` → `e_b 0x118000`), rejoins stock at `0x10B992` |
+| cave | `0x118000`, 438 B, 113 instructions |
+| mechanism | the app's UDS request/response **message objects** `0x4000538C`/`0x400053A4` and their accessors `0x1098DE` (get request byte) / `0x109916` (append response byte) |
+| session | default, **no `0x27` security gate** |
+| safety | read-only; out-of-range returns `EE EE EE EE` instead of dereferencing |
+
+**Proven on hardware** — two independent known-truth addresses matched the owner backup
+(`0x000DE278` → `70 E8 E0 00`, `0x00100000` → `E2 2A 48 0C`), the range check fired, and stock
+single- *and* multi-DID reads still work. Liveness was proven **self-referentially** (peeking the
+request buffer returns the address carried by that very request) because all sampled cells were
+static — and a constant reading is never by itself evidence of an idle cell (AGENTS.md rule 8).
+
+```bash
+python3 work/bench/peek_read.py accept          # MANDATORY controls -- run first, every session
+python3 work/bench/peek_read.py read 40008E74   # APP_req_word_74
+python3 work/bench/peek_read.py dump 40008DE8 160
+```
+
+This **supersedes the 17-probe bank** (`docs/live_debug_uds.md`): unlimited addresses instead of 17
+fixed bytes, re-targeted by a different request instead of a reflash.
+
+Operator guide: **`docs/peek_tool.md`**. Design + evidence: `docs/uds_peek_design.md`.
+
 ---
 
 ## 6. Document map (`docs/`)
@@ -400,6 +441,14 @@ Full method: **`docs/rke-lock.md`**.
 |---|---|
 | **`acc-fix.md`** | SWM cruise-button remap (§5.4): bit map, RES+ context gate, verified cave disassembly, integrity, rebuild steps. Porting guide: **`../AGENTS.md`**. |
 | **`rke-lock.md`** | RKE lock-with-ignition-on (§5.5): signals, one-shot strobe, combined VBF, on-vehicle design history. |
+
+**Bench debugging tools**
+
+| Document | What it is |
+|---|---|
+| **`peek_tool.md`** | **START HERE to read memory on the bench.** Operator guide for the `peek` service (§5.6): `22 DE AD <addr32>` → 4 bytes from anywhere, the mandatory `accept` controls, the two traps that manufacture false readings, and the port/rebuild pipeline. |
+| `uds_peek_design.md` | Why `peek` is built the way it is: the request/response message objects and their accessors, the refuted wire format, the refuted resident-SBL alternative, and the build/flash/acceptance record. |
+| `live_debug_uds.md` | The earlier fixed-address **probe bank** (17 repointed DID readers) — superseded by `peek` but cheaper, and the source of the sample-rate and stimulus-verification lessons. |
 
 **Evidence notes** (each feeds one of the above; none is a standalone conclusion)
 
@@ -466,6 +515,16 @@ derivation of all of them is in `docs/owner_flash_layers.md` §26.
 
 ## 8. Recommended next steps (resume here)
 
+> **A live memory reader now exists** (§5.6, `docs/peek_tool.md`). Several items below that were
+> blocked on "we cannot see this cell while the app runs" are now directly answerable: peek the cell
+> under stimulus instead of inferring it statically. **Run `peek_read.py accept` first** — and
+> remember a constant reading is not evidence of an idle cell (rule 8); §4.1 of `peek_tool.md` has
+> the self-referential liveness control.
+
+0. **Run the peek positive control** — poll `APP_lock_command` `0x40002E70` while pressing the fob
+   and capturing MS `0x3A` d3 simultaneously. Liveness is proven but **no cell has yet been observed
+   changing**; until probe and wire agree on a transition, "the peek tracks the bus" is unproven.
+
 > **Both ends of the CAN codec are now closed.** RX: `APP_rx_unpack_main` `0x048C6C` (§33). TX:
 > `VOL_sig_set8` `0x0FBDD4` / `APP_tx_compose` `0x04B7AA` (`docs/tx_pack_stage.md`), with
 > `tx_signal_dict.json` giving 384 injective `(signal cell → frame-image byte, mask, shift)` pairs.
@@ -521,6 +580,14 @@ helpers used by the build live in `work/`: `find_algo.py`, `check_internal.py`, 
 rke-lock in one VBF). RE helper scripts used while deriving the mod (all read-only, operate on
 `flash_merged.bin` / candump logs): `rke_field.py`, `rke_rxdesc.py`, `rke_coderefs.py`,
 `rke_bandrefs.py`, `rke_txwalk.py`, `rke_3a.py`, `rke_cavespace.py`. See §5.5 / `docs/rke-lock.md`.
+
+**PEEK build (`work/peek/`) — the bench memory-read tool (§5.6):** `asm_probe.py` (prove VLE
+mnemonics against OEM bytes) → `build_cave.py` → `build_vbf.py` → `verify.py`, plus `peek_blobs.json`
+and the artifact `JV6T-14C094-AD_peek.VBF`. Bench-side clients in `work/bench/`: **`peek_read.py`**
+(`accept` / `read` / `dump` — run `accept` first, every session) and the carrier falsifiers that ran
+on *stock* firmware before anything was built: `peek_format_probe.py` (refuted the trailing-byte
+format 5/5), `peek_carrier_probe.py`, `peek_carrier_raw.py` (proved multi-DID `0x22` is served).
+Static prerequisites: `work/owner/272`–`280`. See `docs/peek_tool.md` / `docs/uds_peek_design.md`.
 
 **Owner full-flash analysis (`work/owner/`, ~120 numbered scripts + helpers):** operate on
 `backups/owner-backup-20260911T090300Z/cflash.bin` and the `ghidra_proj_fullflash` project. Numbered in

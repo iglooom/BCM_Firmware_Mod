@@ -1,0 +1,59 @@
+{
+  "format": "SPC560B64L7 owner backup",
+  "module": "Ford BCM (bench #2 - JTAG unit)",
+  "mcu": "SPC560B64L7 / MPC5607B, PowerPC e200z0h, big-endian VLE",
+  "captured_utc": "2026-09-12T10:49:09Z",
+  "identity": {
+    "F188_application_sw_part": "JV6T-14C094-AD",
+    "F124_calibration_part": "GV6T-14C095-AK",
+    "F111_ecu_hardware": "GV6T-14F119-EB",
+    "F113_ecu_core_assembly": "GV6T-14A073-EF",
+    "F180_bootloader": "FORD-PBL-V014",
+    "F18C_serial_number": "007670223726",
+    "note": "HYBRID UNIT: JV6T application flashed onto GV6T hardware with the GV6T calibration left in place. Code addresses match the Ghidra DB; BEHAVIOUR is not comparable to bench #1. PHYSICAL: partially disassembled, NO RELAYS FITTED - absent actuation on this unit is not evidence of anything."
+  },
+  "method": {
+    "loader": "OEM SBL DV6T-14C097-AB with an appended seventh SRAM block at 0x40006000",
+    "reader": "work/sbl-upload/build_backup_reader.py (bounded, SRAM-resident, no flash-controller writes)",
+    "transport": "raw CAN0 id 0x5A5, records of [address:u32-be][data:u32], completion marker FFFFFFFF#444F4E45",
+    "host": "work/sbl-upload/run_chunked_backup.py"
+  },
+  "regions": [
+    {
+      "file": "cflash.bin",
+      "description": "code flash (PBL, calibration, application, remaining physical CFlash)",
+      "start": "0x00000000",
+      "end_exclusive": "0x00180000",
+      "length_bytes": 1572864,
+      "sha256": "f905a27131e7da32c04868a3dec23d94bcfa9e96be8e325f56553c89ccb13edd"
+    },
+    {
+      "file": "shadow.bin",
+      "description": "flash shadow array (censorship / NV config)",
+      "start": "0x00200000",
+      "end_exclusive": "0x00204000",
+      "length_bytes": 16384,
+      "sha256": "2b4e703abd8e8b28857a3e519b7815876956c402af8467b1a1f4aef8a56b16ce"
+    },
+    {
+      "file": "dflash.bin",
+      "description": "data flash (EEPROM emulation)",
+      "start": "0x00800000",
+      "end_exclusive": "0x00810000",
+      "length_bytes": 65536,
+      "sha256": "0d1b03df9e8420205eaefad5f3ee2585f7293dc7ffde651db6f26e7fc25c92b4"
+    }
+  ],
+  "verification": {
+    "app_blocks_vs_flashed_vbf": "JV6T-14C094-AD.VBF",
+    "blocks_checked": 2,
+    "blocks_matching": 2,
+    "byte_exact": true
+  },
+  "censorship": {
+    "NVSCC0_0x203DE0": "0x55AA55AA",
+    "NVSCC1_0x203DE4": "0x55AA55AA",
+    "censored": false,
+    "interpretation": "0x55AA55AA = factory uncensored: internal flash enabled, Nexus/JTAG debug enabled, no password required (AN3787)"
+  }
+}

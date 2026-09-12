@@ -1,0 +1,11 @@
+{
+ "vbf": "/home/gl/Projects/ford/BCM/Research/work/peek/JV6T-14C094-AD_peek.VBF",
+ "sha256": "7b9ff1add5ba7250c58a330aee8ca8a5df35a43d4f91acda5a74a2adff1994fe",
+ "cave_addr": 1146880,
+ "cave_len": 438,
+ "hook_addr": 1095524,
+ "magic": 57005,
+ "scratch": 1073811472,
+ "sum8": 24294,
+ "crc32": 1832239611
+}
