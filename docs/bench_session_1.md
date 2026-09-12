@@ -164,7 +164,91 @@ producer just because producers write `0x6`.
 
 ---
 
-## 5. 🔑 The relay clicks — a better observable than CAN
+## 5. 🔑 The relay clicks — now a MEASURED channel, and it proves two relays (a)
+
+**User observations, mid-session:** (1) the BCM's lock relays click audibly, because with no
+DDM/PDM present it falls back to driving the lock motors over its **hard-wired outputs**; (2) *"the
+first two clicks have a different pitch from the last — like different relays."*
+
+Both are now instrumented. The laptop mic sits near the BCM; `work/bench/click_detect.py` records
+and onset-detects, `bench_ab.py` runs CAN + audio simultaneously and aligns them,
+`click_spectra.py` fingerprints each click. No extra hardware was needed.
+
+### 5.1 The strobe→click correspondence is exact (a)
+
+LOCK trial, 3 presses. After fitting the audio/CAN start offset by cross-correlation
+(**+0.989 s**, the recorder's device-open latency):
+
+| CAN strobe (s) | d3 | acoustic click, aligned (s) | residual |
+|---|---|---|---|
+| 2.500 | `01` | 2.510 | +10 ms |
+| 3.000 | `01` | 3.020 | +20 ms |
+| 3.550 | `02` | 3.540 | −10 ms |
+| 4.950 | `01` | 4.971 | +21 ms |
+| 5.500 | `01` | 5.480 | −20 ms |
+| 6.000 | `02` | 6.000 | 0 ms |
+| 7.450 | `01` | 7.430 | −20 ms |
+| 7.950 | `01` | 7.940 | −10 ms |
+| 8.450 | `02` | 8.460 | +10 ms |
+
+**9 strobes, 9 loud clicks, every residual ≤ 21 ms.** The `d1` bit6 execute strobe corresponds
+**1:1 with a physical actuation** — the strongest possible confirmation that it is the actuation
+command, and it is now *physical* evidence rather than a claim about a byte.
+
+### 5.2 The pitch difference is real — and it tracks the COMMAND (a)
+
+Spectral centroid of each click, labelled by the `d3` value of its matched strobe:
+
+| command | n | centroid mean | sd | range |
+|---|---|---|---|---|
+| `d3=01` LOCK | 6 | **7307.6 Hz** | 51.2 | 7226.6 – 7360.7 |
+| `d3=02` UNLOCK | 3 | **7132.5 Hz** | 22.6 | 7109.1 – 7163.1 |
+
+The classes are **perfectly separable**: lowest LOCK (7226.6) sits 63.5 Hz above highest UNLOCK
+(7163.1), so a single threshold at ~7195 Hz classifies **9/9 clicks with zero errors**.
+
+Acceptance test (rule 9 — two groups always differ *a bit*; the question is whether they differ more
+than members of the same group): on the normalised band profile, between-class distance is **0.168**
+versus within-class **0.025 / 0.007** — a ratio of **10.6**, against a label-shuffled null of mean
+1.05 / 95th-pct 1.53, **p = 0.005**.
+
+⇒ **The user's ear was right: these are two physically distinct relays** — a lock relay and an
+unlock relay — and the acoustic signature alone identifies which one fired.
+
+**This is a genuinely new capability.** The acoustic channel can now distinguish *which actuator*
+ran, independently of CAN. That is exactly the observable open item 41 needs, and it is finer than
+anything the CAN bus exposes.
+
+### 5.3 The nibble-1 triplet, explained
+
+The fixed triplet from §4b is now fully resolved: each LOCK press produces **LOCK, LOCK (+0.51 s),
+UNLOCK (+0.52 s)** — identical across all three presses, and confirmed acoustically on two distinct
+relays. So the BCM really does drive the unlock actuator ~1 s after a lock press on this bench
+configuration. Whether that is anti-lockout, a DDM-absent fallback, or the re-strobe behaviour of
+`rke-lock.md` §7 is **not yet established** and deserves a dedicated trial.
+
+### 5.4 ⚠ Two instrument bugs found and fixed (both would have produced false results)
+
+1. **Amplitude classes must be separated before matching.** Two acoustic classes are present: relay
+   actuations at snr ≈ 300–410, and a quiet class at snr ≈ 9. Matching against *all* events forced
+   the tolerance from ~20 ms out to 250 ms and made the fit **indistinguishable from shuffled
+   noise**. Matching the loud class only gives 9/9 at ≤21 ms. `--snr-min` now defaults to 100 and
+   `--tol` to 50 ms.
+2. **MAD collapse.** With `median + k·MAD` thresholding, a recording whose envelope is more than
+   half (near-)constant yields `mad ≈ 0`, the threshold collapses to ~0, and **every** sample
+   qualifies: one contaminated take reported **74 events with snr ≈ 10⁸**. That is a broken
+   instrument, not a loud room. Fixed with a degeneracy flag, a std fallback, and an absolute floor
+   at 2 % of envelope peak. **Regression:** the good trial still yields its 9 clicks; the bad one now
+   yields **0** instead of 74.
+
+A **contamination guard** was added to `bench_ab.py`: a trial with a degenerate threshold, or with
+more than 3× as many loud events as strobes, is **rejected outright** rather than analysed. The
+`nibble 3` acoustic trial was discarded under this rule (room noise, user-confirmed) — so
+**whether `d3=06` actuates a relay is still unmeasured**, and must be re-run in a quiet room.
+
+---
+
+## 5x. 🔑 Why the relay channel matters
 
 **User observation, mid-session: the BCM's lock relays click audibly during these trials.** With no
 DDM/PDM present, the BCM falls back to driving the lock motors over its **hard-wired outputs**.
@@ -188,15 +272,18 @@ into a *logged* signal with timestamps, correlatable against the candump — tur
 
 ## 6. Revised priorities for session 2
 
-1. **Instrument the relay** (clamp/opto → a logged channel). Converts the best observable in the
-   rig from audible to recorded, and is the acceptance test for everything below.
-2. **Command-enum sweep** (`rfa_sim.py sweep`) — build the full enum → `d3` table, and test the
-   static claim that `(code & 0xF) == 1` is LOCK. This the rig can do *today*, uncontended.
+0. **Re-run the `d3=06` acoustic trial in a quiet room** — the one measurement that was lost to
+   contamination, and the question the acoustic channel was built to answer: *does the third command
+   actuate a relay at all, and which one?* Please keep the room quiet for ~15 s per trial.
+1. ~~Instrument the relay~~ — **done**, via the laptop mic (§5). No hardware needed.
+2. **Command-enum sweep** — done for `d3`; re-run with audio to get the actuator for each enum.
 3. **The timed feature (item 42)** — predict and measure: enum 3 should produce a timed change in
    HS `0x380` d4 / MS `0x1A8` d0 / `0x1B0` d2 / `0x290` d0 / `0x370` d4, of duration
    `DAT_4000588F × 50` ticks. A falsifiable prediction the decode does not already know.
 4. **Item 30 (ignition gate)** — blocked until an ignition input can be asserted; see §2.
-5. **Item 41 (which consumer actuates)** — the patch-probe, now with the relay as the observable.
+5. **Item 41 (which consumer actuates)** — the patch-probe, now with a **relay-discriminating**
+   observable: the acoustic signature identifies *which* relay fired, so a probe no longer needs to
+   encode its marker into a CAN byte at all.
 
 ---
 
